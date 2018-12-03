@@ -1,0 +1,28 @@
+{
+  "field1" : "value1",
+  "innerObject1" : {
+    "field2" : "value2"
+  },
+  "array1" : ["v1", "v2", "v3"],
+  "arrayOfObjects" : [
+    {
+      "field3" : "value3",
+      "field4" : "value4",
+      "field5" : "value5"
+    },
+    {
+      "field3" : "value6",
+      "field5" : "value8"
+    },
+    {
+      "field3" : "value9",
+      "field4" : "value10",
+      "field5" : "value11"
+    }
+  ],
+  "innerObject2" : {
+    "innerObject3" : {
+      "field6" : "value12"
+    }
+  }
+}

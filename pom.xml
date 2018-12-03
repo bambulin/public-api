@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.whalebone.public-api</groupId>
+    <artifactId>public-api</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>ejb</module>
+        <module>rest</module>
+        <module>ear</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <java.version>1.8</java.version>
+        <ejb.version>3.2</ejb.version>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
+        <maven.wildfly.plugin.version>2.0.0.Final</maven.wildfly.plugin.version>
+        <maven.ear.plugin.version>3.0.1</maven.ear.plugin.version>
+        <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
+        <maven.ejb.plugin.version>3.0.1</maven.ejb.plugin.version>
+
+        <wildfly.version>14.0.1.Final</wildfly.version>
+
+        <com.google.code.gson.gson.version>2.8.5</com.google.code.gson.gson.version>
+        <org.apache.commons.commons-lang3.version>3.8.1</org.apache.commons.commons-lang3.version>
+        <org.apache.commons.commons-collections4.version>4.1</org.apache.commons.commons-collections4.version>
+        <org.projectlombok.lombok.version>1.18.4</org.projectlombok.lombok.version>
+        <com.google.guava.guava.version>27.0-jre</com.google.guava.guava.version>
+
+        <elastic.version>1.7.1</elastic.version>
+        <es.jna.version>4.1.0</es.jna.version>
+
+        <!-- test depedencies -->
+        <org.testng.testng.version>6.14.3</org.testng.testng.version>
+        <org.hamcrest.java-hamcrest.version>2.0.0.0</org.hamcrest.java-hamcrest.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.whalebone.public-api</groupId>
+                <artifactId>ejb</artifactId>
+                <version>${project.version}</version>
+                <type>ejb</type>
+            </dependency>
+            <dependency>
+                <groupId>io.whalebone.public-api</groupId>
+                <artifactId>rest</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>wildfly-javaee8-with-tools</artifactId>
+                <version>${wildfly.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${com.google.code.gson.gson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${org.apache.commons.commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${org.apache.commons.commons-collections4.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${org.testng.testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${org.hamcrest.java-hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <!--uncomment if java 9 is used-->
+                    <!--<compilerArgs>-->
+                        <!--<arg>&#45;&#45;add-modules=java.xml.ws.annotation</arg>-->
+                    <!--</compilerArgs>-->
+                </configuration>
+            </plugin>
+
+            <!-- The WildFly plugin deploys your ear to a local JBoss
+                AS container -->
+            <!-- Due to Maven's lack of intelligence with EARs we need
+                to configure the wildfly maven plugin to skip deployment for all modules.
+                We then enable it specifically in the ear module. -->
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>${maven.wildfly.plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
