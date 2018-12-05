@@ -4,6 +4,7 @@ import io.whalebone.publicapi.rest.validation.ValidInteger;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.HeaderParam;
 import java.io.Serializable;
 
 abstract class AbstractEndpoint implements Serializable {
@@ -18,6 +19,17 @@ abstract class AbstractEndpoint implements Serializable {
     private String domain;
     @QueryParam("days")
     private String daysParam;
+    @HeaderParam("client_id")
+    private String clientId;
+
+    //TODO: checks for validity
+    String getClientId() { return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
 
     String getClientIp() {
         return clientIp;
