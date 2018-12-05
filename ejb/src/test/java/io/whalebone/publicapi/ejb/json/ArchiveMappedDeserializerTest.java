@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.whalebone.publicapi.ejb.FileUtils;
 import io.whalebone.publicapi.ejb.dto.EReason;
-import io.whalebone.publicapi.ejb.dto.EThreadType;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
 import io.whalebone.publicapi.ejb.dto.GeoIpDTO;
 import org.testng.annotations.Test;
@@ -29,7 +29,7 @@ public class ArchiveMappedDeserializerTest {
                 .registerTypeAdapter(GeoIpDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
                 .registerTypeAdapter(EReason.class, new LowercaseEnumTypeAdapter<>(EReason.class))
-                .registerTypeAdapter(EThreadType.class, new LowercaseEnumTypeAdapter<>(EThreadType.class))
+                .registerTypeAdapter(EThreatType.class, new LowercaseEnumTypeAdapter<>(EThreatType.class))
                 .create();
     }
 
@@ -48,7 +48,7 @@ public class ArchiveMappedDeserializerTest {
         assertThat(event.getIdentifier(), is(arrayWithSize(2)));
         assertThat(event.getIdentifier(), is(arrayContaining("identifier", "identifier2")));
         assertThat(event.getType(), is(arrayWithSize(2)));
-        assertThat(event.getType(), is(arrayContaining(EThreadType.PHISHING, EThreadType.MALWARE)));
+        assertThat(event.getType(), is(arrayContaining(EThreatType.PHISHING, EThreatType.MALWARE)));
         assertThat(event.getGeoIp(), is(notNullValue()));
         assertThat(event.getGeoIp().getLatitude(), is(39.56450000000001));
         assertThat(event.getGeoIp().getLongitude(), is(-75.597));

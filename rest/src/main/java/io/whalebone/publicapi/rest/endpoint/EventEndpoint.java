@@ -3,7 +3,7 @@ package io.whalebone.publicapi.rest.endpoint;
 import io.whalebone.publicapi.ejb.PublicApiService;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
 import io.whalebone.publicapi.ejb.dto.EReason;
-import io.whalebone.publicapi.ejb.dto.EThreadType;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
 import io.whalebone.publicapi.rest.EnumParamUtils;
 import io.whalebone.publicapi.rest.validation.EnumValue;
@@ -34,7 +34,7 @@ public class EventEndpoint extends AbstractEndpoint {
         this.typeParam = typeParam;
     }
 
-    @EnumValue(EThreadType.class)
+    @EnumValue(EThreatType.class)
     public String getTypeParam() {
         return typeParam;
     }
@@ -48,9 +48,9 @@ public class EventEndpoint extends AbstractEndpoint {
         return reasonParam;
     }
 
-    private EThreadType getType() {
+    private EThreatType getType() {
         if (StringUtils.isNotBlank(typeParam)) {
-            return EnumParamUtils.getEnumValue(EThreadType.class, typeParam);
+            return EnumParamUtils.getEnumValue(EThreatType.class, typeParam);
         }
         return null;
     }
