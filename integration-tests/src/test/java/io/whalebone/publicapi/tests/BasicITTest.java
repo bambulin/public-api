@@ -23,34 +23,25 @@ import java.net.HttpURLConnection;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
-public class BasicITTest extends Arquillian{
+public class BasicITTest extends Arquillian {
 
     @Deployment(name = "ear", testable = false)
     public static Archive<?> createTestArchive() {
-        EnterpriseArchive ear = ShrinkWrap.create(ZipImporter.class, "public-api.ear").importFrom(new File("../ear/target/public-api.ear")).as(EnterpriseArchive.class);
-        ear.getAsType(JavaArchive.class, "public-api-ejb.jar")
-                .addClass(BasicITTest.class);
-
+        EnterpriseArchive ear = ShrinkWrap.create(ZipImporter.class, "public-api.ear")
+                .importFrom(new File("../ear/target/public-api.ear"))
+                .as(EnterpriseArchive.class);
+        ear.getAsType(JavaArchive.class, "public-api-ejb.jar").addClass(BasicITTest.class);
         return ear;
-
-    }
-
-    @Test
-    public void trivialTest1() throws Exception {
-        assertEquals(1, 1);
     }
 
     @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void trivialTest2(@ArquillianResource URL context) throws Exception {
-        assertEquals(1, 1);
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?days=1"), HttpMethod.GET);
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
-
     }
-
 }
