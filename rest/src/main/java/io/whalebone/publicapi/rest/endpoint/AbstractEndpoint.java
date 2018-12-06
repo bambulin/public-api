@@ -11,6 +11,9 @@ abstract class AbstractEndpoint implements Serializable {
     private static final long serialVersionUID = -2618560708692266417L;
     private static final int DEFAULT_DAYS = 1;
 
+    //TODO will be discussed
+    @HeaderParam("whalebone_client_id")
+    private String clientId;
     @QueryParam("client_ip")
     private String clientIp;
     @QueryParam("resolver_id")
@@ -19,10 +22,7 @@ abstract class AbstractEndpoint implements Serializable {
     private String domain;
     @QueryParam("days")
     private String daysParam;
-    @HeaderParam("client_id")
-    private String clientId;
 
-    //TODO: checks for validity
     String getClientId() { return clientId;
     }
 
