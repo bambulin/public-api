@@ -16,8 +16,12 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DnsTimeBucketDTOProducer {
+    private static final Logger logger = Logger.getLogger(DnsTimeBucketDTOProducer.class.getName());
+
     public static final String TIME_AGGREGATION = "by_time";
     public static final String TERM_AGGREGATION = "by_term";
 
@@ -48,7 +52,10 @@ public class DnsTimeBucketDTOProducer {
             Terms termsAggregation = hourBucket.getAggregations().get(TERM_AGGREGATION);
             if (termsAggregation != null && CollectionUtils.isNotEmpty(termsAggregation.getBuckets())) {
                 for (Terms.Bucket termBucket : termsAggregation.getBuckets()) {
-                    timeBucket.getBuckets().add(buildAggregateBucket(termBucket));
+                    DnsAggregateBucketDTO aggregateBucket = buildAggregateBucket(termBucket);
+                    if (aggregateBucket != null) {
+                        timeBucket.getBuckets().add(aggregateBucket);
+                    }
                 }
             }
             if (CollectionUtils.isEmpty(timeBucket.getBuckets())) {
@@ -58,7 +65,7 @@ public class DnsTimeBucketDTOProducer {
         return buckets;
     }
 
-    private DnsAggregateBucketDTO buildAggregateBucket(Terms.Bucket termBucket) {
+    DnsAggregateBucketDTO buildAggregateBucket(Terms.Bucket termBucket) {
         if (aggregateType == null) {
             throw new IllegalStateException("Term aggregation without aggregate type is not possible");
         }
@@ -70,7 +77,12 @@ public class DnsTimeBucketDTOProducer {
                 // elastic use case insensitive search by default if there is no appropriate mapping
                 // and returns aggregation keys as lowercase. For such a case we use uppercase for the key
                 // to mach the enum values correctly
-                aggregateBucket.setType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKey())));
+                try {
+                    aggregateBucket.setType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKey())));
+                } catch (IllegalArgumentException iae) {
+                    logger.log(Level.WARNING, "Unknown query type value \"{0}\"", termBucket.getKey());
+                    return null;
+                }
                 break;
             case TLD:
                 aggregateBucket.setTld(termBucket.getKey());

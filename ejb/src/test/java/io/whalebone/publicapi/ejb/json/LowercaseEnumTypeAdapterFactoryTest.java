@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.testng.Assert.assertNull;
 
 public class LowercaseEnumTypeAdapterFactoryTest {
 
@@ -31,9 +32,11 @@ public class LowercaseEnumTypeAdapterFactoryTest {
         assertThat(threadType, is(EThreatType.C_AND_C));
     }
 
-    @Test(expectedExceptions = IOException.class)
+    @Test
     public void deserializationUnknownConstantTest() throws Exception {
-        adapter.fromJson("\"unknown\"");
+        EThreatType threatType = adapter.fromJson("\"unknown\"");
+
+        assertNull(threatType);
     }
 
     @Test
