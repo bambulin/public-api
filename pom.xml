@@ -13,6 +13,7 @@
         <module>ejb</module>
         <module>rest</module>
         <module>ear</module>
+        <module>integration-tests</module>
     </modules>
 
     <properties>
@@ -28,6 +29,7 @@
         <maven.ear.plugin.version>3.0.1</maven.ear.plugin.version>
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <maven.ejb.plugin.version>3.0.1</maven.ejb.plugin.version>
+        <version.surefire.plugin>2.16</version.surefire.plugin>
 
         <wildfly.version>14.0.1.Final</wildfly.version>
 
@@ -43,6 +45,13 @@
         <!-- test depedencies -->
         <org.testng.testng.version>6.14.3</org.testng.testng.version>
         <org.hamcrest.java-hamcrest.version>2.0.0.0</org.hamcrest.java-hamcrest.version>
+        <!-- what is this for ? -->
+        <version.arquillian_maven>1.0.0.Alpha2</version.arquillian_maven>
+        <org.jboss.arquillian.arquillian-bom.version>1.2.1.Final</org.jboss.arquillian.arquillian-bom.version>
+				<arquillian.container.remote.version>2.0.0.Final</arquillian.container.remote.version>
+        <arquillian.container.managed.version>2.1.1.Final</arquillian.container.managed.version>
+        <htmlunit.version>2.18</htmlunit.version>
+
     </properties>
 
     <dependencyManagement>
@@ -53,12 +62,14 @@
                 <version>${project.version}</version>
                 <type>ejb</type>
             </dependency>
+
             <dependency>
                 <groupId>io.whalebone.public-api</groupId>
                 <artifactId>rest</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
             </dependency>
+
             <dependency>
                 <groupId>org.wildfly.bom</groupId>
                 <artifactId>wildfly-javaee8-with-tools</artifactId>
@@ -72,16 +83,27 @@
                 <artifactId>gson</artifactId>
                 <version>${com.google.code.gson.gson.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${org.apache.commons.commons-lang3.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${org.apache.commons.commons-collections4.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>${org.jboss.arquillian.arquillian-bom.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -91,6 +113,7 @@
             <version>${org.testng.testng.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>java-hamcrest</artifactId>

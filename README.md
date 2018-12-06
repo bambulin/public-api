@@ -9,3 +9,8 @@
 ### usage
 
 see https://app.swaggerhub.com/apis/whalebone/whalebone-api/1
+
+### testing
+
+mvn integration-test -Parq-wildfly-managed
+assumes elastic running on ELASTIC_HOST, ELASTIC_PORT
