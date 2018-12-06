@@ -7,7 +7,6 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
