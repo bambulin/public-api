@@ -1,7 +1,7 @@
 package io.whalebone.publicapi.ejb.json;
 
 import com.google.gson.TypeAdapter;
-import io.whalebone.publicapi.ejb.dto.EThreadType;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -11,24 +11,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class LowercaseEnumTypeAdapterFactoryTest {
 
-    private TypeAdapter<EThreadType> adapter;
+    private TypeAdapter<EThreatType> adapter;
 
     public LowercaseEnumTypeAdapterFactoryTest() {
-        adapter = new LowercaseEnumTypeAdapter<>(EThreadType.class);
+        adapter = new LowercaseEnumTypeAdapter<>(EThreatType.class);
     }
 
     @Test
     public void deserializationTest() throws Exception {
-        EThreadType threadType = adapter.fromJson("\"blacklist\"");
+        EThreatType threadType = adapter.fromJson("\"blacklist\"");
 
-        assertThat(threadType, is(EThreadType.BLACKLIST));
+        assertThat(threadType, is(EThreatType.BLACKLIST));
     }
 
     @Test
     public void deserializationUsingAnnotationTest() throws Exception {
-        EThreadType threadType = adapter.fromJson("\"c&c\"");
+        EThreatType threadType = adapter.fromJson("\"c&c\"");
 
-        assertThat(threadType, is(EThreadType.C_AND_C));
+        assertThat(threadType, is(EThreatType.C_AND_C));
     }
 
     @Test(expectedExceptions = IOException.class)
@@ -38,14 +38,14 @@ public class LowercaseEnumTypeAdapterFactoryTest {
 
     @Test
     public void serializationTest() {
-        String serializedValue = adapter.toJson(EThreadType.BLACKLIST);
+        String serializedValue = adapter.toJson(EThreatType.BLACKLIST);
 
         assertThat(serializedValue, is("\"blacklist\""));
     }
 
     @Test
     public void serializationUsinAnnotationTest() {
-        String serializedValue = adapter.toJson(EThreadType.C_AND_C);
+        String serializedValue = adapter.toJson(EThreatType.C_AND_C);
 
         assertThat(serializedValue, is("\"c&c\""));
     }

@@ -6,7 +6,7 @@ import com.google.gson.GsonBuilder;
 import io.whalebone.publicapi.ejb.dto.EAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
 import io.whalebone.publicapi.ejb.dto.EReason;
-import io.whalebone.publicapi.ejb.dto.EThreadType;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.json.LowercaseEnumTypeAdapter;
 import io.whalebone.publicapi.ejb.json.ZonedDateTimeAdapter;
 
@@ -25,7 +25,7 @@ public class Resources {
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
                 .registerTypeAdapter(EAggregate.class, new LowercaseEnumTypeAdapter<>(EAggregate.class))
                 .registerTypeAdapter(EReason.class, new LowercaseEnumTypeAdapter<>(EReason.class))
-                .registerTypeAdapter(EThreadType.class, new LowercaseEnumTypeAdapter<>(EThreadType.class))
+                .registerTypeAdapter(EThreatType.class, new LowercaseEnumTypeAdapter<>(EThreatType.class))
                 .registerTypeAdapter(EDnsQueryType.class, new LowercaseEnumTypeAdapter<>(EDnsQueryType.class))
                 .create();
     }

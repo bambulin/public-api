@@ -5,7 +5,6 @@ import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.EAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
-import io.whalebone.publicapi.rest.ClientIdProvider;
 import io.whalebone.publicapi.rest.EnumParamUtils;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import io.whalebone.publicapi.rest.validation.RangedInteger;
@@ -13,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -24,8 +22,6 @@ public class DnsEndpoint extends AbstractEndpoint {
     private static final long serialVersionUID = 2399760037640668858L;
     private static final EAggregate DEFAULT_AGGREGATE = EAggregate.TYPE;
 
-    @Inject
-    private ClientIdProvider clientIdProvider;
     @EJB
     private PublicApiService publicApiService;
 
@@ -102,7 +98,7 @@ public class DnsEndpoint extends AbstractEndpoint {
     @Consumes("application/json;charset=UTF-8")
     public Response timeline() {
         DnsTimelineCriteria criteria = DnsTimelineCriteria.builder()
-                .clientId(clientIdProvider.getClientId())
+                .clientId(getClientId())
                 .type(getType())
                 .aggregate(getAggregate())
                 .clientIp(getClientIp())

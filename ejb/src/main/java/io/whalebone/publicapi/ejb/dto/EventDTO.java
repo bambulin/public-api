@@ -32,7 +32,7 @@ public class EventDTO implements Serializable, ArchiveMapped {
     @ArchiveMappedField("reason.fqdn")
     private String domain;
     @ArchiveMappedField("matched_iocs.classification.type")
-    private EThreadType[] type;
+    private EThreatType[] type;
     @ArchiveMappedField("matched_iocs.classification.identifier")
     private String[] identifier;
     @ArchiveMappedField("geoip")

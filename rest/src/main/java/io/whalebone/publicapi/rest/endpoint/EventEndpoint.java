@@ -1,12 +1,10 @@
 package io.whalebone.publicapi.rest.endpoint;
 
-import com.google.gson.Gson;
 import io.whalebone.publicapi.ejb.PublicApiService;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
 import io.whalebone.publicapi.ejb.dto.EReason;
-import io.whalebone.publicapi.ejb.dto.EThreadType;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
-import io.whalebone.publicapi.rest.ClientIdProvider;
 import io.whalebone.publicapi.rest.EnumParamUtils;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import io.whalebone.publicapi.rest.validation.RangedInteger;
@@ -14,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,8 +24,6 @@ public class EventEndpoint extends AbstractEndpoint {
 
     @EJB
     private PublicApiService publicApiService;
-    @Inject
-    private ClientIdProvider clientIdProvider;
 
     @QueryParam("type")
     private String typeParam;
@@ -39,7 +34,7 @@ public class EventEndpoint extends AbstractEndpoint {
         this.typeParam = typeParam;
     }
 
-    @EnumValue(EThreadType.class)
+    @EnumValue(EThreatType.class)
     public String getTypeParam() {
         return typeParam;
     }
@@ -53,9 +48,9 @@ public class EventEndpoint extends AbstractEndpoint {
         return reasonParam;
     }
 
-    private EThreadType getType() {
+    private EThreatType getType() {
         if (StringUtils.isNotBlank(typeParam)) {
-            return EnumParamUtils.getEnumValue(EThreadType.class, typeParam);
+            return EnumParamUtils.getEnumValue(EThreatType.class, typeParam);
         }
         return null;
     }
@@ -79,7 +74,7 @@ public class EventEndpoint extends AbstractEndpoint {
     @Consumes("application/json;charset=UTF-8")
     public Response search() {
         EventsCriteria criteria = EventsCriteria.builder()
-                .clientId(clientIdProvider.getClientId())
+                .clientId(getClientId())
                 .clientIp(getClientIp())
                 .days(getDays())
                 .reason(getReason())

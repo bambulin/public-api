@@ -47,7 +47,7 @@ public class Resources implements Serializable {
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
                 .registerTypeAdapter(EAggregate.class, new LowercaseEnumTypeAdapter<>(EAggregate.class))
                 .registerTypeAdapter(EReason.class, new LowercaseEnumTypeAdapter<>(EReason.class))
-                .registerTypeAdapter(EThreadType.class, new LowercaseEnumTypeAdapter<>(EThreadType.class))
+                .registerTypeAdapter(EThreatType.class, new LowercaseEnumTypeAdapter<>(EThreatType.class))
                 // DON'T register adapter for EDnsQueryType since archive has this enum vals defined with uppercase
                 .create();
     }

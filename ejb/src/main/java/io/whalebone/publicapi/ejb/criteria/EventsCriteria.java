@@ -1,14 +1,13 @@
 package io.whalebone.publicapi.ejb.criteria;
 
 import io.whalebone.publicapi.ejb.dto.EReason;
-import io.whalebone.publicapi.ejb.dto.EThreadType;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class EventsCriteria extends ClientCriteria {
-    private EThreadType type;
+    private EThreatType type;
     private EReason reason;
 
     @Builder
@@ -17,7 +16,7 @@ public class EventsCriteria extends ClientCriteria {
                           int days,
                           Integer resolverId,
                           String clientIp,
-                          EThreadType type,
+                          EThreatType type,
                           EReason reason) {
         super(clientId, domain, days, resolverId, clientIp);
         this.type = type;
