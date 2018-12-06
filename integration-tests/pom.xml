@@ -18,14 +18,12 @@
             <artifactId>arquillian-testng-container</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
             <version>${htmlunit.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -107,7 +105,6 @@
                 </dependency>
             </dependencies>
         </profile>
-
         <profile>
             <!-- An optional Arquillian testing profile that executes tests
                 in your WildFly instance -->
@@ -124,6 +121,5 @@
                 </dependency>
             </dependencies>
         </profile>
-
     </profiles>
 </project>

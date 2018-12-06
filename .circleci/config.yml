@@ -2,15 +2,14 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
       - image: circleci/openjdk:8-jdk
         environment:
           ELASTIC_CLUSTER: archive
           ELASTIC_HOST: 127.0.0.1
           ELASTIC_PORT: 9300
 
-# ELASTIC
-# Image repo: https://github.com/hugeox/elastic-docker
+      # ELASTIC
+      # Image repo: https://github.com/hugeox/elastic-docker
       - image: hugeox/sinkit-elastic:1.0
         environment:
           ES_CLUSTER: "archive"
@@ -30,13 +29,11 @@ jobs:
           key: public-api
       
       - run: mvn install -DskipTests
-# gets the project dependencies
       
       - save_cache: # saves the project dependencies
           key: public-api
           paths:
             - ~/.m2
-
 
       # run tests!
       # TODO: create managed profile in my pom

@@ -42,16 +42,15 @@
         <elastic.version>1.7.1</elastic.version>
         <es.jna.version>4.1.0</es.jna.version>
 
-        <!-- test depedencies -->
+        <!-- test dependencies -->
         <org.testng.testng.version>6.14.3</org.testng.testng.version>
         <org.hamcrest.java-hamcrest.version>2.0.0.0</org.hamcrest.java-hamcrest.version>
-        <!-- what is this for ? -->
+        <!-- arquillian test dependencies -->
         <version.arquillian_maven>1.0.0.Alpha2</version.arquillian_maven>
         <org.jboss.arquillian.arquillian-bom.version>1.2.1.Final</org.jboss.arquillian.arquillian-bom.version>
-				<arquillian.container.remote.version>2.0.0.Final</arquillian.container.remote.version>
+        <arquillian.container.remote.version>2.0.0.Final</arquillian.container.remote.version>
         <arquillian.container.managed.version>2.1.1.Final</arquillian.container.managed.version>
         <htmlunit.version>2.18</htmlunit.version>
-
     </properties>
 
     <dependencyManagement>
@@ -62,14 +61,12 @@
                 <version>${project.version}</version>
                 <type>ejb</type>
             </dependency>
-
             <dependency>
                 <groupId>io.whalebone.public-api</groupId>
                 <artifactId>rest</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
             </dependency>
-
             <dependency>
                 <groupId>org.wildfly.bom</groupId>
                 <artifactId>wildfly-javaee8-with-tools</artifactId>
@@ -77,25 +74,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${com.google.code.gson.gson.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${org.apache.commons.commons-lang3.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${org.apache.commons.commons-collections4.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
@@ -103,7 +96,6 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
     <dependencies>
@@ -113,14 +105,12 @@
             <version>${org.testng.testng.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>java-hamcrest</artifactId>
             <version>${org.hamcrest.java-hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>
@@ -136,7 +126,6 @@
                     <!--</compilerArgs>-->
                 </configuration>
             </plugin>
-
             <!-- The WildFly plugin deploys your ear to a local JBoss
                 AS container -->
             <!-- Due to Maven's lack of intelligence with EARs we need
@@ -152,5 +141,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
