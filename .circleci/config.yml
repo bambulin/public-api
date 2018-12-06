@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:8-jdk
+        environment:
+          ELASTIC_CLUSTER: archive
+          ELASTIC_HOST: 127.0.0.1
+          ELASTIC_PORT: 9300
+
+# ELASTIC
+# Image repo: https://github.com/hugeox/elastic-docker
+      - image: hugeox/sinkit-elastic:1.0
+        environment:
+          ES_CLUSTER: "archive"
+          ES_HEAP_SIZE: "256m"
+          ES_INT: "lo"
+          ES_SERVICE_NAME: "archive"
+          ES_NODE_MASTER: "true"
+          ES_NODE_DATA: "true"
+          ES_GROOVY_ENABLED: "true"
+          ES_SCRIPT_DISABLE: "false"
+          ES_MINIMUM_MASTER_NODES: "1"
+
+    steps:
+      - checkout
+
+      - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
+          key: public-api
+      
+      - run: mvn install -DskipTests
+# gets the project dependencies
+      
+      - save_cache: # saves the project dependencies
+          key: public-api
+          paths:
+            - ~/.m2
+
+
+      # run tests!
+      # TODO: create managed profile in my pom
+      - run: mvn integration-test -Parq-wildfly-managed 
