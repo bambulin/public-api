@@ -65,6 +65,7 @@
                 <dependency>
                     <groupId>org.wildfly.arquillian</groupId>
                     <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <version>${org.wildfly.arquillian.wildfly-arquillian-container-remote.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -80,6 +81,7 @@
                 <dependency>
                     <groupId>org.wildfly.arquillian</groupId>
                     <artifactId>wildfly-arquillian-container-managed</artifactId>
+                    <version>${org.wildfly.arquillian.wildfly-arquillian-container-managed.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
