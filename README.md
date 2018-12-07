@@ -1,6 +1,6 @@
 # Public-Api
 
-[![CircleCI](https://circleci.com/gh/kozeltom/public-api.svg?style=svg)](https://circleci.com/gh/kozeltom/public-api)
+[![CircleCI](https://circleci.com/gh/whalebone/public-api.svg?style=svg)](https://circleci.com/gh/whalebone/public-api)
 
 ### env vars
 
