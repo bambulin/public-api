@@ -47,5 +47,5 @@ jobs:
       - run: mvn integration-test -Parq-wildfly-managed
 
       - store_test_results:
-          path: rest/target/surefire-reports
+          path: integration-tests/target/surefire-reports
 
