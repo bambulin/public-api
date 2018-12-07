@@ -114,6 +114,15 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                            <reuseForks>true</reuseForks>
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
