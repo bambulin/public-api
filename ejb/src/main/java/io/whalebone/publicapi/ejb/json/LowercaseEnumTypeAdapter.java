@@ -11,8 +11,12 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LowercaseEnumTypeAdapter<E extends Enum<E>> extends TypeAdapter<E> {
+
+    private static final Logger logger = Logger.getLogger(LowercaseEnumTypeAdapter.class.getName());
 
     private Class<E> enumClass;
     private final Map<String, E> deserializationMap = new HashMap<>();
@@ -55,7 +59,8 @@ public class LowercaseEnumTypeAdapter<E extends Enum<E>> extends TypeAdapter<E> 
         } else {
             String value = reader.nextString();
             if (!deserializationMap.containsKey(value)) {
-                throw new IOException("Unknown enum value '" + value + "' of enum " + enumClass.getCanonicalName());
+                logger.log(Level.WARNING, "Unknown enum value \"{0}\" of enum {1}", new Object[] {value, enumClass});
+                return null;
             }
             return deserializationMap.get(value);
         }
