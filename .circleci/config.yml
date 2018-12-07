@@ -22,13 +22,21 @@ jobs:
           ES_SCRIPT_DISABLE: "false"
           ES_MINIMUM_MASTER_NODES: "1"
 
+    working_directory: ~/public-api
+
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+
     steps:
       - checkout
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
-          key: public-api
+          keys:
+          - public-api-{{ checksum "pom.xml" }}
+          - public-api-
       
-      - run: mvn install -DskipTests
+      - run: mvn clean install -DskipTests
       
       - save_cache: # saves the project dependencies
           key: public-api
@@ -36,5 +44,8 @@ jobs:
             - ~/.m2
 
       # run tests!
-      # TODO: create managed profile in my pom
-      - run: mvn integration-test -Parq-wildfly-managed 
+      - run: mvn integration-test -Parq-wildfly-managed
+
+      - store_test_results:
+          path: integration-tests/target/surefire-reports
+

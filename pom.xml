@@ -29,7 +29,7 @@
         <maven.ear.plugin.version>3.0.1</maven.ear.plugin.version>
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <maven.ejb.plugin.version>3.0.1</maven.ejb.plugin.version>
-        <maven.surefire.plugin.version>3.0.0-M1</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>2.20.1</maven.surefire.plugin.version>
 
         <wildfly.version>14.0.1.Final</wildfly.version>
 
@@ -104,6 +104,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>
@@ -143,6 +144,16 @@
                 <version>${maven.wildfly.plugin.version}</version>
                 <configuration>
                     <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <!-- due to circle CI surefire issue surefire must be run in all modules without systemClassLoader -->
+                    <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                    <reuseForks>true</reuseForks>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
         </plugins>

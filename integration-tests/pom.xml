@@ -27,31 +27,28 @@
     </dependencies>
 
     <build>
-        <!-- Set the name of the war, used as the context root when the app is deployed -->
         <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                    <!-- circle CI surefire issue -->
+                    <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                    <reuseForks>true</reuseForks>
+                    <useSystemClassLoader>false</useSystemClassLoader>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
         <profile>
-            <!-- The default profile skips all tests, though you can tune
-                it to run just unit tests based on a custom pattern -->
-            <!-- Seperate profiles are provided for running all tests, including
-                Arquillian tests that execute in the specified container -->
             <id>default</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${maven.surefire.plugin.version}</version>
-                        <configuration>
-                            <skipTests>true</skipTests>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <!-- An optional Arquillian testing profile that executes tests
@@ -59,7 +56,7 @@
             <!-- Run with: mvn clean test -Parq-wildfly-remote -->
             <id>arq-wildfly-remote</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
@@ -69,6 +66,22 @@
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+            <build>
+                <finalName>${project.artifactId}</finalName>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                            <!-- circle CI surefire issue -->
+                            <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                            <reuseForks>true</reuseForks>
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <!-- An optional Arquillian testing profile that executes tests
@@ -77,6 +90,9 @@
                 test, shutting it down when done -->
             <!-- Run with: mvn clean test -Parq-wildfly-managed -->
             <id>arq-wildfly-managed</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.wildfly.arquillian</groupId>
@@ -86,6 +102,7 @@
                 </dependency>
             </dependencies>
             <build>
+                <finalName>${project.artifactId}</finalName>
                 <plugins>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
@@ -110,6 +127,17 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefire.plugin.version}</version>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                            <!-- circle CI surefire issue -->
+                            <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                            <reuseForks>true</reuseForks>
+                            <useSystemClassLoader>false</useSystemClassLoader>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

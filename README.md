@@ -1,5 +1,7 @@
 # Public-Api
 
+[![CircleCI](https://circleci.com/gh/kozeltom/public-api.svg?style=svg)](https://circleci.com/gh/kozeltom/public-api)
+
 ### env vars
 
 - ELASTIC_HOST=localhost
