@@ -104,6 +104,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>
@@ -143,6 +144,16 @@
                 <version>${maven.wildfly.plugin.version}</version>
                 <configuration>
                     <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <!-- due to circle CI surefire issue surefire must be run in all modules without systemClassLoader -->
+                    <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                    <reuseForks>true</reuseForks>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
         </plugins>
