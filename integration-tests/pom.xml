@@ -48,6 +48,8 @@
                         <version>${maven.surefire.plugin.version}</version>
                         <configuration>
                             <skipTests>true</skipTests>
+                            <!-- see https://discuss.circleci.com/t/circleci-build-failure-on-openjdk-image/26104/2 -->
+                            <useSystemClassLoader>false</useSystemClassLoader>
                         </configuration>
                     </plugin>
                 </plugins>
