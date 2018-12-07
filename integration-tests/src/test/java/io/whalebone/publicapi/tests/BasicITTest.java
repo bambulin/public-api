@@ -3,8 +3,8 @@ package io.whalebone.publicapi.tests;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
-import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.arquillian.testng.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.importer.ZipImporter;
@@ -27,19 +27,18 @@ public class BasicITTest extends Arquillian {
 
     @Deployment(name = "ear", testable = false)
     public static Archive<?> createTestArchive() {
-        EnterpriseArchive ear = ShrinkWrap.create(ZipImporter.class, "public-api.ear")
+        return ShrinkWrap.create(ZipImporter.class, "public-api.ear")
                 .importFrom(new File("../ear/target/public-api.ear"))
                 .as(EnterpriseArchive.class);
-        ear.getAsType(JavaArchive.class, "public-api-ejb.jar").addClass(BasicITTest.class);
-        return ear;
     }
 
-    @Test(enabled = false, dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
     @OperateOnDeployment("ear")
     @RunAsClient
     public void trivialTest2(@ArquillianResource URL context) throws Exception {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?days=1"), HttpMethod.GET);
+        requestSettings.setAdditionalHeader("whalebone_client_id", "2");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
