@@ -5,13 +5,14 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ArchiveInitiator {
 
@@ -35,18 +36,18 @@ public class ArchiveInitiator {
      * @param filename name of file on classpath
      * @param timestamp
      */
-    static public void sendDnsJsonToArchive(String filename, Calendar timestamp) throws IOException {
-        String date = new SimpleDateFormat("yyyy.MM.dd").format(timestamp.getTime());
+    static public void sendDnsJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         URL url = new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
                 "/" + "passivedns-" + date + "/logs");
 
-        File file = new File(ArchiveInitiator.class.getClassLoader().getResource(filename).getFile());
+        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
-        byte[] encoded = Files.readAllBytes(Paths.get(file.getPath()));
-        String body = new String(encoded);
+        byte[] encoded = Files.readAllBytes(path);
+        String body = new String(encoded, StandardCharsets.UTF_8);
         body = updateTimestamps(body, timestamp);
 
-        sendStringToUrl(body , url);
+        sendStringToUrl(body, url);
     }
 
     /**
@@ -54,42 +55,40 @@ public class ArchiveInitiator {
      * @param filename
      * @param timestamp
      */
-    static public void sendLogEventJsonToArchive(String filename, Calendar timestamp) throws  IOException {
-        String date = new SimpleDateFormat("yyyy-MM-dd").format(timestamp.getTime());
+    static public void sendLogEventJsonToArchive(String filename, ZonedDateTime timestamp) throws  IOException {
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         URL url = new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
                         "/" + "logs-"+ date + "/match");
 
-        File file = new File(ArchiveInitiator.class.getClassLoader().getResource(filename).getFile());
+        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
-        byte[] encoded = Files.readAllBytes(Paths.get(file.getPath()));
-        String body = new String(encoded);
+        byte[] encoded = Files.readAllBytes(path);
+        String body = new String(encoded,StandardCharsets.UTF_8);
         body = updateTimestamps(body, timestamp);
 
-        sendStringToUrl(body , url);
+        sendStringToUrl(body, url);
         }
 
     /**
      * Loads json from resource file and sends it to archive using bulk api.
      * The json is supposed to contain bulk api json.
      * updates timestamps
-     *
      * see https://www.elastic.co/guide/en/elasticsearch/reference/1.7/docs-bulk.html
-     *
      * @param filename
      * @param timestamp
      */
-    static public void sendBulkJsonToArchive(String filename, Calendar timestamp) throws IOException {
+    static public void sendBulkJsonToArchive(String filename,ZonedDateTime timestamp) throws IOException {
 
         URL url = new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
                         "/_bulk");
 
-        File file = new File(ArchiveInitiator.class.getClassLoader().getResource(filename).getFile());
+        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
-        byte[] encoded = Files.readAllBytes(Paths.get(file.getPath()));
-        String body = new String(encoded);
+        byte[] encoded = Files.readAllBytes(path);
+        String body = new String(encoded, StandardCharsets.UTF_8);
         body = updateTimestamps(body, timestamp);
 
-        sendStringToUrl(body , url);
+        sendStringToUrl(body, url);
         }
 
     static void sendStringToUrl(String content, URL url) throws IOException {
@@ -108,17 +107,16 @@ public class ArchiveInitiator {
      * @param timestamp
      * @return text with updated timestamps
      */
-    static public String updateTimestamps(String text, Calendar timestamp) {
-        String timestampnow = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(timestamp.getTime());
+    static public String updateTimestamps(String text, ZonedDateTime timestamp) {
+        String timestampnow = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
         return text.replaceAll(
-                        "\"timestamp\":\".*?\"",
+                        "\"timestamp\" *: *\".*?\"",
                         "\"timestamp\": \"" + timestampnow + "\"")
                     .replaceAll(
-                        "\"@timestamp\":\".*?\"",
+                        "\"@timestamp\" *: *\".*?\"",
                         "\"@timestamp\": \"" + timestampnow + "\"")
                     .replaceAll(
-                        "\"logged\":\".*?\"",
+                        "\"logged\" *: *\".*?\"",
                         "\"logged\": \"" + timestampnow + "\"");
     }
-
 }

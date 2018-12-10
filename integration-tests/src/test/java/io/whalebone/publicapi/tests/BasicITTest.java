@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.HttpURLConnection;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
 
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -31,9 +31,9 @@ public class BasicITTest extends Arquillian {
     @BeforeSuite
     public void prepare() throws IOException {
         //example usage
-        ArchiveInitiator.sendLogEventJsonToArchive("logs.json", Calendar.getInstance());
+        ArchiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
         ArchiveInitiator.cleanLogs("logs*");
-        ArchiveInitiator.sendLogEventJsonToArchive("logs.json", Calendar.getInstance());
+        ArchiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
     }
     @Deployment(name = "ear", testable = false)
     public static Archive<?> createTestArchive() {
