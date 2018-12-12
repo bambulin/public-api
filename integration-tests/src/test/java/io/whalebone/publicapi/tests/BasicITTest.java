@@ -27,13 +27,13 @@ import static org.testng.Assert.assertEquals;
 
 public class BasicITTest extends Arquillian {
 
-    //data should be put into database before test suite starts, as connecting to elastic in arquillian is problematic (it struggles to create new indices)
+    ArchiveInitiator archiveInitiator;
     @BeforeSuite
     public void prepare() throws IOException {
         //example usage
-        ArchiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
-        ArchiveInitiator.cleanLogs("logs*");
-        ArchiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
+        archiveInitiator = new ArchiveInitiator();
+        //archiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
+        archiveInitiator.cleanEventLogs();
     }
     @Deployment(name = "ear", testable = false)
     public static Archive<?> createTestArchive() {
@@ -46,6 +46,7 @@ public class BasicITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void trivialTest2(@ArquillianResource URL context) throws Exception {
+        archiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search"), HttpMethod.GET);
         requestSettings.setAdditionalHeader("whalebone_client_id", "2");

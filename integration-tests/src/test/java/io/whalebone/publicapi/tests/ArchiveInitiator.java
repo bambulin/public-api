@@ -3,6 +3,7 @@ package io.whalebone.publicapi.tests;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
+import io.whalebone.publicapi.ejb.elastic.ElasticService;
 
 
 import java.io.IOException;
@@ -15,31 +16,46 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ArchiveInitiator {
+    String elasticEndpoint;
+    WebClient webClient;
+
+    public ArchiveInitiator() {
+
+        elasticEndpoint = "http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT");
+        webClient = new WebClient();
+    }
 
     /**
-     * cleans all indices matching index
-     @param index: string to be matched against in elastic
+     * cleans all dns logs
      */
-    static public void cleanLogs(String index) throws IOException {
-
-        WebClient webClient = new WebClient();
+    public void cleanDnsLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
-                new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
-                        "/" + index), HttpMethod.DELETE);
-
+                new URL(elasticEndpoint +
+                        "/" + ElasticService.PASSIVE_DNS_INDEX), HttpMethod.DELETE);
          webClient.getPage(requestSettings);
     }
 
+    /**
+     * cleans all dns logs
+     */
+    public void cleanEventLogs() throws IOException {
+        WebRequest requestSettings = new WebRequest(
+                new URL(elasticEndpoint +
+                        "/" + ElasticService.LOGS_INDEX), HttpMethod.DELETE);
+
+        webClient.getPage(requestSettings);
+    }
     /**
      * Loads json from file on classpath (in resources folder) and sends it to archive.
      * Timestamps are updated with timestamp using updateTimestamps method
      * @param filename name of file on classpath
      * @param timestamp
      */
-    static public void sendDnsJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
+    public void sendDnsJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        URL url = new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
-                "/" + "passivedns-" + date + "/logs");
+        URL url = new URL(elasticEndpoint +
+                "/" + ElasticService.PASSIVE_DNS_INDEX.replace("*", "-") + date + "/"+ ElasticService.PASSIVE_DNS_TYPE + "?refresh=true");
+        //TODO:this is not nice, maybe PASSIVE_DNS_INDEX shouldn't contain the *?
 
         Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
@@ -55,10 +71,10 @@ public class ArchiveInitiator {
      * @param filename
      * @param timestamp
      */
-    static public void sendLogEventJsonToArchive(String filename, ZonedDateTime timestamp) throws  IOException {
+    public void sendLogEventJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        URL url = new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
-                        "/" + "logs-"+ date + "/match");
+        URL url = new URL(elasticEndpoint +
+                        "/" + ElasticService.LOGS_INDEX.replace("*","-") + date + "/"+ ElasticService.LOGS_TYPE + "?refresh=true");
 
         Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
@@ -77,10 +93,8 @@ public class ArchiveInitiator {
      * @param filename
      * @param timestamp
      */
-    static public void sendBulkJsonToArchive(String filename,ZonedDateTime timestamp) throws IOException {
-
-        URL url = new URL("http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT") +
-                        "/_bulk");
+    public void sendBulkJsonToArchive(String filename,ZonedDateTime timestamp) throws IOException {
+        URL url = new URL(elasticEndpoint + "/_bulk");
 
         Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
@@ -91,11 +105,11 @@ public class ArchiveInitiator {
         sendStringToUrl(body, url);
         }
 
-    static void sendStringToUrl(String content, URL url) throws IOException {
-        WebClient webClient = new WebClient();
+    void sendStringToUrl(String content, URL url) throws IOException {
         WebRequest requestSettings = new WebRequest(url, HttpMethod.POST);
         requestSettings.setAdditionalHeader("Content-Type" ,"application/json");
         requestSettings.setAdditionalHeader("Accept", "application/json;charset=UTF-8");
+
         requestSettings.setRequestBody(content);
 
         webClient.getPage(requestSettings);
@@ -107,16 +121,13 @@ public class ArchiveInitiator {
      * @param timestamp
      * @return text with updated timestamps
      */
-    static public String updateTimestamps(String text, ZonedDateTime timestamp) {
-        String timestampnow = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
+    public String updateTimestamps(String text, ZonedDateTime timestamp) {
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
         return text.replaceAll(
                         "\"timestamp\" *: *\".*?\"",
-                        "\"timestamp\": \"" + timestampnow + "\"")
-                    .replaceAll(
-                        "\"@timestamp\" *: *\".*?\"",
-                        "\"@timestamp\": \"" + timestampnow + "\"")
+                        "\"timestamp\": \"" + timestampFormatted + "\"")
                     .replaceAll(
                         "\"logged\" *: *\".*?\"",
-                        "\"logged\": \"" + timestampnow + "\"");
+                        "\"logged\": \"" + timestampFormatted + "\"");
     }
 }
