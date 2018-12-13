@@ -9,7 +9,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.importer.ZipImporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
@@ -17,14 +16,25 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.time.ZonedDateTime;
 
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
 
 public class BasicITTest extends Arquillian {
 
+    ArchiveInitiator archiveInitiator;
+    @BeforeSuite
+    public void prepare() throws IOException {
+        //example usage
+        archiveInitiator = new ArchiveInitiator();
+        //archiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
+        archiveInitiator.cleanEventLogs();
+    }
     @Deployment(name = "ear", testable = false)
     public static Archive<?> createTestArchive() {
         return ShrinkWrap.create(ZipImporter.class, "public-api.ear")
@@ -36,8 +46,9 @@ public class BasicITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void trivialTest2(@ArquillianResource URL context) throws Exception {
+        archiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
         WebClient webClient = new WebClient();
-        WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?days=1"), HttpMethod.GET);
+        WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search"), HttpMethod.GET);
         requestSettings.setAdditionalHeader("whalebone_client_id", "2");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
