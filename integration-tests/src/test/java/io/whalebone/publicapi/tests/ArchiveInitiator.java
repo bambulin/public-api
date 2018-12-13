@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import io.whalebone.publicapi.ejb.elastic.ElasticService;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -16,8 +17,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ArchiveInitiator {
-    String elasticEndpoint;
-    WebClient webClient;
+    private String elasticEndpoint;
+    private WebClient webClient;
 
     public ArchiveInitiator() {
 
@@ -45,72 +46,65 @@ public class ArchiveInitiator {
 
         webClient.getPage(requestSettings);
     }
+
     /**
      * Loads json from file on classpath (in resources folder) and sends it to archive.
      * Timestamps are updated with timestamp using updateTimestamps method
-     * @param filename name of file on classpath
+     *
+     * @param filename
      * @param timestamp
+     * @throws IOException
      */
-    public void sendDnsJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
-        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        URL url = new URL(elasticEndpoint +
-                "/" + ElasticService.PASSIVE_DNS_INDEX_ALIAS + "-" + date + "/"+ ElasticService.PASSIVE_DNS_TYPE + "?refresh=true");
-
-        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
-
-        byte[] encoded = Files.readAllBytes(path);
-        String body = new String(encoded, StandardCharsets.UTF_8);
-        body = updateTimestamps(body, timestamp);
-
-        sendStringToUrl(body, url);
+    public void sendDnsLog(String filename, ZonedDateTime timestamp) throws IOException {
+        sendJsonFile(filename, createPassiveDnsIndex(timestamp), ElasticService.PASSIVE_DNS_TYPE, timestamp);
     }
 
     /**
      * Similar to sendDnsJsonToArchive method but works with event logs indexes
+     *
      * @param filename
      * @param timestamp
      */
-    public void sendLogEventJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
-        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        URL url = new URL(elasticEndpoint +
-                        "/" + ElasticService.LOGS_INDEX_ALIAS + "-" + date + "/"+ ElasticService.LOGS_TYPE + "?refresh=true");
-
-        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
-
-        byte[] encoded = Files.readAllBytes(path);
-        String body = new String(encoded,StandardCharsets.UTF_8);
-        body = updateTimestamps(body, timestamp);
-
-        sendStringToUrl(body, url);
+    public void sendLogEvent(String filename, ZonedDateTime timestamp) throws IOException {
+        sendJsonFile(filename, createLogsIndex(timestamp), ElasticService.LOGS_TYPE, timestamp);
     }
 
-    /**
-     * Loads json from resource file and sends it to archive using bulk api.
-     * The json is supposed to contain bulk api json.
-     * updates timestamps
-     * see https://www.elastic.co/guide/en/elasticsearch/reference/1.7/docs-bulk.html
-     * @param filename
-     * @param timestamp
-     */
-    public void sendBulkJsonToArchive(String filename,ZonedDateTime timestamp) throws IOException {
-        URL url = new URL(elasticEndpoint + "/_bulk");
+    public void sendMultipleDnsLogs(String dirName, ZonedDateTime timestamp) throws IOException {
+        sendMultipleFiles(dirName, createPassiveDnsIndex(timestamp), ElasticService.PASSIVE_DNS_TYPE, timestamp);
+    }
 
-        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
+    public void sendMultipleLogEvents(String dirName, ZonedDateTime timestamp) throws IOException {
+        sendMultipleFiles(dirName, createLogsIndex(timestamp), ElasticService.LOGS_TYPE, timestamp);
+    }
 
-        byte[] encoded = Files.readAllBytes(path);
+    private void sendJsonFile(String fileName, String index, String type, ZonedDateTime timestamp) throws IOException {
+        Path file = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(fileName).getPath());
+        sendFile(file, index, type, timestamp);
+    }
+
+    private void sendMultipleFiles(String dirName, String index, String type, ZonedDateTime timestamp)
+            throws  IOException {
+        Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(dirName).getPath());
+        File dir = path.toFile();
+        for (File file : dir.listFiles(File::isFile)) {
+            sendFile(file.toPath(), index, type, timestamp);
+        }
+    }
+
+    private void sendFile(Path file, String index, String type, ZonedDateTime timestamp) throws IOException {
+        byte[] encoded = Files.readAllBytes(file);
         String body = new String(encoded, StandardCharsets.UTF_8);
         body = updateTimestamps(body, timestamp);
-
+        URL url = new URL(elasticEndpoint + "/" + index + "/" + type + "?refresh=true");
         sendStringToUrl(body, url);
     }
 
-    void sendStringToUrl(String content, URL url) throws IOException {
+
+    private void sendStringToUrl(String content, URL url) throws IOException {
         WebRequest requestSettings = new WebRequest(url, HttpMethod.POST);
         requestSettings.setAdditionalHeader("Content-Type" ,"application/json");
         requestSettings.setAdditionalHeader("Accept", "application/json;charset=UTF-8");
-
         requestSettings.setRequestBody(content);
-
         webClient.getPage(requestSettings);
     }
 
@@ -128,5 +122,15 @@ public class ArchiveInitiator {
                     .replaceAll(
                         "\"logged\" *: *\".*?\"",
                         "\"logged\": \"" + timestampFormatted + "\"");
+    }
+
+    private String createLogsIndex(ZonedDateTime timestamp) {
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return ElasticService.LOGS_INDEX_ALIAS + "-" + date;
+    }
+
+    private String createPassiveDnsIndex(ZonedDateTime timestamp) {
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        return ElasticService.PASSIVE_DNS_INDEX_ALIAS + "-" + date;
     }
 }
