@@ -44,6 +44,14 @@ jobs:
           paths:
             - ~/.m2
 
+      - run:
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+      - run:
+          name: Wait for db
+          command: dockerize -wait http://localhost:9200 -timeout 1m
+
       # setup the elastic mappings
       - run: curl -XPUT localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
       - run: curl -XPUT localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json
