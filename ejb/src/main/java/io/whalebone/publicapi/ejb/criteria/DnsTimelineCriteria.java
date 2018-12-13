@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class DnsTimelineCriteria extends ClientCriteria {
-    private EDnsQueryType type;
+    private EDnsQueryType queryType;
     private EAggregate aggregate;
     private String query;
     private String answer;
@@ -20,14 +20,14 @@ public class DnsTimelineCriteria extends ClientCriteria {
                                final int days,
                                final Integer resolverId,
                                final String clientIp,
-                               final EDnsQueryType type,
+                               final EDnsQueryType queryType,
                                final EAggregate aggregate,
                                final String query,
                                final String answer,
                                final String tld,
                                final boolean dga) {
         super(clientId, domain, days, resolverId, clientIp);
-        this.type = type;
+        this.queryType = queryType;
         this.aggregate = aggregate;
         this.query = query;
         this.answer = answer;

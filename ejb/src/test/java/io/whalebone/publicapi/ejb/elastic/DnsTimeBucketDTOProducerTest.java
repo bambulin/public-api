@@ -85,7 +85,7 @@ public class DnsTimeBucketDTOProducerTest {
             assertThat(buckets.get(i).getBuckets(), hasSize(4));
             for (int j = 0; j < buckets.get(i).getBuckets().size(); j++) {
                 DnsAggregateBucketDTO aggBucket = buckets.get(i).getBuckets().get(j);
-                assertThat(aggBucket.getType(), is(expectedQueryTypes.get(j)));
+                assertThat(aggBucket.getQueryType(), is(expectedQueryTypes.get(j)));
             }
         }
     }
@@ -132,7 +132,7 @@ public class DnsTimeBucketDTOProducerTest {
         assertThat(bucket, is(notNullValue()));
         assertThat(bucket.getCount(), is(42L));
         assertThat(bucket.getClientIp(), is(expectedClientIp));
-        assertThat(bucket.getType(), is(expectedQueryType));
+        assertThat(bucket.getQueryType(), is(expectedQueryType));
         assertThat(bucket.getAnswer(), is(expectedAnswer));
         assertThat(bucket.getDomain(), is(expectedDomain));
         assertThat(bucket.getQuery(), is(expectedQuery));

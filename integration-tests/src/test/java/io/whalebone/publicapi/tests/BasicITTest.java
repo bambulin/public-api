@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class BasicITTest extends Arquillian {
 
@@ -45,13 +46,17 @@ public class BasicITTest extends Arquillian {
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
     @OperateOnDeployment("ear")
     @RunAsClient
-    public void trivialTest2(@ArquillianResource URL context) throws Exception {
+    public void eventLogsTest(@ArquillianResource URL context) throws Exception {
         archiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
         WebClient webClient = new WebClient();
+        //TODO: c&c queries don't work atm
+        //WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?threat_type=c%26c"), HttpMethod.GET);
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search"), HttpMethod.GET);
         requestSettings.setAdditionalHeader("whalebone_client_id", "2");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
+        String expected = "\"threat_type\":[\"c\\u0026c\"]";
+        assertTrue(page.getWebResponse().getContentAsString().contains(expected), "Expected: " + expected + ", got: " + page.getWebResponse().getContentAsString());
         assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
     }
 }

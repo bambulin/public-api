@@ -47,8 +47,8 @@ public class ArchiveMappedDeserializerTest {
         assertThat(event.getTimestamp(), is(ZonedDateTime.of(2018, 11, 22, 11, 45, 13, 0, ZoneId.of("+01:00"))));
         assertThat(event.getIdentifier(), is(arrayWithSize(2)));
         assertThat(event.getIdentifier(), is(arrayContaining("identifier", "identifier2")));
-        assertThat(event.getType(), is(arrayWithSize(2)));
-        assertThat(event.getType(), is(arrayContaining(EThreatType.PHISHING, EThreatType.MALWARE)));
+        assertThat(event.getThreatType(), is(arrayWithSize(2)));
+        assertThat(event.getThreatType(), is(arrayContaining(EThreatType.PHISHING, EThreatType.MALWARE)));
         assertThat(event.getGeoIp(), is(notNullValue()));
         assertThat(event.getGeoIp().getLatitude(), is(39.56450000000001));
         assertThat(event.getGeoIp().getLongitude(), is(-75.597));

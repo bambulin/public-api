@@ -20,16 +20,16 @@ public class LowercaseEnumTypeAdapterFactoryTest {
 
     @Test
     public void deserializationTest() throws Exception {
-        EThreatType threadType = adapter.fromJson("\"blacklist\"");
+        EThreatType threatType = adapter.fromJson("\"blacklist\"");
 
-        assertThat(threadType, is(EThreatType.BLACKLIST));
+        assertThat(threatType, is(EThreatType.BLACKLIST));
     }
 
     @Test
     public void deserializationUsingAnnotationTest() throws Exception {
-        EThreatType threadType = adapter.fromJson("\"c&c\"");
+        EThreatType threatType = adapter.fromJson("\"c&c\"");
 
-        assertThat(threadType, is(EThreatType.C_AND_C));
+        assertThat(threatType, is(EThreatType.C_AND_C));
     }
 
     @Test

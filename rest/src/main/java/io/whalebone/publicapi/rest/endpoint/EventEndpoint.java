@@ -25,18 +25,18 @@ public class EventEndpoint extends AbstractEndpoint {
     @EJB
     private PublicApiService publicApiService;
 
-    @QueryParam("type")
-    private String typeParam;
+    @QueryParam("threat_type")
+    private String threatTypeParam;
     @QueryParam("reason")
     private String reasonParam;
 
-    public void setTypeParam(String typeParam) {
-        this.typeParam = typeParam;
+    public void setThreatTypeParam(String typeParam) {
+        this.threatTypeParam = typeParam;
     }
 
     @EnumValue(EThreatType.class)
-    public String getTypeParam() {
-        return typeParam;
+    public String getThreatTypeParam() {
+        return threatTypeParam;
     }
 
     public void setReasonParam(String reasonParam) {
@@ -48,9 +48,9 @@ public class EventEndpoint extends AbstractEndpoint {
         return reasonParam;
     }
 
-    private EThreatType getType() {
-        if (StringUtils.isNotBlank(typeParam)) {
-            return EnumParamUtils.getEnumValue(EThreatType.class, typeParam);
+    private EThreatType getThreatType() {
+        if (StringUtils.isNotBlank(threatTypeParam)) {
+            return EnumParamUtils.getEnumValue(EThreatType.class, threatTypeParam);
         }
         return null;
     }
@@ -79,7 +79,7 @@ public class EventEndpoint extends AbstractEndpoint {
                 .days(getDays())
                 .reason(getReason())
                 .domain(getDomain())
-                .type(getType())
+                .threatType(getThreatType())
                 .resolverId(getResolverId())
                 .build();
         List<EventDTO> events = publicApiService.eventsSearch(criteria);
