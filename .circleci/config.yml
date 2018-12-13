@@ -30,6 +30,10 @@ jobs:
       MAVEN_OPTS: -Xmx3200m
 
     steps:
+      # setup the elastic mappings
+      - run: curl -XPUT localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
+      - run: curl -XPUT localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json
+
       - checkout
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
@@ -49,4 +53,3 @@ jobs:
 
       - store_test_results:
           path: integration-tests/target/surefire-reports
-

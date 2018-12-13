@@ -31,7 +31,7 @@ public class ArchiveInitiator {
     public void cleanDnsLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
                 new URL(elasticEndpoint +
-                        "/" + ElasticService.PASSIVE_DNS_INDEX), HttpMethod.DELETE);
+                        "/" + ElasticService.PASSIVE_DNS_INDEX_ALIAS + "*"), HttpMethod.DELETE);
          webClient.getPage(requestSettings);
     }
 
@@ -41,7 +41,7 @@ public class ArchiveInitiator {
     public void cleanEventLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
                 new URL(elasticEndpoint +
-                        "/" + ElasticService.LOGS_INDEX), HttpMethod.DELETE);
+                        "/" + ElasticService.LOGS_INDEX_ALIAS + "*"), HttpMethod.DELETE);
 
         webClient.getPage(requestSettings);
     }
@@ -54,8 +54,7 @@ public class ArchiveInitiator {
     public void sendDnsJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         URL url = new URL(elasticEndpoint +
-                "/" + ElasticService.PASSIVE_DNS_INDEX.replace("*", "-") + date + "/"+ ElasticService.PASSIVE_DNS_TYPE + "?refresh=true");
-        //TODO:this is not nice, maybe PASSIVE_DNS_INDEX shouldn't contain the *?
+                "/" + ElasticService.PASSIVE_DNS_INDEX_ALIAS + "-" + date + "/"+ ElasticService.PASSIVE_DNS_TYPE + "?refresh=true");
 
         Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 
@@ -74,7 +73,7 @@ public class ArchiveInitiator {
     public void sendLogEventJsonToArchive(String filename, ZonedDateTime timestamp) throws IOException {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         URL url = new URL(elasticEndpoint +
-                        "/" + ElasticService.LOGS_INDEX.replace("*","-") + date + "/"+ ElasticService.LOGS_TYPE + "?refresh=true");
+                        "/" + ElasticService.LOGS_INDEX_ALIAS + "-" + date + "/"+ ElasticService.LOGS_TYPE + "?refresh=true");
 
         Path path = Paths.get(ArchiveInitiator.class.getClassLoader().getResource(filename).getPath());
 

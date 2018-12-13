@@ -76,7 +76,7 @@ public class DnsTimeBucketDTOProducerTest {
         }
         Aggregations aggregations = prepareAggregations(dateHistogramBuckets);
 
-        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.TYPE);
+        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.QUERY_TYPE);
         List<DnsTimeBucketDTO> buckets = producer.produce(aggregations);
 
         assertThat(buckets, is(notNullValue()));
@@ -98,7 +98,7 @@ public class DnsTimeBucketDTOProducerTest {
         }
         Aggregations aggregations = prepareAggregations(dateHistogramBuckets);
 
-        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.TYPE);
+        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.QUERY_TYPE);
         List<DnsTimeBucketDTO> buckets = producer.produce(aggregations);
 
         assertThat(buckets, is(notNullValue()));
@@ -112,8 +112,8 @@ public class DnsTimeBucketDTOProducerTest {
     public Object[][] buildAggregateBucketTestData() {
         return new Object[][] {
                 new Object[] {EAggregate.CLIENT_IP, "1.2.3.4", "1.2.3.4", null, null, null, null, null},
-                new Object[] {EAggregate.TYPE, "aaaa", null, EDnsQueryType.AAAA, null, null, null, null},
-                new Object[] {EAggregate.TYPE, "AAAA", null, EDnsQueryType.AAAA, null, null, null, null},
+                new Object[] {EAggregate.QUERY_TYPE, "aaaa", null, EDnsQueryType.AAAA, null, null, null, null},
+                new Object[] {EAggregate.QUERY_TYPE, "AAAA", null, EDnsQueryType.AAAA, null, null, null, null},
                 new Object[] {EAggregate.ANSWER, "answer", null, null, "answer", null, null, null},
                 new Object[] {EAggregate.DOMAIN, "whalebone.io", null, null, null, "whalebone.io", null, null},
                 new Object[] {EAggregate.QUERY, "some.thing.whalebone.io", null, null, null, null, "some.thing.whalebone.io", null},

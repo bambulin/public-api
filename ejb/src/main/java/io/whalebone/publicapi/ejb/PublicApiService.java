@@ -17,7 +17,8 @@ import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuild
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import java.util.List;
 public class PublicApiService {
     private static final String WILDCARD = "*";
     private static final int TERM_AGGREGATION_SIZE = 10;
+    private static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     @EJB
     private ElasticService elasticService;
@@ -48,7 +50,7 @@ public class PublicApiService {
         List<FilterBuilder> filters = new ArrayList<>();
         filters.add(FilterBuilders.rangeFilter("logged")
                 .lte("now")
-                .gte(LocalDateTime.now().minusDays(criteria.getDays()))
+                .gte(nowMinusDays(criteria.getDays()))
         );
         filters.add(FilterBuilders.termFilter("client_id", criteria.getClientId()));
 
@@ -56,7 +58,7 @@ public class PublicApiService {
         filterArray = filters.toArray(filterArray);
         QueryBuilder search = QueryBuilders.filteredQuery(bool, FilterBuilders.andFilter(filterArray));
 
-        return elasticService.search(search, null, ElasticService.LOGS_INDEX, ElasticService.LOGS_TYPE , EventDTO.class);
+        return elasticService.search(search, null, ElasticService.LOGS_INDEX_ALIAS, ElasticService.LOGS_TYPE , EventDTO.class);
     }
 
     public List<DnsTimeBucketDTO> dnsTimeline(DnsTimelineCriteria criteria) {
@@ -81,7 +83,7 @@ public class PublicApiService {
         List<FilterBuilder> filters = new ArrayList<>();
         filters.add(FilterBuilders.rangeFilter("timestamp")
                 .lte("now")
-                .gte(LocalDateTime.now().minusDays(criteria.getDays()))
+                .gte(nowMinusDays(criteria.getDays()))
         );
         filters.add(FilterBuilders.termFilter("client_id", criteria.getClientId()));
 
@@ -99,7 +101,7 @@ public class PublicApiService {
         }
 
         DnsTimeBucketDTOProducer bucketDTOProducer = new DnsTimeBucketDTOProducer(criteria.getAggregate());
-        return elasticService.searchWithAggregation(search, aggregation, ElasticService.PASSIVE_DNS_INDEX,
+        return elasticService.searchWithAggregation(search, aggregation, ElasticService.PASSIVE_DNS_INDEX_ALIAS,
                 ElasticService.PASSIVE_DNS_TYPE, bucketDTOProducer::produce);
     }
 
@@ -122,5 +124,9 @@ public class PublicApiService {
             return null;
         }
         return gson.toJson(enumConstant).replaceAll("\"", "");
+    }
+
+    private static String nowMinusDays(int days) {
+        return ZonedDateTime.now().minusDays(days).format(DateTimeFormatter.ofPattern(TIME_PATTERN));
     }
 }

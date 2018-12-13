@@ -73,7 +73,7 @@ public class DnsTimeBucketDTOProducer {
         aggregateBucket.setCount(termBucket.getDocCount());
 
         switch (aggregateType) {
-            case TYPE:
+            case QUERY_TYPE:
                 // elastic use case insensitive search by default if there is no appropriate mapping
                 // and returns aggregation keys as lowercase. For such a case we use uppercase for the key
                 // to mach the enum values correctly

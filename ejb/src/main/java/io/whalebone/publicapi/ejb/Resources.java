@@ -41,6 +41,7 @@ public class Resources implements Serializable {
     @Elastic
     public Gson getGson() {
         return new GsonBuilder()
+                .disableHtmlEscaping()
                 .registerTypeAdapter(EventDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(DnsTimeBucketDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(GeoIpDTO.class, new ArchiveMappedDeserializer())

@@ -20,7 +20,7 @@ import java.util.List;
 @RequestScoped
 public class DnsEndpoint extends AbstractEndpoint {
     private static final long serialVersionUID = 2399760037640668858L;
-    private static final EAggregate DEFAULT_AGGREGATE = EAggregate.TYPE;
+    private static final EAggregate DEFAULT_AGGREGATE = EAggregate.QUERY_TYPE;
 
     @EJB
     private PublicApiService publicApiService;
