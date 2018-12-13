@@ -5,7 +5,7 @@ public enum EAggregate {
     TLD("domain_l1"),
     DOMAIN("domain_l2"),
     QUERY("query"),
-    TYPE("query_type"),
+    QUERY_TYPE("query_type"),
     ANSWER("answer");
 
     private String elasticField;

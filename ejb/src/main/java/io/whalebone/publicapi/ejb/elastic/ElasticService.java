@@ -26,9 +26,9 @@ import java.util.function.Function;
 @Stateless
 public class ElasticService implements Serializable {
     private static final long serialVersionUID = 8884963960567953481L;
-    public static final String LOGS_INDEX = "logs*";
+    public static final String LOGS_INDEX_ALIAS = "logs";
     public static final String LOGS_TYPE = "match";
-    public static final String PASSIVE_DNS_INDEX = "passivedns*";
+    public static final String PASSIVE_DNS_INDEX_ALIAS = "passivedns";
     public static final String PASSIVE_DNS_TYPE = "logs";
 
     @Inject
