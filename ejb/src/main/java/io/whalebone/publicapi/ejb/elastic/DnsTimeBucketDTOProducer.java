@@ -78,7 +78,7 @@ public class DnsTimeBucketDTOProducer {
                 // and returns aggregation keys as lowercase. For such a case we use uppercase for the key
                 // to mach the enum values correctly
                 try {
-                    aggregateBucket.setType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKey())));
+                    aggregateBucket.setQueryType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKey())));
                 } catch (IllegalArgumentException iae) {
                     logger.log(Level.WARNING, "Unknown query type value \"{0}\"", termBucket.getKey());
                     return null;

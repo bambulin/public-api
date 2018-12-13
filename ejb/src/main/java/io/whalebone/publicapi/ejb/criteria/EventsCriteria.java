@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class EventsCriteria extends ClientCriteria {
-    private EThreatType type;
+    private EThreatType threatType;
     private EReason reason;
 
     @Builder
@@ -16,10 +16,10 @@ public class EventsCriteria extends ClientCriteria {
                           int days,
                           Integer resolverId,
                           String clientIp,
-                          EThreatType type,
+                          EThreatType threatType,
                           EReason reason) {
         super(clientId, domain, days, resolverId, clientIp);
-        this.type = type;
+        this.threatType = threatType;
         this.reason = reason;
     }
 }

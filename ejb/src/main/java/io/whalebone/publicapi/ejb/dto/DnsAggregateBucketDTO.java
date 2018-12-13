@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 @Setter
 public class DnsAggregateBucketDTO {
     // one of these fields is only supposed to be instantiated
-    private EDnsQueryType type;
+    private EDnsQueryType queryType;
     private String clientIp;
     private String answer;
     private String query;

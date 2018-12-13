@@ -29,8 +29,8 @@ public class DnsEndpoint extends AbstractEndpoint {
      * parameters must be String so we can provide meaningful validation message in case of invalid parameter
      * otherwise wildfly returns 404 NOT FOUND which is misleading
      */
-    @QueryParam("type")
-    private String typeParam;
+    @QueryParam("query_type")
+    private String queryTypeParam;
     @QueryParam("aggregate")
     private String aggregateParam;
     @QueryParam("answer")
@@ -40,13 +40,13 @@ public class DnsEndpoint extends AbstractEndpoint {
     @QueryParam("dga")
     private boolean dga;
 
-    public void setTypeParam(String typeParam) {
-        this.typeParam = typeParam;
+    public void setQueryTypeParam(String typeParam) {
+        this.queryTypeParam = typeParam;
     }
 
     @EnumValue(EDnsQueryType.class)
-    public String getTypeParam() {
-        return typeParam;
+    public String getQueryTypeParam() {
+        return queryTypeParam;
     }
 
     @RangedInteger(min = 1, max = 14)
@@ -76,9 +76,9 @@ public class DnsEndpoint extends AbstractEndpoint {
         this.dga = dga;
     }
 
-    private EDnsQueryType getType() {
-        if (StringUtils.isNotBlank(typeParam)) {
-            return EnumParamUtils.getEnumValue(EDnsQueryType.class, typeParam);
+    private EDnsQueryType getQueryType() {
+        if (StringUtils.isNotBlank(queryTypeParam)) {
+            return EnumParamUtils.getEnumValue(EDnsQueryType.class, queryTypeParam);
         } else {
             return null;
         }
@@ -99,7 +99,7 @@ public class DnsEndpoint extends AbstractEndpoint {
     public Response timeline() {
         DnsTimelineCriteria criteria = DnsTimelineCriteria.builder()
                 .clientId(getClientId())
-                .type(getType())
+                .queryType(getQueryType())
                 .aggregate(getAggregate())
                 .clientIp(getClientIp())
                 .answer(answer)

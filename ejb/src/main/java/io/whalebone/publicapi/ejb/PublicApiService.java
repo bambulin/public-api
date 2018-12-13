@@ -35,7 +35,7 @@ public class PublicApiService {
     public List<EventDTO> eventsSearch(EventsCriteria criteria) {
         List<QueryBuilder> queries = new ArrayList<>();
         prepareFieldParamQuery("request.ip", criteria.getClientIp(), queries, true);
-        prepareFieldParamQuery("matched_iocs.classification.type", serializeEnumParam(criteria.getType()), queries, false);
+        prepareFieldParamQuery("matched_iocs.classification.type", serializeEnumParam(criteria.getThreatType()), queries, false);
         prepareFieldParamQuery("action_reason", serializeEnumParam(criteria.getReason()), queries, false);
         prepareFieldParamQuery("resolver_id", criteria.getResolverId(), queries, false);
         prepareFieldParamQuery("reason.fqdn", criteria.getDomain(), queries, true);
@@ -62,7 +62,7 @@ public class PublicApiService {
     public List<DnsTimeBucketDTO> dnsTimeline(DnsTimelineCriteria criteria) {
         List<QueryBuilder> queries = new ArrayList<>();
         prepareFieldParamQuery("client", criteria.getClientIp(), queries, true);
-        prepareFieldParamQuery("query_type", serializeEnumParam(criteria.getType()), queries, false);
+        prepareFieldParamQuery("query_type", serializeEnumParam(criteria.getQueryType()), queries, false);
         prepareFieldParamQuery("domain_l2", criteria.getDomain(), queries, true);
         prepareFieldParamQuery("query", criteria.getQuery(), queries, true);
         prepareFieldParamQuery("resolver_id", criteria.getResolverId(), queries, false);
