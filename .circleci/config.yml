@@ -7,6 +7,7 @@ jobs:
           ELASTIC_CLUSTER: archive
           ELASTIC_HOST: 127.0.0.1
           ELASTIC_PORT: 9300
+          ELASTIC_REST_PORT: 9200
 
       # ELASTIC
       # Image repo: https://github.com/hugeox/elastic-docker
