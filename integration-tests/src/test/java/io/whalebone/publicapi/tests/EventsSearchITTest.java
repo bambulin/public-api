@@ -55,7 +55,7 @@ public class EventsSearchITTest extends Arquillian {
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
     @OperateOnDeployment("ear")
     @RunAsClient
-    public void eventsSearchByTestClientIpTest(@ArquillianResource URL context) throws IOException {
+    public void eventsSearchByClientIpTest(@ArquillianResource URL context) throws IOException {
         ZonedDateTime now = ZonedDateTime.now();
         archiveInitiator.sendMultipleLogEvents("logs/by_client_ip", now);
         archiveInitiator.sendLogEvent("logs/by_client_ip/outdated/log-client_ip-1.2.3.4_c_outdated.json", now.minusMinutes(24 * 60 + 1));
