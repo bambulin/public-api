@@ -26,7 +26,7 @@ import java.util.List;
 public class PublicApiService {
     private static final String WILDCARD = "*";
     private static final int TERM_AGGREGATION_SIZE = 10;
-    private static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
+    public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     @EJB
     private ElasticService elasticService;
