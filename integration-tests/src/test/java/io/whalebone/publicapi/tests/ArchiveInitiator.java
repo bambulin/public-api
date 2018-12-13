@@ -83,7 +83,7 @@ public class ArchiveInitiator {
         body = updateTimestamps(body, timestamp);
 
         sendStringToUrl(body, url);
-        }
+    }
 
     /**
      * Loads json from resource file and sends it to archive using bulk api.
@@ -103,7 +103,7 @@ public class ArchiveInitiator {
         body = updateTimestamps(body, timestamp);
 
         sendStringToUrl(body, url);
-        }
+    }
 
     void sendStringToUrl(String content, URL url) throws IOException {
         WebRequest requestSettings = new WebRequest(url, HttpMethod.POST);
