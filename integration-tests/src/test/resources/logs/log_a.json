@@ -1,0 +1,59 @@
+{
+  "device_id": "device1",
+  "accuracy": {
+    "accuracy": 56,
+    "the_most_accurate_feed": {
+      "some-blacklist1": {
+        "passivedns": -24,
+        "feed": 80
+      }
+    }
+  },
+  "ip": "23.253.126.58",
+  "@timestamp": "2018-03-29T07:21:06.588Z",
+  "client_id": "2",
+  "action": "block",
+  "matched_iocs": [{
+    "seen": {
+      "first": "2017-12-21T13:56:44+0000"
+    },
+    "unique_ref": "unique_ref1",
+    "source": {
+      "fqdn": "malicious-web1.net",
+      "id": {
+        "value": "malicious-web1.net",
+        "type": "fqdn"
+      }
+    },
+    "time": {
+      "received_by_core": "2017-11-21T16:56:04+0000",
+      "observation": "2017-11-21T16:56:04+0000"
+    },
+    "feed": {
+      "url": "some-blacklist1.com",
+      "name": "some-blacklist1"
+    },
+    "accuracy":{
+      "feed": 80,
+      "passivedns": -24
+    },
+    "classification": {
+      "identifier": "Tinba",
+      "type": "c&c",
+      "taxonomy": "Malicious Code"
+    }
+  }],
+  "logged": "2018-12-13T15:55:13+0100",
+  "host": "1.2.3.4",
+  "request": {
+    "fqdn": "a.net",
+    "ip": "1.3.4.5"
+  },
+  "reason": {
+    "fqdn": "a.net"
+  },
+  "virus_total_request": {
+    "status": "waiting"
+  },
+  "@version": "1"
+}
