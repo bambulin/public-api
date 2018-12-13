@@ -32,10 +32,6 @@ jobs:
     steps:
       - checkout
 
-      # setup the elastic mappings
-      - run: curl -XPUT localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
-      - run: curl -XPUT localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json
-
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
           keys:
           - public-api-{{ checksum "pom.xml" }}
@@ -47,6 +43,10 @@ jobs:
           key: public-api
           paths:
             - ~/.m2
+
+      # setup the elastic mappings
+      - run: curl -XPUT localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
+      - run: curl -XPUT localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json
 
       # run tests!
       - run: mvn integration-test -Parq-wildfly-managed
