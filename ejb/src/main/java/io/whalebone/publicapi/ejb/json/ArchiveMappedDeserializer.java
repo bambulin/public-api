@@ -12,6 +12,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class ArchiveMappedDeserializer implements JsonDeserializer<ArchiveMapped> {
@@ -32,12 +34,16 @@ public class ArchiveMappedDeserializer implements JsonDeserializer<ArchiveMapped
                 if (f.getType().isArray()) {
                     Set<JsonElement> elements = JsonUtils.traverseJson(json, fieldMapping);
                     if (CollectionUtils.isNotEmpty(elements)) {
-                        Object array = Array.newInstance(f.getType().getComponentType(), elements.size());
-                        int i = 0;
+                        List list = new ArrayList();
                         for (JsonElement element : elements) {
                             Object deserialized = context.deserialize(element, f.getType().getComponentType());
-                            Array.set(array, i, deserialized);
-                            i++;
+                            if (deserialized != null) {
+                                list.add(deserialized);
+                            }
+                        }
+                        Object array = Array.newInstance(f.getType().getComponentType(), list.size());
+                        for (int i = 0; i < list.size(); i++) {
+                            Array.set(array, i, list.get(i));
                         }
                         f.setAccessible(true);
                         f.set(bean, array);

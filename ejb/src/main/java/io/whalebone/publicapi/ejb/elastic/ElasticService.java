@@ -69,6 +69,7 @@ public class ElasticService implements Serializable {
             } else {
                 List<T> docs = new ArrayList<>((int) response.getHits().getTotalHits());
                 for (SearchHit hit : response.getHits()) {
+                    // TODO set ID
                     T doc = gson.fromJson(hit.sourceAsString(), beanType);
                     docs.add(doc);
                 }

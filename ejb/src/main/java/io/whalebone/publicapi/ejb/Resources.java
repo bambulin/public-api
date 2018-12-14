@@ -43,7 +43,6 @@ public class Resources implements Serializable {
         return new GsonBuilder()
                 .disableHtmlEscaping()
                 .registerTypeAdapter(EventDTO.class, new ArchiveMappedDeserializer())
-                .registerTypeAdapter(DnsTimeBucketDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(GeoIpDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
                 .registerTypeAdapter(EAggregate.class, new LowercaseEnumTypeAdapter<>(EAggregate.class))
