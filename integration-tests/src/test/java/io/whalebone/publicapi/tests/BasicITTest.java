@@ -30,7 +30,7 @@ public class BasicITTest extends Arquillian {
     public void prepare() throws IOException {
         //example usage
         archiveInitiator = new ArchiveInitiator();
-        //archiveInitiator.sendLogEventJsonToArchive("logs.json", ZonedDateTime.now());
+        //archiveInitiator.sendLogEvent("logs.json", ZonedDateTime.now());
         archiveInitiator.cleanEventLogs();
     }
 

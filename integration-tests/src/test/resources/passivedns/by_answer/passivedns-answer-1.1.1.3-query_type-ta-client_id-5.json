@@ -1,0 +1,36 @@
+{
+    "@timestamp": "2018-03-28T06:58:22.000Z",
+    "@version": "1",
+    "answer": "1.1.1.3",
+    "answer_ip": "1.1.1.3",
+    "asn": {
+        "number": "1234"
+    },
+    "class": "IN",
+    "client": "2.2.2.2",
+    "client_id": "5",
+    "device_id": "h",
+    "dga": {
+        "class": 0,
+        "domain": "some-domain.com",
+        "probability": 0.006
+    },
+    "domain_l1": "com",
+    "domain_l2": "some-domain.com",
+    "domain_rest": "subdomain",
+    "geoip": {
+        "coordinates": [
+            -117,
+            34
+        ],
+        "country_code2": "US",
+        "latitude": 34,
+        "longitude": -117
+    },
+    "host": "1.2.45.45",
+    "query": "subdomain.some-domain.com",
+    "query_type": "TA",
+    "resolver_id": "12",
+    "timestamp": "2018-03-28T06:58:22.000Z",
+    "ttl": 300
+}
