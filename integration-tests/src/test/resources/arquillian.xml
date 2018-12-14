@@ -11,4 +11,7 @@
             </property>
         </configuration>
     </container>
+    <extension qualifier="suite">
+        <property name="deploymentClass">io.whalebone.publicapi.tests.Deployment</property>
+    </extension>
 </arquillian>

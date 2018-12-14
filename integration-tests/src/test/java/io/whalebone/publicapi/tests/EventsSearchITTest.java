@@ -8,20 +8,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import io.whalebone.publicapi.ejb.PublicApiService;
-import io.whalebone.publicapi.ejb.elastic.ElasticService;
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.arquillian.testng.Arquillian;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.importer.ZipImporter;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -38,13 +31,6 @@ public class EventsSearchITTest extends Arquillian {
 
     public EventsSearchITTest() {
         archiveInitiator = new ArchiveInitiator();
-    }
-
-    @Deployment(name = "ear", testable = false)
-    public static Archive<?> createTestArchive() {
-        return ShrinkWrap.create(ZipImporter.class, "public-api.ear")
-                .importFrom(new File("../ear/target/public-api.ear"))
-                .as(EnterpriseArchive.class);
     }
 
     @BeforeMethod

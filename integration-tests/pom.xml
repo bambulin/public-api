@@ -30,6 +30,12 @@
             <version>${net.sourceforge.htmlunit.htmlunit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eu.ingwar.tools</groupId>
+            <artifactId>arquillian-suite-extension</artifactId>
+            <version>${org.eu.ingwar.tools.arquillian-suite-extension.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
