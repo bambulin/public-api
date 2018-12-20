@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.whalebone.publicapi.ejb.PublicApiService;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
@@ -24,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 public class EventsSearchITTest extends Arquillian {
 
@@ -230,6 +232,41 @@ public class EventsSearchITTest extends Arquillian {
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchNoParameters(@ArquillianResource URL context) throws IOException {
+        ZonedDateTime now = ZonedDateTime.now();
+        archiveInitiator.sendMultipleLogEvents("logs/by_no_params", now);
+        archiveInitiator.sendLogEvent("logs/by_no_params/outdated/log-outdated.json", now.minusMinutes(24 * 60 + 1));
+        JsonArray events = eventsSearch(context, "");
+        assertThat(events.size(), is(4));
+        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        for (JsonElement eventElement : events) {
+            JsonObject event = eventElement.getAsJsonObject();
+            int resolverId = event.get("resolver_id").getAsInt();
+            switch (resolverId) {
+                case 1:
+                    assertThat(event, is(event(timestamp, 1, 1, "log", "blacklist", "1.2.3.4", "stoppblock.org", new String[] {"c&c"},
+                            new String[] {"identifier1"}, 1.8776, -1.6272, "US")));
+                    break;
+                case 2:
+                    assertThat(event, is(event(timestamp, 2, 2, "block", "content", "1.2.3.5", "whalebone.io", new String[] {"blacklist"},
+                            new String[] {"identifier2"}, 2.8776, -2.6272, "DE")));
+                    break;
+                case 3:
+                    assertThat(event, is(event(timestamp, 3, 3, "action", "legal", "1.2.3.6", "virus.com", new String[] {"malware"},
+                            new String[] {"identifier3"}, 3.8776, -3.6272, "GB")));
+                    break;
+                case 4:
+                    assertThat(event, is(event(timestamp, 4, 4, "some_action", "accuracy", "1.2.3.7", "phishing.org", new String[] {"phishing"},
+                            new String[] {"identifier4"}, 4.8776, -4.6272, "RU")));
+                    break;
+                default:
+                    fail("Unexpected event returned: " + event);
+            }
+        }
+    }
 
     private static JsonArray eventsSearch(URL context, String queryString) throws IOException {
         WebClient webClient = new WebClient();
