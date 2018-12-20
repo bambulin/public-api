@@ -67,13 +67,13 @@ public class EventMatcher extends TypeSafeMatcher<JsonElement> {
         }
         JsonObject event = eventElement.getAsJsonObject();
 
-        // TODO fix loading id to eventDTO
-//        if (event.get("event_id") == null || event.get("event_id").isJsonNull()) {
-//            failedPropertyName = "event_id";
-//            expectedValue = "not null";
-//            gotValue = null;
-//            return false;
-//        }
+        if (event.get("event_id") == null || event.get("event_id").isJsonNull()) {
+            failedPropertyName = "event_id";
+            expectedValue = "not null";
+            gotValue = null;
+            return false;
+        }
+
         try {
             checkNullableProperty(event, "timestamp", timestamp, JsonElement::getAsString);
             checkNullableProperty(event, "accuracy", accuracy, JsonElement::getAsInt);
