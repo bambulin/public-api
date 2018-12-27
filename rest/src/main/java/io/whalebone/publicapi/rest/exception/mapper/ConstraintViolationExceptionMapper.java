@@ -29,7 +29,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
     @Override
     public Response toResponse(ConstraintViolationException e) {
-        MultipleAppErrorMessage error = new MultipleAppErrorMessage("Request validation failed.");
+        MultipleAppErrorMessage error = new MultipleAppErrorMessage("Request validation failed");
         for (ConstraintViolation v : e.getConstraintViolations()) {
             error.addError(mapViolationToError(v));
         }

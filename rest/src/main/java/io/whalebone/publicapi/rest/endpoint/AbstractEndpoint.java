@@ -48,7 +48,6 @@ abstract class AbstractEndpoint implements Serializable {
         this.resolverIdParam = resolverIdParam;
     }
 
-    @ValidInteger
     public String getDaysParam() {
         return daysParam;
     }

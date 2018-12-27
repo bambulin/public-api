@@ -21,7 +21,7 @@ public class AppExceptionMapper implements ExceptionMapper<AppException> {
 
     @Override
     public Response toResponse(AppException exception) {
-        logger.log(Level.SEVERE, "Application exception occured", exception);
+        logger.log(Level.SEVERE, "Application exception occurred", exception);
         return Response.status(exception.getError().getStatus())
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .encoding(StandardCharsets.UTF_8.name())

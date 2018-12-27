@@ -9,6 +9,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.whalebone.publicapi.ejb.PublicApiService;
+import io.whalebone.publicapi.tests.matchers.EventMatcher;
+import io.whalebone.publicapi.tests.matchers.ParamValidationErrorMatcher;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -23,8 +25,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 public class EventsSearchITTest extends Arquillian {
@@ -268,16 +270,93 @@ public class EventsSearchITTest extends Arquillian {
         }
     }
 
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchInvalidResolverId(@ArquillianResource URL context) throws IOException {
+        JsonArray jsonErrors = eventsSearchInvalid(context, "resolver_id=abc");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("resolver_id", "abc", 21, "INVALID_PARAM_VALUE",
+                "Invalid value - value must be an integer", null)));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchInvalidThreatType(@ArquillianResource URL context) throws IOException {
+        JsonArray jsonErrors = eventsSearchInvalid(context, "threat_type=xyz");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("threat_type", "xyz", 21, "INVALID_PARAM_VALUE", "Invalid enum value",
+                new String[] {"c\u0026c", "blacklist", "malware", "phishing", "exploit"})));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchInvalidReason(@ArquillianResource URL context) throws IOException {
+        JsonArray jsonErrors = eventsSearchInvalid(context, "reason=blabla");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("reason", "blabla", 21, "INVALID_PARAM_VALUE", "Invalid enum value",
+                new String[] {"legal", "content", "accuracy", "blacklist"})));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchInvalidDays(@ArquillianResource URL context) throws IOException {
+        JsonArray jsonErrors = eventsSearchInvalid(context, "days=noInt");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("days", "noInt", 21, "INVALID_PARAM_VALUE", "" +
+                "Invalid value - value must be an integer in range <1 - 90>", null)));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchMinDays(@ArquillianResource URL context) throws IOException {
+        JsonArray jsonErrors = eventsSearchInvalid(context, "days=0");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("days", "0", 21, "INVALID_PARAM_VALUE", "" +
+                "Invalid value - value must be an integer in range <1 - 90>", null)));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchMaxDays(@ArquillianResource URL context) throws IOException {
+        JsonArray jsonErrors = eventsSearchInvalid(context, "days=91");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("days", "91", 21, "INVALID_PARAM_VALUE", "" +
+                "Invalid value - value must be an integer in range <1 - 90>", null)));
+    }
+
     private static JsonArray eventsSearch(URL context, String queryString) throws IOException {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?" + queryString), HttpMethod.GET);
         requestSettings.setAdditionalHeader("whalebone_client_id", "2");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
-        assertEquals(HttpURLConnection.HTTP_OK, page.getWebResponse().getStatusCode());
+        assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_OK));
         JsonParser parser = new JsonParser();
         JsonElement element = parser.parse(page.getWebResponse().getContentAsString());
         return element.getAsJsonArray();
+    }
+
+    private static JsonArray eventsSearchInvalid(URL context, String queryString) throws IOException {
+        WebClient webClient = new WebClient();
+        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?" + queryString), HttpMethod.GET);
+        requestSettings.setAdditionalHeader("whalebone_client_id", "2");
+        requestSettings.setAdditionalHeader("accept", "application/json");
+        Page page = webClient.getPage(requestSettings);
+        assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_BAD_REQUEST));
+        JsonParser parser = new JsonParser();
+        JsonElement responseJson = parser.parse(page.getWebResponse().getContentAsString());
+        JsonObject errorResponse = responseJson.getAsJsonObject();
+        assertThat(errorResponse.get("message"), is(notNullValue()));
+        assertThat(errorResponse.get("message").getAsString(), is(not(emptyString())));
+        assertThat(errorResponse.get("errors"), is(notNullValue()));
+        return errorResponse.get("errors").getAsJsonArray();
     }
 
     private static EventMatcher event(String timestamp,
@@ -294,5 +373,10 @@ public class EventsSearchITTest extends Arquillian {
                                       String countryCode2) {
         return new EventMatcher(timestamp, accuracy, resolverId, action, reason, clientIp, domain, threatType,
                 identifier, latitude, longitude, countryCode2);
+    }
+
+    private static ParamValidationErrorMatcher error(String parameter, String value, int errorCode, String errorType,
+                                                     String message, String[] acceptedValues) {
+        return new ParamValidationErrorMatcher(parameter, value, errorCode, errorType, message, acceptedValues);
     }
 }
