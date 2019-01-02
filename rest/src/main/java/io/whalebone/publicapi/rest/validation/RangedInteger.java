@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RangedInteger {
-    String message() default "Invalid value. Value must be an integer in range <{min} - {max}>";
+    String message() default "Invalid value - value must be an integer in range <{min} - {max}>";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
     int min();

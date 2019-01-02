@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidInteger {
-    String message() default "Invalid value. Value must be an integer.";
+    String message() default "Invalid value - value must be an integer";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

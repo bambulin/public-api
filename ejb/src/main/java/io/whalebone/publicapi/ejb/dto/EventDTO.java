@@ -1,6 +1,7 @@
 package io.whalebone.publicapi.ejb.dto;
 
 import com.google.gson.annotations.JsonAdapter;
+import io.whalebone.publicapi.ejb.elastic.DocId;
 import io.whalebone.publicapi.ejb.json.ArchiveMapped;
 import io.whalebone.publicapi.ejb.json.ArchiveMappedField;
 import io.whalebone.publicapi.ejb.json.ZonedDateTimeAdapter;
@@ -15,6 +16,7 @@ import java.time.ZonedDateTime;
 public class EventDTO implements Serializable, ArchiveMapped {
     private static final long serialVersionUID = -6393906363174373694L;
 
+    @DocId
     private String eventId;
     @ArchiveMappedField("logged")
     @JsonAdapter(ZonedDateTimeAdapter.class)

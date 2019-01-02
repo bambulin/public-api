@@ -1,6 +1,7 @@
 package io.whalebone.publicapi.ejb.elastic;
 
 import com.google.gson.Gson;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -17,6 +18,7 @@ import org.elasticsearch.search.sort.SortBuilder;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,8 +71,8 @@ public class ElasticService implements Serializable {
             } else {
                 List<T> docs = new ArrayList<>((int) response.getHits().getTotalHits());
                 for (SearchHit hit : response.getHits()) {
-                    // TODO set ID
                     T doc = gson.fromJson(hit.sourceAsString(), beanType);
+                    DocIdSetter.setDocIdIfApplicable(doc, hit.getId());
                     docs.add(doc);
                 }
                 return docs;
