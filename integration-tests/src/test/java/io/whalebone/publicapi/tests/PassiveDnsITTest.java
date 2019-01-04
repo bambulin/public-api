@@ -55,8 +55,10 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_query_type", now);
         archiveInitiator.sendDnsLog("passivedns/by_query_type/older/passivedns-query_type-a_older.json", now.minusMinutes(2 * 24 * 60 +1));
         JsonArray timeline = getTimeline(context, "days=2");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(1));
-        JsonArray buckets = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray buckets = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
 
         JsonObject[] expectedBuckets = {
                 createBucketElement("query_type", "a", 2),
@@ -77,18 +79,20 @@ public class PassiveDnsITTest extends Arquillian {
     public void aggregateByQueryType3DaysTest(@ArquillianResource URL context) throws Exception {
         ZonedDateTime now = ZonedDateTime.now();
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_query_type", now);
-        archiveInitiator.sendDnsLog("passivedns/by_query_type/older/passivedns-query_type-a_older.json", now.minusMinutes(24 * 60 +1));
+        archiveInitiator.sendDnsLog("passivedns/by_query_type/older/passivedns-query_type-a_older.json", now.minusMinutes(2 * 24 * 60 +1));
         JsonArray timeline = getTimeline(context, "days=3");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(2 * 24 * 60 +1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query_type","a",1)
         };
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("query_type", "a", 2),
                 createBucketElement("query_type", "rp", 1)
@@ -110,10 +114,12 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip", now);
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip/outdated", now.minusMinutes(24 * 60  + 1));
-        JsonArray timeline = getTimeline(context, "aggregate=client_ip");
+        JsonArray timeline = getTimeline(context,"aggregate=client_ip");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
 
         JsonObject[] expectedBucketsOld  = {
                 createBucketElement("client_ip", "1.2.3.4", 3),
@@ -123,7 +129,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("client_ip", "1.2.3.4", 3),
                 createBucketElement("client_ip", "2.2.2.2", 1),
@@ -147,8 +153,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip/outdated", now.minusMinutes(24 * 60  + 1));
         JsonArray timeline = getTimeline(context, "client_ip=1.2.3.4");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
             createBucketElement("query_type", "apl", 2),
             createBucketElement("query_type", "rp", 1)
@@ -156,7 +165,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
             createBucketElement("query_type", "a", 2),
             createBucketElement("query_type", "rp", 1)
@@ -179,9 +188,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip/older", now.minusMinutes(60 +1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_client_ip/outdated", now.minusMinutes(24 * 60 +1));
         JsonArray timeline = getTimeline(context, "client_ip=1.2.3.*");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query_type","apl",2),
                 createBucketElement("query_type","rp",2)
@@ -189,7 +200,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("query_type","a",2),
                 createBucketElement("query_type","rp",1),
@@ -213,9 +224,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_answer/older", now.minusMinutes(60 +1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_answer/outdated", now.minusMinutes(24 * 60 +1));
         JsonArray timeline = getTimeline(context, "aggregate=answer");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
 
         JsonObject[] expectedBucketsOld  = {
                 createBucketElement("answer",   "1.1.1.2", 3),
@@ -224,7 +237,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("answer", "1.1.1.2", 3),
                 createBucketElement("answer", "1.1.1.3", 1),
@@ -248,8 +261,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_answer/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_answer/outdated", now.minusMinutes(24 * 60 + 1));
         JsonArray timeline = getTimeline(context, "answer=1.1.1.*");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query_type", "ta", 2),
                 createBucketElement("query_type", "a", 1)
@@ -257,7 +273,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("query_type", "a", 2),
                 createBucketElement("query_type", "ta", 2)
@@ -279,9 +295,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_tld/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_tld/outdated", now.minusMinutes(24 * 60 + 1));
         JsonArray timeline = getTimeline(context, "aggregate=tld");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("tld","eu",3),
                 createBucketElement("tld","com",2)
@@ -289,7 +307,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("tld","eu",3),
                 createBucketElement("tld","com",3)
@@ -312,9 +330,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_domain/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_domain/outdated", now.minusMinutes(24 * 60 + 1));
         JsonArray timeline = getTimeline(context, "aggregate=domain");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("domain","domain2.eu",3),
                 createBucketElement("domain","some-other-domain.com",1),
@@ -323,7 +343,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("domain","domain2.eu",2),
                 createBucketElement("domain","domain.eu",1),
@@ -348,9 +368,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_domain/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_domain/outdated", now.minusMinutes(24 * 60 + 1));
         JsonArray timeline = getTimeline(context, "aggregate=query&domain=*domain.com");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query","some-other-domain.com",1),
                 createBucketElement("query","subdomain2.some-domain.com",1),
@@ -358,7 +380,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("query","some-other-domain.com",1),
                 createBucketElement("query","subdomain.some-domain.com",1),
@@ -382,9 +404,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_query/older", now.minusMinutes(60 + 1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_query/outdated", now.minusMinutes(24 * 60 + 1));
         JsonArray timeline = getTimeline(context, "aggregate=query");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query","abc.domain2.eu",1),
                 createBucketElement("query","shop.domain2.eu",2),
@@ -394,7 +418,7 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("query","abc.domain2.eu",1),
                 createBucketElement("query","shop.domain2.eu",1),
@@ -422,16 +446,17 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_dga/outdated", now.minusMinutes(24 * 60 + 1));
         JsonArray timeline = getTimeline(context, "aggregate=domain&dga=true");
 
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("domain","some-domain.com",1)
         };
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("domain","domain.eu",1),
                 createBucketElement("domain","some-domain.com",2)
@@ -454,9 +479,11 @@ public class PassiveDnsITTest extends Arquillian {
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_resolver_id/older", now.minusMinutes(60 +1));
         archiveInitiator.sendMultipleDnsLogs("passivedns/by_resolver_id/outdated", now.minusMinutes(24 * 60 +1));
         JsonArray timeline = getTimeline(context, "resolver_id=10");
+
+        checkCounts(timeline);
         assertThat(timeline.size(), is(2));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query_type","apl",2),
                 createBucketElement("query_type","rp",1)
@@ -464,41 +491,12 @@ public class PassiveDnsITTest extends Arquillian {
 
         assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
 
-        JsonArray bucketsNew = timeline.get(1).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsNew = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsNew = {
                 createBucketElement("query_type","a",2)
         };
 
         assertThat(bucketsNew, Matchers.containsInAnyOrder(expectedBucketsNew));
-    }
-
-    /**
-     * Tests the correct division by time of the timeline
-     * Tests that order is chronological
-     * @param context
-     * @throws Exception
-     */
-    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
-    @OperateOnDeployment("ear")
-    @RunAsClient
-    public void timeTest(@ArquillianResource URL context) throws Exception {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleDnsLogs("passivedns/time", now);
-        archiveInitiator.sendMultipleDnsLogs("passivedns/time/older", now.minusMinutes(60 +1));
-        archiveInitiator.sendMultipleDnsLogs("passivedns/time/outdated", now.minusMinutes(24 * 60 +1));
-        JsonArray timeline = getTimeline(context, "");
-        assertThat(timeline.size(), is(2));
-
-        final String PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN);
-
-        String timestampOld = timeline.get(0).getAsJsonObject().get("timestamp").getAsString();
-        String expectedTimestampOld = now.minusMinutes(60 + 1).truncatedTo(ChronoUnit.HOURS).format(formatter);
-        assertThat(timestampOld,is(expectedTimestampOld));
-
-        String timestampNew = timeline.get(1).getAsJsonObject().get("timestamp").getAsString();
-        String expectedTimestampNew = now.truncatedTo(ChronoUnit.HOURS).format(formatter);
-        assertThat(timestampNew,is(expectedTimestampNew));
     }
 
     /**
@@ -510,7 +508,6 @@ public class PassiveDnsITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void queryTypeValidationTest(@ArquillianResource URL context) throws Exception {
-        //archiveInitiator.sendDnsLog("passivedns/by_query_type/passivedns-query_type-a.json", ZonedDateTime.now());
         String [] queryTypes = {"a","aaaa","afsdb","apl","caa","cdnskey","cds","cert","cname",
                 "dhcid","dlv","dname","dnskey","ds","hip","ipseckey","key","kx","loc",
                 "mx","naptr","ns","nsec","nsec3","nsec3param","openpgpkey","ptr","rrsig",
@@ -606,12 +603,13 @@ public class PassiveDnsITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void invalidParameterTest(@ArquillianResource URL context) throws Exception {
-        archiveInitiator.sendDnsLog("passivedns/by_query_type/passivedns-query_type-a.json", ZonedDateTime.now());
+        ZonedDateTime now = ZonedDateTime.now();
+        archiveInitiator.sendDnsLog("passivedns/by_query_type/passivedns-query_type-a.json", now);
 
         JsonArray timeline = getTimeline(context,"not_a_parameter=abc");
         assertThat(timeline.size(), is(1));
 
-        JsonArray bucketsOld = timeline.get(0).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonArray bucketsOld = getAggregations(now, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
         JsonObject[] expectedBucketsOld = {
                 createBucketElement("query_type","a",1)
         };
@@ -638,6 +636,42 @@ public class PassiveDnsITTest extends Arquillian {
         return element.getAsJsonArray();
     }
 
+    /**
+     * Returns aggregations corresponding to time from timeline
+     * If there is none, an exception is thrown
+     * @param time
+     * @param timeline
+     * @return
+     */
+    private static JsonObject getAggregations(ZonedDateTime time, JsonArray timeline) throws Exception{
+        final String PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN);
+
+        String timestamp = time.truncatedTo(ChronoUnit.HOURS).format(formatter);
+        for (int i = 0; i < timeline.size(); i++) {
+            if (timeline.get(i).getAsJsonObject().get("timestamp").getAsString().equals(timestamp)){
+               return timeline.get(i).getAsJsonObject();
+            }
+        }
+        throw new Exception("Expected timeline :" + timeline.toString() +
+                " to contain timestamp: " + timestamp + " but it didn't.");
+    }
+
+    /**
+     * Checks whether count field for each time aggregation is the sum of the count fields of the buckets
+     * @param timeline
+     */
+    private static void checkCounts(JsonArray timeline) {
+        for (int i = 0; i < timeline.size(); i++) {
+            int count = timeline.get(i).getAsJsonObject().get("count").getAsInt();
+            JsonArray buckets = timeline.get(i).getAsJsonObject().get("buckets").getAsJsonArray();
+            int sum = 0;
+            for(int j =0; j < buckets.size(); j++) {
+                sum = sum + buckets.get(j).getAsJsonObject().get("count").getAsInt();
+            }
+            assertThat(count, is(sum));
+        }
+    }
 
     private static JsonArray getTimelineInvalid(URL context, String queryString) throws IOException {
         WebClient webClient = new WebClient();
