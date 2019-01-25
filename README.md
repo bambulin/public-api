@@ -6,8 +6,11 @@
 
 - ELASTIC_HOST=localhost
 - ELASTIC_PORT=9300
-- ELASTIC_REST_PORT=9200
+- ELASTIC_REST_PORT=9200  - for testing only
 - ELASTIC_CLUSTER=archive
+- JWT_SECRET=test
+- AES_KEY=testtesttesttest
+- AES_IV=1234567890123456
 
 ### usage
 

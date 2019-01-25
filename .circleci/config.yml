@@ -8,6 +8,9 @@ jobs:
           ELASTIC_HOST: 127.0.0.1
           ELASTIC_PORT: 9300
           ELASTIC_REST_PORT: 9200
+          JWT_SECRET: test
+          AES_KEY: testtesttesttest
+          AES_IV: 1234567890123456
 
       # ELASTIC
       # Image repo: https://github.com/hugeox/elastic-docker

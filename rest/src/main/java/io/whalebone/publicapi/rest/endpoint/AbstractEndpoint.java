@@ -3,16 +3,15 @@ package io.whalebone.publicapi.rest.endpoint;
 import io.whalebone.publicapi.rest.validation.ValidInteger;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.QueryParam;
 import java.io.Serializable;
 
 abstract class AbstractEndpoint implements Serializable {
     private static final long serialVersionUID = -2618560708692266417L;
     private static final int DEFAULT_DAYS = 1;
 
-    //TODO will be discussed
-    @HeaderParam("whalebone_client_id")
+    @HeaderParam("wb_client_id")
     private String clientId;
     @QueryParam("client_ip")
     private String clientIp;
@@ -23,13 +22,13 @@ abstract class AbstractEndpoint implements Serializable {
     @QueryParam("days")
     private String daysParam;
 
-    String getClientId() { return clientId;
+    String getClientId() {
+        return clientId;
     }
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
-
 
     String getClientIp() {
         return clientIp;

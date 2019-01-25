@@ -6,6 +6,7 @@ import io.whalebone.publicapi.ejb.dto.EReason;
 import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
 import io.whalebone.publicapi.rest.EnumParamUtils;
+import io.whalebone.publicapi.rest.exception.AppException;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import io.whalebone.publicapi.rest.validation.RangedInteger;
 import org.apache.commons.lang3.StringUtils;

@@ -1,7 +1,5 @@
 package io.whalebone.publicapi.rest.exception.mapper;
 
-import com.google.gson.Gson;
-import io.whalebone.publicapi.rest.Api;
 import io.whalebone.publicapi.rest.exception.AppException;
 import io.whalebone.publicapi.rest.exception.dto.AppErrorMessage;
 

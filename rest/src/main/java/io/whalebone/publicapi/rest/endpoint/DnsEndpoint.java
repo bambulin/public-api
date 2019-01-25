@@ -6,6 +6,7 @@ import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.EAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
 import io.whalebone.publicapi.rest.EnumParamUtils;
+import io.whalebone.publicapi.rest.exception.AppException;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import io.whalebone.publicapi.rest.validation.RangedInteger;
 import org.apache.commons.lang3.StringUtils;
