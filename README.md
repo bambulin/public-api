@@ -16,6 +16,8 @@
 
 see https://app.swaggerhub.com/apis/whalebone/whalebone-api/1
 
+http port: 8080
+
 ### testing
 
 mvn integration-test -Parq-wildfly-managed
