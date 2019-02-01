@@ -648,7 +648,9 @@ public class PassiveDnsITTest extends Arquillian {
     private static JsonArray getTimeline(URL context, String queryString) throws IOException {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/dns/timeline?" + queryString), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("whalebone_client_id", "2");
+        requestSettings.setAdditionalHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
+                "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
+                "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_OK));
@@ -669,9 +671,11 @@ public class PassiveDnsITTest extends Arquillian {
         final String PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN);
 
-        String timestamp = time.truncatedTo(ChronoUnit.HOURS).format(formatter);
+        ZonedDateTime timestamp = time.truncatedTo(ChronoUnit.HOURS);
         for (int i = 0; i < timeline.size(); i++) {
-            if (timeline.get(i).getAsJsonObject().get("timestamp").getAsString().equals(timestamp)) {
+            String aggregationTimestampString = timeline.get(i).getAsJsonObject().get("timestamp").getAsString();
+            ZonedDateTime aggregationTimestamp = ZonedDateTime.parse(aggregationTimestampString, formatter);
+            if (timestamp.toInstant().equals(aggregationTimestamp.toInstant())) {
                 return timeline.get(i).getAsJsonObject();
             }
         }
@@ -700,7 +704,9 @@ public class PassiveDnsITTest extends Arquillian {
         WebClient webClient = new WebClient();
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         WebRequest requestSettings = new WebRequest(new URL(context + "1/dns/timeline?" + queryString), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("whalebone_client_id", "2");
+        requestSettings.setAdditionalHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
+                "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
+                "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_BAD_REQUEST));

@@ -8,7 +8,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.*;

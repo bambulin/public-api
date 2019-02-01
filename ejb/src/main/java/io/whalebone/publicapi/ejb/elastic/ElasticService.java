@@ -2,9 +2,11 @@ package io.whalebone.publicapi.ejb.elastic;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.rest.RestStatus;
@@ -50,7 +52,12 @@ public class ElasticService implements Serializable {
                     .setExplain(true)
                     .setTypes(type)
                     .setQuery(query)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    // closed indices issue, see https://github.com/elastic/elasticsearch/issues/20105
+                    .setIndicesOptions(IndicesOptions.fromOptions(
+                            true, true, true, false,
+                            SearchRequest.DEFAULT_INDICES_OPTIONS
+                    ));
             if (sort != null) {
                 search.addSort(sort);
             }
@@ -95,7 +102,12 @@ public class ElasticService implements Serializable {
                     .setTypes(type)
                     .setQuery(query)
                     .addAggregation(aggregation)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    // closed indices issue, see https://github.com/elastic/elasticsearch/issues/20105
+                    .setIndicesOptions(IndicesOptions.fromOptions(
+                            true, true, true, false,
+                            SearchRequest.DEFAULT_INDICES_OPTIONS
+                    ));
 
             final SearchResponse response = search.execute()
                     .actionGet();

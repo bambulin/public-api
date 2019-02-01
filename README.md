@@ -6,12 +6,17 @@
 
 - ELASTIC_HOST=localhost
 - ELASTIC_PORT=9300
-- ELASTIC_REST_PORT=9200
+- ELASTIC_REST_PORT=9200  - for testing only
 - ELASTIC_CLUSTER=archive
+- JWT_SECRET=test
+- AES_KEY=testtesttesttest
+- AES_IV=1234567890123456
 
 ### usage
 
 see https://app.swaggerhub.com/apis/whalebone/whalebone-api/1
+
+http port: 8080
 
 ### testing
 

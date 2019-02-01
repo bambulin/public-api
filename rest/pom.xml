@@ -27,51 +27,44 @@
             <type>ejb</type>
             <scope>provided</scope>
         </dependency>
-
         <!-- Import the CDI API, we use provided scope as the API is included in JBoss WildFly -->
         <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Import the Common Annotations API (JSR-250), we use provided scope as the API is included in JBoss WildFly -->
-        <!--<dependency>-->
-            <!--<groupId>org.jboss.spec.javax.annotation</groupId>-->
-            <!--<artifactId>jboss-annotations-api_1.3_spec</artifactId>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-
-        <!--&lt;!&ndash; Import the JSON API to build JSON Objects &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>javax.json</groupId>-->
-            <!--<artifactId>javax.json-api</artifactId>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-
         <!-- Import the JAX-RS API, we use provided scope as the API is included in JBoss WildFly -->
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- Import the EJB API, we use provided scope as the API is included in JBoss WildFly -->
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>
             <artifactId>jboss-ejb-api_3.2_spec</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-validator-provider-11</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>${com.auth0.java-jwt.version}</version>
+        </dependency>
+
+        <!-- test deps -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -101,7 +94,6 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>${maven.wildfly.plugin.version}</version>
             </plugin>
-
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
