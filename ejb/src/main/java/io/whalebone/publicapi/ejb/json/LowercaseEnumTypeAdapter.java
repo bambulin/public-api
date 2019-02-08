@@ -59,7 +59,7 @@ public class LowercaseEnumTypeAdapter<E extends Enum<E>> extends TypeAdapter<E> 
         } else {
             String value = reader.nextString();
             if (!deserializationMap.containsKey(value)) {
-                logger.log(Level.WARNING, "Unknown enum value \"{0}\" of enum {1}", new Object[] {value, enumClass});
+                logger.log(Level.FINEST, "Unknown enum value \"{0}\" of enum {1}", new Object[] {value, enumClass});
                 return null;
             }
             return deserializationMap.get(value);
