@@ -66,6 +66,13 @@ paths:
       responses:
         '200':
           description: Successful search
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/xRateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/xRateLimitRemaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/xRateLimitReset'
           content:
             'application/json':
               schema:
@@ -138,6 +145,8 @@ paths:
                 error: MISSING_AUTH_TOKEN
                 error_code: 0
                 message: Missing auth token
+        '421':
+          description: Access rate limit exceeded for given request ip address
         '500':
           description: Unexpected error
           content:
@@ -225,6 +234,13 @@ paths:
       responses:
         '200':
           description: Successful search
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/xRateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/xRateLimitRemaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/xRateLimitReset'
           content:
             'application/json':
               schema:
@@ -308,6 +324,8 @@ paths:
                 error: MISSING_AUTH_TOKEN
                 error_code: 0
                 message: Missing auth token
+        '421':
+          description: Access rate limit exceeded for given request ip address
         '500':
           description: Unexpected error
           content:
@@ -569,3 +587,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/error'
+
+  headers:
+    xRateLimitLimit:
+      schema:
+        type: integer
+      description: Request limit per time window.
+    xRateLimitRemaining:
+      schema:
+        type: integer
+      description: The number of requests left for the time window.
+    xRateLimitReset:
+      schema:
+        type: integer
+        format: int64
+      description: The unix timestamp at which the current rate limit window resets.
