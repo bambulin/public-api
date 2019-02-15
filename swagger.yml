@@ -1,0 +1,604 @@
+openapi: 3.0.2
+info:
+  description: 'API used to access data, integrate systems and automate processes'
+  version: "1-oas3"
+  title: Whalebone API
+  contact:
+    email: support@whalebone.io
+paths:
+  /events/search:
+    get:
+      tags:
+      - Event
+      summary: Get events according to a search parameters
+      security:
+      - Bearer: []
+      parameters:
+      - name: client_ip
+        in: query
+        description: Source IP address of the query (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: threat_type
+        in: query
+        description: Type of the event
+        required: false
+        schema:
+          type: string
+          enum:
+          - c&c
+          - blacklist
+          - malware
+          - phishing
+      - name: resolver_id
+        in: query
+        description: ID of the resolver that triggered the detection event
+        required: false
+        schema:
+          type: integer
+      - name: domain
+        in: query
+        description: Domain name that has been detected in the traffic (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: reason
+        in: query
+        description: Why was the action executed
+        required: false
+        schema:
+          type: string
+          enum:
+          - accuracy
+          - blacklist
+          - content
+          - legal
+      - name: days
+        in: query
+        description: Number of days the query will look in the past (range 1 - 90, default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 90
+          default: 1
+      responses:
+        '200':
+          description: Successful search
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/xRateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/xRateLimitRemaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/xRateLimitReset'
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/event'
+              example:
+              - event_id: AWjC9apenCJni0Q6P8r0
+                reason: accuracy
+                timestamp: '2000-01-23T04:56:07.000+00:00'
+                identifier:
+                - identifier1
+                - identifier2
+                geoip:
+                  latitude: 6.027456183070403
+                  country_code2: US
+                  longitude: 1.4658129805029452
+                client_ip: 1.2.3.4
+                domain: www.domain.us
+                accuracy: 25
+                action: log
+                threat_type:
+                - c&c
+              - event_id: AWjC9apenCJni0Q6P8rk
+                reason: accuracy
+                timestamp: '2000-01-23T01:00:01.000+00:00'
+                identifier:
+                - identifier3
+                geoip:
+                  latitude: 1.0000001
+                  country_code2: GB
+                  longitude: 2.1234566
+                client_ip: 1.2.3.5
+                domain: www.domain.uk
+                accuracy: 51
+                action: log
+                threat_type:
+                - blacklist
+        '400':
+          description: Invalid search parameters
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/multiple_error'
+              example:
+                message: Request validation failed
+                errors:
+                - error: INVALID_PARAM_VALUE
+                  error_code: 21
+                  message: Invalid enum value
+                  parameter: reason
+                  value: foo
+                  accepted_values:
+                  - accuracy
+                  - blacklist
+                  - content
+                  - legal
+                - error: INVALID_PARAM_VALUE
+                  error_code: 21
+                  message: Invalid value - value must be an integer in range 1 - 90
+                  parameter: days
+                  value: 200
+        '401':
+          description: Unauthorized access
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: MISSING_AUTH_TOKEN
+                error_code: 0
+                message: Missing auth token
+        '421':
+          description: Access rate limit exceeded for given request ip address
+        '500':
+          description: Unexpected error
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: UNEXPECTED_ERROR
+                error_code: 10
+                message: Unexpected error occurred.
+
+  /dns/timeline:
+    get:
+      tags:
+      - DNS
+      summary: Get DNS traffic hourly timeline according to the parameters
+      security:
+      - Bearer: []
+      parameters:
+      - name: client_ip
+        in: query
+        description: Source IP address of the query (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: query_type
+        in: query
+        description: Type of the DNS query
+        required: false
+        schema:
+          $ref: '#/components/schemas/query_type'
+      - name: domain
+        in: query
+        description: The second level domain name for the searc (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: query
+        in: query
+        description: The complete query string for the search (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: days
+        in: query
+        description: Number of days the query will look in the past (range 1 - 14, default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 14
+          default: 1
+      - name: resolver_id
+        in: query
+        description: ID of the resolver that processed the DNS traffic
+        required: false
+        schema:
+          type: integer
+      - name: aggregate
+        in: query
+        description: Aggregate the hourly buckets according to one of the allowed parameter
+        required: false
+        schema:
+          type: string
+          enum:
+          - client_ip
+          - tld
+          - domain
+          - query
+          - answer
+          - query_type
+          default: query_type
+      - name: answer
+        in: query
+        description: Filter according to the answer content (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: dga
+        in: query
+        description: Filter only domains that were classified as Domain Generation Algorithm
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Successful search
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/xRateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/xRateLimitRemaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/xRateLimitReset'
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/dns-time-bucket'
+                maxItems: 10
+                minItems: 0
+              example:
+              - timestamp: '2019-02-07T11:00:00+0000'
+                count: 72
+                buckets:
+                - query_type: a
+                  count: 57
+                - query_type: cname
+                  count: 15
+              - timestamp: '2019-02-07T12:00:00+0000'
+                count: 1155
+                buckets:
+                - query_type: a
+                  count: 816
+                - query_type: cname
+                  count: 259
+                - query_type: aaaa
+                  count: 77
+                - query_type: ptr
+                  count: 3
+              - timestamp: '2019-02-07T13:00:00+0000'
+                count: 913
+                buckets:
+                - query_type: a
+                  count: 681
+                - query_type: cname
+                  count: 229
+                - query_type: aaaa
+                  count: 2
+                - query_type: srv
+                  count: 1
+              - timestamp: '2019-02-07T14:00:00+0000'
+                count: 1563
+                buckets:
+                - query_type: a
+                  count: 1107
+                - query_type: cname
+                  count: 442
+                - query_type: aaaa
+                  count: 14
+        '400':
+          description: Invalid search parameters
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/multiple_error'
+              example:
+                message: Request validation failed
+                errors:
+                - error: INVALID_PARAM_VALUE
+                  error_code: 21
+                  message: Invalid enum value
+                  parameter: aggregate
+                  value: foo
+                  accepted_values:
+                  - client_ip
+                  - tld
+                  - domain
+                  - query
+                  - answer
+                  - query_type
+                - error: INVALID_PARAM_VALUE
+                  error_code: 21
+                  message: Invalid value - value must be an integer in range 1 - 14
+                  parameter: days
+                  value: 200
+        '401':
+          description: Unauthorized access
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: MISSING_AUTH_TOKEN
+                error_code: 0
+                message: Missing auth token
+        '421':
+          description: Access rate limit exceeded for given request ip address
+        '500':
+          description: Unexpected error
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: UNEXPECTED_ERROR
+                error_code: 10
+                message: Unexpected error occurred.
+servers:
+- url: 'https://api.whalebone.io/whalebone/1'
+components:
+  securitySchemes:
+    Bearer:
+      type: apiKey
+      name: Authorization
+      in: header
+  schemas:
+    event:
+      type: object
+      properties:
+        event_id:
+          type: string
+          description: Unique identifier of the Event
+        timestamp:
+          type: string
+          format: date-time
+          description: The exact timestamp of the Event in UTC
+        accuracy:
+          type: integer
+          format: int32
+          description: Accuracy of the detected event based on the Whalebone reputation system
+        resolver_id:
+          type: integer
+          description: ID of the resolver that triggered the detection event
+        action:
+          type: string
+          description: What has been done to the request
+          enum:
+          - log
+          - block
+        reason:
+          type: string
+          description: Why was the action executed
+          enum:
+          - accuracy
+          - blacklist
+          - content
+          - legal
+        client_ip:
+          type: string
+          description: Source IP of the DNS request
+        domain:
+          type: string
+          description: Domain that was queried in the DNS request
+        threat_type:
+          type: array
+          description: The type of the threat detected
+          items:
+            type: string
+            enum:
+            - c&c
+            - blacklist
+            - malware
+            - phishing
+        identifier:
+          type: array
+          description: Specifics regarding the threat name, platform or campaign
+          items:
+            type: string
+        geoip:
+          $ref: '#/components/schemas/event_geoip'
+
+    event_geoip:
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+        country_code2:
+          type: string
+      example:
+        latitude: 6.027456183070403
+        country_code2: CZ
+        longitude: 1.4658129805029452
+
+    dns-time-bucket:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the start of this hour-long bucket
+        count:
+          type: integer
+          format: int64
+          description: Count of dns events in the hour-bucket
+        buckets:
+          type: array
+          items:
+            oneOf:
+            - $ref: "#/components/schemas/dns-query-type-bucket"
+            - $ref: "#/components/schemas/dns-client-ip-bucket"
+            - $ref: "#/components/schemas/dns-answer-bucket"
+            - $ref: "#/components/schemas/dns-query-bucket"
+            - $ref: "#/components/schemas/dns-domain-bucket"
+            - $ref: "#/components/schemas/dns-tld-bucket"
+          maxItems: 10
+          minItems: 0
+
+    dns-aggregate-bucket:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int64
+          description: Count of dns events in the bucket
+
+    dns-query-type-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          query_type:
+            $ref: '#/components/schemas/query_type'
+
+    dns-client-ip-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          client_ip:
+            type: string
+            description: Client ip that aggregates events in the bucket
+
+    dns-answer-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          answer:
+            type: string
+            description: DNS answer that aggregates events in the bucket
+
+    dns-query-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          query:
+            type: string
+            description: Query that aggregates events in the bucket
+
+    dns-domain-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          domain:
+            type: string
+            description: Domain that aggregates events in the bucket
+
+    dns-tld-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          tld:
+            type: string
+            description: TLD that aggregates events in the bucket
+
+    query_type:
+      type: string
+      enum:
+      - a
+      - aaaa
+      - afsdb
+      - apl
+      - caa
+      - cdnskey
+      - cds
+      - cert
+      - cname
+      - dhcid
+      - dlv
+      - dname
+      - dnskey
+      - ds
+      - hip
+      - ipseckey
+      - key
+      - kx
+      - loc
+      - mx
+      - naptr
+      - ns
+      - nsec
+      - nsec3
+      - nsec3param
+      - openpgpkey
+      - ptr
+      - rrsig
+      - rp
+      - sig
+      - soa
+      - srv
+      - sshfp
+      - ta
+      - tkey
+      - tlsa
+      - tsig
+      - txt
+      - uri
+      - aname
+
+    error:
+      type: object
+      description: Generic error object
+      required:
+      - error
+      - error_code
+      - message
+      properties:
+        error:
+          type: string
+          description: Error representation string
+          enum:
+          - MISSING_AUTH_TOKEN
+          - INVALID_AUTH_TOKEN
+          - UNEXPECTED_ERROR
+          - INVALID_PARAM_VALUE
+        error_code:
+          type: integer
+          description: Numerical code of error
+        message:
+          type: string
+          description: Error detailed message
+        parameter:
+          type: string
+          description: Name of the invalid parameter (required if error is INVALID_PARAM_VALUE)
+        value:
+          type: string
+          description: Invalid param value (required if the error is INVALID_PARAM_VALUE)
+        accepted_values:
+          type: array
+          description: Array of accepted values of the parameter (required if the error is INVALID_PARAM_VALUE and the parameter is an enum)
+          items:
+            type: string
+
+    multiple_error:
+      type: object
+      description: multiple error object
+      properties:
+        message:
+          type: string
+          description: Generic error message
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+
+  headers:
+    xRateLimitLimit:
+      schema:
+        type: integer
+      description: Request limit per time window.
+    xRateLimitRemaining:
+      schema:
+        type: integer
+      description: The number of requests left for the time window.
+    xRateLimitReset:
+      schema:
+        type: integer
+        format: int64
+      description: The unix timestamp at which the current rate limit window resets.

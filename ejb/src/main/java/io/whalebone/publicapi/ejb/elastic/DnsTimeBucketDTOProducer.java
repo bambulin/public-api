@@ -80,7 +80,7 @@ public class DnsTimeBucketDTOProducer {
                 try {
                     aggregateBucket.setQueryType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKey())));
                 } catch (IllegalArgumentException iae) {
-                    logger.log(Level.WARNING, "Unknown query type value \"{0}\"", termBucket.getKey());
+                    logger.log(Level.FINEST, "Unknown query type value \"{0}\"", termBucket.getKey());
                     return null;
                 }
                 break;
