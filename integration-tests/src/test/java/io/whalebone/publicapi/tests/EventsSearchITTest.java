@@ -288,7 +288,7 @@ public class EventsSearchITTest extends Arquillian {
         JsonArray jsonErrors = eventsSearchInvalid(context, "threat_type=xyz");
         assertThat(jsonErrors.size(), is(1));
         assertThat(jsonErrors.get(0), is(error("threat_type", "xyz", 21, "INVALID_PARAM_VALUE", "Invalid enum value",
-                new String[] {"c\u0026c", "blacklist", "malware", "phishing", "exploit", "legal "})));
+                new String[] {"c\u0026c", "blacklist", "malware", "phishing", "exploit", "legal"})));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
