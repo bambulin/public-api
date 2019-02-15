@@ -31,6 +31,8 @@ paths:
           - blacklist
           - malware
           - phishing
+          - legal
+          - exploit
       - name: resolver_id
         in: query
         description: ID of the resolver that triggered the detection event
@@ -392,6 +394,8 @@ components:
             - blacklist
             - malware
             - phishing
+            - legal
+            - exploit
         identifier:
           type: array
           description: Specifics regarding the threat name, platform or campaign

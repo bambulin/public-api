@@ -63,8 +63,9 @@ public class EventsSearchITTest extends Arquillian {
         String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
         assertThat(eventA, is(event(timestamp, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.4", "stoppblock.org", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.4", "stoppblock.org",
+                new String[] {"malware", "c&c", "legal"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
@@ -287,7 +288,7 @@ public class EventsSearchITTest extends Arquillian {
         JsonArray jsonErrors = eventsSearchInvalid(context, "threat_type=xyz");
         assertThat(jsonErrors.size(), is(1));
         assertThat(jsonErrors.get(0), is(error("threat_type", "xyz", 21, "INVALID_PARAM_VALUE", "Invalid enum value",
-                new String[] {"c\u0026c", "blacklist", "malware", "phishing", "exploit"})));
+                new String[] {"c\u0026c", "blacklist", "malware", "phishing", "exploit", "legal "})));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)

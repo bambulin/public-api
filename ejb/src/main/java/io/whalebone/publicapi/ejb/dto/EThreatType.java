@@ -8,5 +8,6 @@ public enum EThreatType {
     BLACKLIST,
     MALWARE,
     PHISHING,
-    EXPLOIT
+    EXPLOIT,
+    LEGAL
 }
