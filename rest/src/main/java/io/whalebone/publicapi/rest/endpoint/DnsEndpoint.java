@@ -69,6 +69,7 @@ public class DnsEndpoint extends AbstractDnsEndpoint {
                 .queryType(getQueryType())
                 .aggregate(getAggregate())
                 .clientIp(clientIp)
+                .query(getQuery())
                 .answer(answer)
                 .days(getDays())
                 .dga(dga)

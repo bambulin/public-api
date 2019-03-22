@@ -2,7 +2,7 @@
   "@timestamp": "@TIMESTAMP@",
   "resolver_id": "3",
   "domain_l1": "cz3",
-  "query": "szn-broken-dnssec3.cz.",
+  "query": "wtf.whalebone.io",
   "domain_l2": "szn-broken-dnssec3.cz",
   "@version": "1",
   "query_type": "DHCID",

@@ -115,6 +115,32 @@ public class DnsSecTimelineITTest extends Arquillian {
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
     @OperateOnDeployment("ear")
     @RunAsClient
+    public void aggregateByQueryType_withQueryParamTest(@ArquillianResource URL context) throws Exception {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleDnsSecLogs("dnssec/by_query_type/now", timestamp);
+        archiveInitiator.sendMultipleDnsSecLogs("dnssec/by_query_type/older", timestamp.minusHours(1).minusMinutes(1));
+        archiveInitiator.sendMultipleDnsSecLogs("dnssec/by_query_type/too_old", timestamp.minusDays(1).minusMinutes(1));
+        JsonArray timeline = getTimeline(context, "aggregate=query_type&query=wtf.whalebone.io");
+
+        assertThat(timeline.size(), is(2));
+        JsonArray thisHourBuckets = AggregationUtils.getTimeAggregation(timestamp, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        assertThat(thisHourBuckets.size(), is(1));
+        JsonObject[] expectedThisOurBuckets = {
+                AggregationUtils.createBucketElement("query_type", "dhcid", 1)
+        };
+        assertThat(thisHourBuckets, containsInAnyOrder(expectedThisOurBuckets));
+
+        JsonArray lastHourBuckets = AggregationUtils.getTimeAggregation(timestamp.minusHours(1).minusMinutes(1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        assertThat(lastHourBuckets.size(), is(1));
+        JsonObject[] expectedLastHourBuckets = {
+                AggregationUtils.createBucketElement("query_type", "dname", 1)
+        };
+        assertThat(lastHourBuckets, containsInAnyOrder(expectedLastHourBuckets));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
     public void aggregateByQueryType_twoDaysDaysTest(@ArquillianResource URL context) throws Exception {
         ZonedDateTime timestamp = timestamp();
         archiveInitiator.sendMultipleDnsSecLogs("dnssec/by_query_type/now", timestamp);

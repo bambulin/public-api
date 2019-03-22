@@ -51,6 +51,7 @@ public class DnsSecEndpoint extends AbstractDnsEndpoint {
                 .aggregate(getAggregate())
                 .days(getDays())
                 .domain(getDomain())
+                .query(getQuery())
                 .resolverId(getResolverId())
                 .tld(getTld())
                 .build();
