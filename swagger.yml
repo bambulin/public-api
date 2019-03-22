@@ -338,6 +338,163 @@ paths:
                 error: UNEXPECTED_ERROR
                 error_code: 10
                 message: Unexpected error occurred.
+
+  /dnssec/timeline:
+    get:
+      tags:
+      - DNSSEC
+      summary: Get DNSSEC traffic hourly timeline according to the parameters
+      security:
+      - Bearer: []
+      parameters:
+      - name: query_type
+        in: query
+        description: Type of the DNS query
+        required: false
+        schema:
+          $ref: '#/components/schemas/query_type'
+      - name: domain
+        in: query
+        description: The second level domain name for the searc (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: query
+        in: query
+        description: The complete query string for the search (parameter accepts * wildcard)
+        required: false
+        schema:
+          type: string
+      - name: days
+        in: query
+        description: Number of days the query will look in the past (range 1 - 14, default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 14
+          default: 1
+      - name: resolver_id
+        in: query
+        description: ID of the resolver that processed the DNS traffic
+        required: false
+        schema:
+          type: integer
+      - name: aggregate
+        in: query
+        description: Aggregate the hourly buckets according to one of the allowed parameters
+        required: false
+        schema:
+          type: string
+          enum:
+          - tld
+          - domain
+          - query
+          - query_type
+          default: query_type
+      responses:
+        '200':
+          description: Successful search
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/xRateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/xRateLimitRemaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/xRateLimitReset'
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/dnssec-time-bucket'
+                maxItems: 10
+                minItems: 0
+              example:
+              - timestamp: '2019-02-07T11:00:00+0000'
+                count: 72
+                buckets:
+                - query_type: a
+                  count: 57
+                - query_type: cname
+                  count: 15
+              - timestamp: '2019-02-07T12:00:00+0000'
+                count: 1155
+                buckets:
+                - query_type: a
+                  count: 816
+                - query_type: cname
+                  count: 259
+                - query_type: aaaa
+                  count: 77
+                - query_type: ptr
+                  count: 3
+              - timestamp: '2019-02-07T13:00:00+0000'
+                count: 913
+                buckets:
+                - query_type: a
+                  count: 681
+                - query_type: cname
+                  count: 229
+                - query_type: aaaa
+                  count: 2
+                - query_type: srv
+                  count: 1
+              - timestamp: '2019-02-07T14:00:00+0000'
+                count: 1563
+                buckets:
+                - query_type: a
+                  count: 1107
+                - query_type: cname
+                  count: 442
+                - query_type: aaaa
+                  count: 14
+        '400':
+          description: Invalid search parameters
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/multiple_error'
+              example:
+                message: Request validation failed
+                errors:
+                - error: INVALID_PARAM_VALUE
+                  error_code: 21
+                  message: Invalid enum value
+                  parameter: aggregate
+                  value: foo
+                  accepted_values:
+                  - tld
+                  - domain
+                  - query
+                  - query_type
+                - error: INVALID_PARAM_VALUE
+                  error_code: 21
+                  message: Invalid value - value must be an integer in range 1 - 14
+                  parameter: days
+                  value: 200
+        '401':
+          description: Unauthorized access
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: MISSING_AUTH_TOKEN
+                error_code: 0
+                message: Missing auth token
+        '421':
+          description: Access rate limit exceeded for given request ip address
+        '500':
+          description: Unexpected error
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: UNEXPECTED_ERROR
+                error_code: 10
+                message: Unexpected error occurred.
 servers:
 - url: 'https://api.whalebone.io/whalebone/1'
 components:
@@ -435,6 +592,28 @@ components:
             - $ref: "#/components/schemas/dns-query-type-bucket"
             - $ref: "#/components/schemas/dns-client-ip-bucket"
             - $ref: "#/components/schemas/dns-answer-bucket"
+            - $ref: "#/components/schemas/dns-query-bucket"
+            - $ref: "#/components/schemas/dns-domain-bucket"
+            - $ref: "#/components/schemas/dns-tld-bucket"
+          maxItems: 10
+          minItems: 0
+
+    dnssec-time-bucket:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the start of this hour-long bucket
+        count:
+          type: integer
+          format: int64
+          description: Count of dns events in the hour-bucket
+        buckets:
+          type: array
+          items:
+            oneOf:
+            - $ref: "#/components/schemas/dns-query-type-bucket"
             - $ref: "#/components/schemas/dns-query-bucket"
             - $ref: "#/components/schemas/dns-domain-bucket"
             - $ref: "#/components/schemas/dns-tld-bucket"
