@@ -53,4 +53,9 @@ public class ParamValidationErrorMatcher extends JsonElementMatcher {
         }
         return true;
     }
+
+    public static ParamValidationErrorMatcher error(String parameter, String value, int errorCode, String errorType,
+                                                     String message, String[] acceptedValues) {
+        return new ParamValidationErrorMatcher(parameter, value, errorCode, errorType, message, acceptedValues);
+    }
 }

@@ -20,7 +20,7 @@ import java.util.List;
 
 @Path("/1/events")
 @RequestScoped
-public class EventEndpoint extends AbstractEndpoint {
+public class EventEndpoint extends ClientAbstractEndpoint {
     private static final long serialVersionUID = -4829163700948200095L;
 
     @EJB

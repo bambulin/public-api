@@ -1,14 +1,14 @@
 package io.whalebone.publicapi.ejb.criteria;
 
-import io.whalebone.publicapi.ejb.dto.EAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
+import io.whalebone.publicapi.ejb.dto.aggregate.IDnsAggregate;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class DnsTimelineCriteria extends ClientCriteria {
     private EDnsQueryType queryType;
-    private EAggregate aggregate;
+    private IDnsAggregate aggregate;
     private String query;
     private String answer;
     private String tld;
@@ -21,7 +21,7 @@ public class DnsTimelineCriteria extends ClientCriteria {
                                final Integer resolverId,
                                final String clientIp,
                                final EDnsQueryType queryType,
-                               final EAggregate aggregate,
+                               final IDnsAggregate aggregate,
                                final String query,
                                final String answer,
                                final String tld,

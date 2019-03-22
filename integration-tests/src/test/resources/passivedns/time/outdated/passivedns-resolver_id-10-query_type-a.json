@@ -31,6 +31,6 @@
     "query": "subdomain.some-domain.com",
     "query_type": "A",
     "resolver_id": "10",
-    "timestamp": "2018-03-28T06:58:22.000Z",
+    "timestamp":"@TIMESTAMP@",
     "ttl": 300
 }

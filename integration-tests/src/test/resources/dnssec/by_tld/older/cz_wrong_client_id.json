@@ -1,0 +1,10 @@
+{
+  "@timestamp": "@TIMESTAMP@",
+  "resolver_id": "3",
+  "domain_l1": "cz",
+  "query": "szn-broken-dnssec5.cz.",
+  "domain_l2": "szn-broken-dnssec5.cz",
+  "@version": "1",
+  "query_type": "DNSKEY",
+  "client_id": "666"
+}

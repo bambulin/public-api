@@ -37,7 +37,18 @@ public class ArchiveInitiator {
     }
 
     /**
-     * cleans all dns logs
+     * cleans all dnssec logs
+     */
+    public void cleanDnsSecLogs() throws IOException {
+        WebRequest requestSettings = new WebRequest(
+                new URL(elasticEndpoint +
+                        "/" + ElasticService.DNSSEC_INDEX_ALIAS + "*"), HttpMethod.DELETE);
+
+        webClient.getPage(requestSettings);
+    }
+
+    /**
+     * cleans all log events
      */
     public void cleanEventLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
@@ -69,12 +80,20 @@ public class ArchiveInitiator {
         sendJsonFile(filename, createLogsIndex(timestamp), ElasticService.LOGS_TYPE, timestamp);
     }
 
+    public void sendDnsSecLog(String filename, ZonedDateTime timestamp) throws IOException {
+        sendJsonFile(filename, createDnsSecIndex(timestamp), ElasticService.DNSSEC_TYPE, timestamp);
+    }
+
     public void sendMultipleDnsLogs(String dirName, ZonedDateTime timestamp) throws IOException {
         sendMultipleFiles(dirName, createPassiveDnsIndex(timestamp), ElasticService.PASSIVE_DNS_TYPE, timestamp);
     }
 
     public void sendMultipleLogEvents(String dirName, ZonedDateTime timestamp) throws IOException {
         sendMultipleFiles(dirName, createLogsIndex(timestamp), ElasticService.LOGS_TYPE, timestamp);
+    }
+
+    public void sendMultipleDnsSecLogs(String dirName, ZonedDateTime timestamp) throws IOException {
+        sendMultipleFiles(dirName, createDnsSecIndex(timestamp), ElasticService.DNSSEC_TYPE, timestamp);
     }
 
     private void sendJsonFile(String fileName, String index, String type, ZonedDateTime timestamp) throws IOException {
@@ -116,12 +135,7 @@ public class ArchiveInitiator {
      */
     public String updateTimestamps(String text, ZonedDateTime timestamp) {
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"));
-        return text.replaceAll(
-                        "\"timestamp\" *: *\".*?\"",
-                        "\"timestamp\": \"" + timestampFormatted + "\"")
-                    .replaceAll(
-                        "\"logged\" *: *\".*?\"",
-                        "\"logged\": \"" + timestampFormatted + "\"");
+        return text.replaceAll("@TIMESTAMP@", timestampFormatted);
     }
 
     private String createLogsIndex(ZonedDateTime timestamp) {
@@ -132,5 +146,10 @@ public class ArchiveInitiator {
     private String createPassiveDnsIndex(ZonedDateTime timestamp) {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         return ElasticService.PASSIVE_DNS_INDEX_ALIAS + "-" + date;
+    }
+
+    private String createDnsSecIndex(ZonedDateTime timestamp) {
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        return ElasticService.DNSSEC_INDEX_ALIAS + "-" + date;
     }
 }

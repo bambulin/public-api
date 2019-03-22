@@ -3,6 +3,8 @@ package io.whalebone.publicapi.ejb;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.whalebone.publicapi.ejb.dto.*;
+import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
+import io.whalebone.publicapi.ejb.dto.aggregate.EDnsSecAggregate;
 import io.whalebone.publicapi.ejb.elastic.Elastic;
 import io.whalebone.publicapi.ejb.elastic.ElasticClientProvider;
 import io.whalebone.publicapi.ejb.json.ArchiveMappedDeserializer;
@@ -21,6 +23,7 @@ import java.util.logging.Logger;
 
 @Dependent
 public class Resources implements Serializable {
+    private static final long serialVersionUID = -5254553036199459988L;
 
     @Inject
     private ElasticClientProvider elasticClientProvider;
@@ -45,7 +48,8 @@ public class Resources implements Serializable {
                 .registerTypeAdapter(EventDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(GeoIpDTO.class, new ArchiveMappedDeserializer())
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
-                .registerTypeAdapter(EAggregate.class, new LowercaseEnumTypeAdapter<>(EAggregate.class))
+                .registerTypeAdapter(EDnsAggregate.class, new LowercaseEnumTypeAdapter<>(EDnsAggregate.class))
+                .registerTypeAdapter(EDnsSecAggregate.class, new LowercaseEnumTypeAdapter<>(EDnsSecAggregate.class))
                 .registerTypeAdapter(EReason.class, new LowercaseEnumTypeAdapter<>(EReason.class))
                 .registerTypeAdapter(EThreatType.class, new LowercaseEnumTypeAdapter<>(EThreatType.class))
                 // DON'T register adapter for EDnsQueryType since archive has this enum vals defined with uppercase

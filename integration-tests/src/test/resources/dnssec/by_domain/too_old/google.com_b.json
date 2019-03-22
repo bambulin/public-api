@@ -1,0 +1,10 @@
+{
+  "@timestamp": "@TIMESTAMP@",
+  "resolver_id": "3",
+  "domain_l1": "io",
+  "query": "szn-broken-dnssec3.cz.",
+  "domain_l2": "google.com",
+  "@version": "1",
+  "query_type": "DHCID",
+  "client_id": "2"
+}

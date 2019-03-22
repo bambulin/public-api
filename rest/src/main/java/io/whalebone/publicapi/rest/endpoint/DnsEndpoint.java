@@ -3,12 +3,9 @@ package io.whalebone.publicapi.rest.endpoint;
 import io.whalebone.publicapi.ejb.PublicApiService;
 import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
-import io.whalebone.publicapi.ejb.dto.EAggregate;
-import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
+import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
 import io.whalebone.publicapi.rest.EnumParamUtils;
-import io.whalebone.publicapi.rest.exception.AppException;
 import io.whalebone.publicapi.rest.validation.EnumValue;
-import io.whalebone.publicapi.rest.validation.RangedInteger;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ejb.EJB;
@@ -19,9 +16,9 @@ import java.util.List;
 
 @Path("/1/dns")
 @RequestScoped
-public class DnsEndpoint extends AbstractEndpoint {
+public class DnsEndpoint extends AbstractDnsEndpoint {
     private static final long serialVersionUID = 2399760037640668858L;
-    private static final EAggregate DEFAULT_AGGREGATE = EAggregate.QUERY_TYPE;
+    private static final EDnsAggregate DEFAULT_AGGREGATE = EDnsAggregate.QUERY_TYPE;
 
     @EJB
     private PublicApiService publicApiService;
@@ -30,64 +27,33 @@ public class DnsEndpoint extends AbstractEndpoint {
      * parameters must be String so we can provide meaningful validation message in case of invalid parameter
      * otherwise wildfly returns 404 NOT FOUND which is misleading
      */
-    @QueryParam("query_type")
-    private String queryTypeParam;
-    @QueryParam("aggregate")
-    private String aggregateParam;
+    @QueryParam("client_ip")
+    private String clientIp;
     @QueryParam("answer")
     private String answer;
-    @QueryParam("tld")
-    private String tld;
     @QueryParam("dga")
     private boolean dga;
 
-    public void setQueryTypeParam(String typeParam) {
-        this.queryTypeParam = typeParam;
-    }
-
-    @EnumValue(EDnsQueryType.class)
-    public String getQueryTypeParam() {
-        return queryTypeParam;
-    }
-
-    @RangedInteger(min = 1, max = 14)
-    @Override
-    public String getDaysParam() {
-        return super.getDaysParam();
-    }
-
-    public void setAggregateParam(String aggregateParam) {
-        this.aggregateParam = aggregateParam;
-    }
-
-    @EnumValue(EAggregate.class)
+    @EnumValue(EDnsAggregate.class)
     public String getAggregateParam() {
-        return aggregateParam;
+        return super.getAggregateParam();
     }
 
     public void setAnswer(String answer) {
         this.answer = answer;
     }
 
-    public void setTld(String tld) {
-        this.tld = tld;
-    }
-
     public void setDga(boolean dga) {
         this.dga = dga;
     }
 
-    private EDnsQueryType getQueryType() {
-        if (StringUtils.isNotBlank(queryTypeParam)) {
-            return EnumParamUtils.getEnumValue(EDnsQueryType.class, queryTypeParam);
-        } else {
-            return null;
-        }
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
     }
 
-    private EAggregate getAggregate() {
-        if (StringUtils.isNotBlank(aggregateParam)) {
-            return EnumParamUtils.getEnumValue(EAggregate.class, aggregateParam);
+    private EDnsAggregate getAggregate() {
+        if (StringUtils.isNotBlank(getAggregateParam())) {
+            return EnumParamUtils.getEnumValue(EDnsAggregate.class, getAggregateParam());
         } else {
             return DEFAULT_AGGREGATE;
         }
@@ -102,13 +68,13 @@ public class DnsEndpoint extends AbstractEndpoint {
                 .clientId(getClientId())
                 .queryType(getQueryType())
                 .aggregate(getAggregate())
-                .clientIp(getClientIp())
+                .clientIp(clientIp)
                 .answer(answer)
                 .days(getDays())
                 .dga(dga)
                 .domain(getDomain())
                 .resolverId(getResolverId())
-                .tld(tld)
+                .tld(getTld())
                 .build();
 
         List<DnsTimeBucketDTO> dnsRecords = publicApiService.dnsTimeline(criteria);

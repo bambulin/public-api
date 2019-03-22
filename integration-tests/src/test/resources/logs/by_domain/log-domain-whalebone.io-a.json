@@ -45,7 +45,7 @@
       "taxonomy": "Malicious Code"
     }
   }],
-  "logged": "2018-12-13T15:55:13+0100",
+  "logged":"@TIMESTAMP@",
   "host": "1.2.3.4",
   "request": {
     "fqdn": "a.net",

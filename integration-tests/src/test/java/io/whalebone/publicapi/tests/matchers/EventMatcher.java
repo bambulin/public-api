@@ -94,4 +94,20 @@ public class EventMatcher extends JsonElementMatcher {
         }
         return true;
     }
+
+    public static EventMatcher event(String timestamp,
+                                      Integer accuracy,
+                                      Integer resolverId,
+                                      String action,
+                                      String reason,
+                                      String clientIp,
+                                      String domain,
+                                      String[] threatType,
+                                      String[] identifier,
+                                      Double latitude,
+                                      Double longitude,
+                                      String countryCode2) {
+        return new EventMatcher(timestamp, accuracy, resolverId, action, reason, clientIp, domain, threatType,
+                identifier, latitude, longitude, countryCode2);
+    }
 }
