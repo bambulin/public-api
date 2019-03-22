@@ -34,6 +34,8 @@ public class ElasticService implements Serializable {
     public static final String LOGS_TYPE = "match";
     public static final String PASSIVE_DNS_INDEX_ALIAS = "passivedns";
     public static final String PASSIVE_DNS_TYPE = "logs";
+    public static final String DNSSEC_INDEX_ALIAS = "dnssec";
+    public static final String DNSSEC_TYPE = "log";
 
     @Inject
     private Client elasticClient;
@@ -67,9 +69,6 @@ public class ElasticService implements Serializable {
             if (response.isTimedOut()) {
                 throw new ElasticSearchException("Elastic search timed out");
             }
-//            if (response.isTerminatedEarly()) {
-//                throw new ArchiveException("Elastic search has been terminated early");
-//            }
             if (!RestStatus.OK.equals(response.status())) {
                 throw new ElasticSearchException("Elastic search has not ended successfully: " + response.status());
             }
@@ -114,9 +113,6 @@ public class ElasticService implements Serializable {
             if (response.isTimedOut()) {
                 throw new ElasticSearchException("Elastic search timed out");
             }
-//            if (response.isTerminatedEarly()) {
-//                throw new ArchiveException("Elastic search has been terminated early");
-//            }
             if (!RestStatus.OK.equals(response.status())) {
                 throw new ElasticSearchException("Elastic search has not ended successfully: " + response.status());
             }

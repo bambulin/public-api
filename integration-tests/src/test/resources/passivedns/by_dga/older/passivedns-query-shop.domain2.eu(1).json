@@ -31,6 +31,6 @@
     "query": "shop.domain2.eu",
     "query_type": "A",
     "resolver_id": "12",
-    "timestamp": "2018-03-28T06:58:22.000Z",
+    "timestamp":"@TIMESTAMP@",
     "ttl": 300
 }

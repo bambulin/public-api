@@ -1,0 +1,76 @@
+{
+  "order": 0,
+  "template": "dnssec-*",
+  "settings": {
+    "index.refresh_interval": "5s",
+    "index.number_of_shards": "6"
+  },
+  "mappings": {
+    "log": {
+      "numeric_detection": true,
+      "dynamic_templates": [
+        {
+          "string_fields": {
+            "mapping": {
+              "index": "not_analyzed",
+              "omit_norms": true,
+              "type": "string"
+            },
+            "match_mapping_type": "string",
+            "match": "*"
+          }
+        }
+      ],
+      "date_detection": true,
+      "properties": {
+        "@timestamp": {
+          "format": "dateOptionalTime",
+          "type": "date"
+        },
+        "resolver_id": {
+          "type": "long"
+        },
+        "domain_l1": {
+          "fielddata": {
+            "loading": "eager_global_ordinals"
+          },
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "query": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "domain_l2": {
+          "fielddata": {
+            "loading": "eager_global_ordinals"
+          },
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "@version": {
+          "type": "long"
+        },
+        "domain_rest": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "query_type": {
+          "fielddata": {
+            "loading": "eager_global_ordinals"
+          },
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "client_id": {
+          "type": "long"
+        }
+      }
+    }
+  },
+  "aliases": {
+    "dnssec": {
+
+    }
+  }
+}

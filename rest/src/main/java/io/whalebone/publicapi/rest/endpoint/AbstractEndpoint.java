@@ -13,8 +13,6 @@ abstract class AbstractEndpoint implements Serializable {
 
     @HeaderParam("wb_client_id")
     private String clientId;
-    @QueryParam("client_ip")
-    private String clientIp;
     @QueryParam("resolver_id")
     private String resolverIdParam;
     @QueryParam("domain")
@@ -28,14 +26,6 @@ abstract class AbstractEndpoint implements Serializable {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    String getClientIp() {
-        return clientIp;
-    }
-
-    public void setClientIp(String clientIp) {
-        this.clientIp = clientIp;
     }
 
     @ValidInteger

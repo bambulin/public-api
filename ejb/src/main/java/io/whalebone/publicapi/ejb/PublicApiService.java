@@ -49,8 +49,8 @@ public class PublicApiService {
 
         List<FilterBuilder> filters = new ArrayList<>();
         filters.add(FilterBuilders.rangeFilter("logged")
-                .lte("now")
-                .gte(nowMinusDays(criteria.getDays()))
+                .lte(nowFormatted())
+                .gte(nowMinusDaysFormatted(criteria.getDays()))
         );
         filters.add(FilterBuilders.termFilter("client_id", criteria.getClientId()));
 
@@ -61,7 +61,7 @@ public class PublicApiService {
         return elasticService.search(search, null, ElasticService.LOGS_INDEX_ALIAS, ElasticService.LOGS_TYPE , EventDTO.class);
     }
 
-    public List<DnsTimeBucketDTO> dnsTimeline(DnsTimelineCriteria criteria) {
+    public List<DnsTimeBucketDTO> dnsAggregations(DnsTimelineCriteria criteria, String index, String type) {
         List<QueryBuilder> queries = new ArrayList<>();
         prepareFieldParamQuery("client", criteria.getClientIp(), queries, true);
         prepareFieldParamQuery("query_type", serializeEnumParam(criteria.getQueryType()), queries, false);
@@ -80,10 +80,17 @@ public class PublicApiService {
             bool.must(query);
         }
 
+        String timestampField;
+        if (ElasticService.DNSSEC_INDEX_ALIAS.equals(index)) {
+            timestampField = "@timestamp";
+        } else {
+            timestampField = "timestamp";
+        }
+
         List<FilterBuilder> filters = new ArrayList<>();
-        filters.add(FilterBuilders.rangeFilter("timestamp")
-                .lte("now")
-                .gte(nowMinusDays(criteria.getDays()))
+        filters.add(FilterBuilders.rangeFilter(timestampField)
+                .lte(nowFormatted())
+                .gte(nowMinusDaysFormatted(criteria.getDays()))
         );
         filters.add(FilterBuilders.termFilter("client_id", criteria.getClientId()));
 
@@ -92,7 +99,7 @@ public class PublicApiService {
         QueryBuilder search = QueryBuilders.filteredQuery(bool, FilterBuilders.andFilter(filterArray));
 
         DateHistogramBuilder aggregation = AggregationBuilders.dateHistogram(DnsTimeBucketDTOProducer.TIME_AGGREGATION)
-                .field("timestamp")
+                .field(timestampField)
                 .interval(DateHistogram.Interval.HOUR);
         if (criteria.getAggregate() != null) {
             aggregation.subAggregation(AggregationBuilders.terms(DnsTimeBucketDTOProducer.TERM_AGGREGATION)
@@ -101,8 +108,15 @@ public class PublicApiService {
         }
 
         DnsTimeBucketDTOProducer bucketDTOProducer = new DnsTimeBucketDTOProducer(criteria.getAggregate());
-        return elasticService.searchWithAggregation(search, aggregation, ElasticService.PASSIVE_DNS_INDEX_ALIAS,
-                ElasticService.PASSIVE_DNS_TYPE, bucketDTOProducer::produce);
+        return elasticService.searchWithAggregation(search, aggregation, index, type, bucketDTOProducer::produce);
+    }
+
+    public List<DnsTimeBucketDTO> dnsTimeline(DnsTimelineCriteria criteria) {
+        return dnsAggregations(criteria, ElasticService.PASSIVE_DNS_INDEX_ALIAS, ElasticService.PASSIVE_DNS_TYPE);
+    }
+
+    public List<DnsTimeBucketDTO> dnsSecTimeline(DnsTimelineCriteria criteria) {
+        return dnsAggregations(criteria, ElasticService.DNSSEC_INDEX_ALIAS, ElasticService.DNSSEC_TYPE);
     }
 
     private void prepareFieldParamQuery(String fieldName, Object value, List<QueryBuilder> queries,
@@ -126,7 +140,15 @@ public class PublicApiService {
         return gson.toJson(enumConstant).replaceAll("\"", "");
     }
 
-    private static String nowMinusDays(int days) {
-        return ZonedDateTime.now().minusDays(days).format(DateTimeFormatter.ofPattern(TIME_PATTERN));
+    private static ZonedDateTime now() {
+        return ZonedDateTime.now().withSecond(0).withNano(0);
+    }
+
+    private static String nowFormatted() {
+        return now().format(DateTimeFormatter.ofPattern(TIME_PATTERN));
+    }
+
+    private static String nowMinusDaysFormatted(int days) {
+        return now().minusDays(days).format(DateTimeFormatter.ofPattern(TIME_PATTERN));
     }
 }

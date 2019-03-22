@@ -2,7 +2,7 @@ package io.whalebone.publicapi.ejb.elastic;
 
 import io.whalebone.publicapi.ejb.dto.DnsAggregateBucketDTO;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
-import io.whalebone.publicapi.ejb.dto.EAggregate;
+import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.common.joda.time.DateTime;
@@ -42,7 +42,7 @@ public class DnsTimeBucketDTOProducerTest {
         }
         Aggregations aggregations = prepareAggregations(dateHistogramBuckets);
 
-        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.CLIENT_IP);
+        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EDnsAggregate.CLIENT_IP);
         List<DnsTimeBucketDTO> buckets = producer.produce(aggregations);
 
         assertThat(buckets, is(notNullValue()));
@@ -76,7 +76,7 @@ public class DnsTimeBucketDTOProducerTest {
         }
         Aggregations aggregations = prepareAggregations(dateHistogramBuckets);
 
-        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.QUERY_TYPE);
+        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EDnsAggregate.QUERY_TYPE);
         List<DnsTimeBucketDTO> buckets = producer.produce(aggregations);
 
         assertThat(buckets, is(notNullValue()));
@@ -98,7 +98,7 @@ public class DnsTimeBucketDTOProducerTest {
         }
         Aggregations aggregations = prepareAggregations(dateHistogramBuckets);
 
-        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EAggregate.QUERY_TYPE);
+        DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(EDnsAggregate.QUERY_TYPE);
         List<DnsTimeBucketDTO> buckets = producer.produce(aggregations);
 
         assertThat(buckets, is(notNullValue()));
@@ -111,18 +111,18 @@ public class DnsTimeBucketDTOProducerTest {
     @DataProvider
     public Object[][] buildAggregateBucketTestData() {
         return new Object[][] {
-                new Object[] {EAggregate.CLIENT_IP, "1.2.3.4", "1.2.3.4", null, null, null, null, null},
-                new Object[] {EAggregate.QUERY_TYPE, "aaaa", null, EDnsQueryType.AAAA, null, null, null, null},
-                new Object[] {EAggregate.QUERY_TYPE, "AAAA", null, EDnsQueryType.AAAA, null, null, null, null},
-                new Object[] {EAggregate.ANSWER, "answer", null, null, "answer", null, null, null},
-                new Object[] {EAggregate.DOMAIN, "whalebone.io", null, null, null, "whalebone.io", null, null},
-                new Object[] {EAggregate.QUERY, "some.thing.whalebone.io", null, null, null, null, "some.thing.whalebone.io", null},
-                new Object[] {EAggregate.TLD, "io", null, null, null, null, null, "io"},
+                new Object[] {EDnsAggregate.CLIENT_IP, "1.2.3.4", "1.2.3.4", null, null, null, null, null},
+                new Object[] {EDnsAggregate.QUERY_TYPE, "aaaa", null, EDnsQueryType.AAAA, null, null, null, null},
+                new Object[] {EDnsAggregate.QUERY_TYPE, "AAAA", null, EDnsQueryType.AAAA, null, null, null, null},
+                new Object[] {EDnsAggregate.ANSWER, "answer", null, null, "answer", null, null, null},
+                new Object[] {EDnsAggregate.DOMAIN, "whalebone.io", null, null, null, "whalebone.io", null, null},
+                new Object[] {EDnsAggregate.QUERY, "some.thing.whalebone.io", null, null, null, null, "some.thing.whalebone.io", null},
+                new Object[] {EDnsAggregate.TLD, "io", null, null, null, null, null, "io"},
         };
     }
 
     @Test(dataProvider = "buildAggregateBucketTestData")
-    public void buildAggregateBucketTest(EAggregate aggregateBy, String aggregationKey, String expectedClientIp,
+    public void buildAggregateBucketTest(EDnsAggregate aggregateBy, String aggregationKey, String expectedClientIp,
                                          EDnsQueryType expectedQueryType, String expectedAnswer, String expectedDomain,
                                          String expectedQuery, String expectedTld) {
         DnsTimeBucketDTOProducer producer = new DnsTimeBucketDTOProducer(aggregateBy);

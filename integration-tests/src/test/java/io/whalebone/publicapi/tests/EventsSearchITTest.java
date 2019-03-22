@@ -9,8 +9,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.whalebone.publicapi.ejb.PublicApiService;
+import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
 import io.whalebone.publicapi.tests.matchers.EventMatcher;
 import io.whalebone.publicapi.tests.matchers.ParamValidationErrorMatcher;
+import io.whalebone.publicapi.tests.utils.InvalidRequestUtils;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.test.api.ArquillianResource;
@@ -23,13 +25,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
+import static io.whalebone.publicapi.tests.matchers.EventMatcher.event;
+import static io.whalebone.publicapi.tests.matchers.ParamValidationErrorMatcher.error;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.testng.Assert.fail;
 
 public class EventsSearchITTest extends Arquillian {
+    private static final String TOKEN = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
+            "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
+            "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA";
 
     private ArchiveInitiator archiveInitiator;
 
@@ -46,9 +53,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByClientIpTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_client_ip", now);
-        archiveInitiator.sendLogEvent("logs/by_client_ip/outdated/log-client_ip-1.2.3.4_c_outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_client_ip", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_client_ip/outdated/log-client_ip-1.2.3.4_c_outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "client_ip=1.2.3.4");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -60,10 +67,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.4", "stoppblock.org",
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.4", "stoppblock.org",
                 new String[] {"malware", "c&c", "legal"}, new String[] {"identifier1", "identifier2", "identifier3"},
                 41.8776, -87.6272, "US")));
     }
@@ -72,9 +79,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByClientIpWithWildCardTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_client_ip_wildcard", now);
-        archiveInitiator.sendLogEvent("logs/by_client_ip_wildcard/outdated/log-client_ip-1.2.3.4_outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_client_ip_wildcard", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_client_ip_wildcard/outdated/log-client_ip-1.2.3.4_outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "client_ip=1.2.3.*");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -86,10 +93,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -97,9 +104,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByThreatTypeTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_threat_type", now);
-        archiveInitiator.sendLogEvent("logs/by_threat_type/outdated/log-threat_type-c_and_c-c-outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_threat_type", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_threat_type/outdated/log-threat_type-c_and_c-c-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "threat_type=c%26c");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -111,10 +118,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 1, 42, "block", null, "1.2.3.1", "a.net", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 1, 42, "block", null, "1.2.3.1", "a.net", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 43, "some_action", "content", "1.2.3.2", "stoppblock.org", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 43, "some_action", "content", "1.2.3.2", "stoppblock.org", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -122,9 +129,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByReasonTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_reason", now);
-        archiveInitiator.sendLogEvent("logs/by_reason/outdated/log-reason-legal-outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_reason", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_reason/outdated/log-reason-legal-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "reason=legal");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -136,10 +143,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 56, 1, "block", "legal", "1.2.3.4", "a.net", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "a.net", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -147,9 +154,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByResolverIdTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_resolver_id", now);
-        archiveInitiator.sendLogEvent("logs/by_resolver_id/outdated/log-resolver_id-42-outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_resolver_id", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_resolver_id/outdated/log-resolver_id-42-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "resolver_id=42");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -161,10 +168,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 56, 42, "block", "legal", "1.2.3.4", "a.net", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 42, "block", "legal", "1.2.3.4", "a.net", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 42, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 42, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -172,9 +179,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByDomainTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_domain", now);
-        archiveInitiator.sendLogEvent("logs/by_domain/outdated/log-domain-whalebone.io-outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_domain", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_domain/outdated/log-domain-whalebone.io-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "domain=whalebone.io");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -186,10 +193,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.5", "whalebone.io", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "whalebone.io", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -197,9 +204,9 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByDomainWithWildcardTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_domain_wildcard/", now);
-        archiveInitiator.sendLogEvent("logs/by_domain_wildcard/outdated/log-domain-whalebone.io-outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_domain_wildcard/", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_domain_wildcard/outdated/log-domain-whalebone.io-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "domain=whale*");
         assertThat(events.size(), is(2));
         JsonElement eventA;
@@ -211,10 +218,10 @@ public class EventsSearchITTest extends Arquillian {
             eventA = events.get(1);
             eventB = events.get(0);
         }
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestamp, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", new String[] {"c&c"},
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestamp, null, 2, "log", "legal", "1.2.3.5", "whalemouth.org", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "whalemouth.org", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -222,16 +229,16 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchByParamsCombinationTest(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime yesterday = now.minusMinutes(24 * 60 + 1);
-        archiveInitiator.sendMultipleLogEvents("logs/by_params_combination/", now);
+        ZonedDateTime timestamp = timestamp();
+        ZonedDateTime yesterday = timestamp.minusMinutes(24 * 60 + 1);
+        archiveInitiator.sendMultipleLogEvents("logs/by_params_combination/", timestamp);
         archiveInitiator.sendMultipleLogEvents("logs/by_params_combination/yesterday", yesterday);
-        archiveInitiator.sendLogEvent("logs/by_params_combination/outdated/log-all-params-match-outdated.json", now.minusMinutes(2 * 24 * 60 + 1));
+        archiveInitiator.sendLogEvent("logs/by_params_combination/outdated/log-all-params-match-outdated.json", timestamp.minusMinutes(2 * 24 * 60 + 1));
         JsonArray events = eventsSearch(context, "resolver_id=42&client_ip=1.2.3.4&reason=legal&threat_type=malware&domain=whalebone.io&days=2");
         assertThat(events.size(), is(1));
         JsonElement event = events.get(0).getAsJsonObject();
-        String timestamp = yesterday.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(event, is(event(timestamp, 56, 42, "log", "legal", "1.2.3.4", "whalebone.io", new String[] {"malware", "c&c"},
+        String timestampFormatted = yesterday.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(event, is(event(timestampFormatted, 56, 42, "log", "legal", "1.2.3.4", "whalebone.io", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -239,30 +246,30 @@ public class EventsSearchITTest extends Arquillian {
     @OperateOnDeployment("ear")
     @RunAsClient
     public void eventsSearchNoParameters(@ArquillianResource URL context) throws IOException {
-        ZonedDateTime now = ZonedDateTime.now();
-        archiveInitiator.sendMultipleLogEvents("logs/by_no_params", now);
-        archiveInitiator.sendLogEvent("logs/by_no_params/outdated/log-outdated.json", now.minusMinutes(24 * 60 + 1));
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_no_params", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_no_params/outdated/log-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
         JsonArray events = eventsSearch(context, "");
         assertThat(events.size(), is(4));
-        String timestamp = now.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
         for (JsonElement eventElement : events) {
             JsonObject event = eventElement.getAsJsonObject();
             int resolverId = event.get("resolver_id").getAsInt();
             switch (resolverId) {
                 case 1:
-                    assertThat(event, is(event(timestamp, 1, 1, "log", "blacklist", "1.2.3.4", "stoppblock.org", new String[] {"c&c"},
+                    assertThat(event, is(event(timestampFormatted, 1, 1, "log", "blacklist", "1.2.3.4", "stoppblock.org", new String[] {"c&c"},
                             new String[] {"identifier1"}, 1.8776, -1.6272, "US")));
                     break;
                 case 2:
-                    assertThat(event, is(event(timestamp, 2, 2, "block", "content", "1.2.3.5", "whalebone.io", new String[] {"blacklist"},
+                    assertThat(event, is(event(timestampFormatted, 2, 2, "block", "content", "1.2.3.5", "whalebone.io", new String[] {"blacklist"},
                             new String[] {"identifier2"}, 2.8776, -2.6272, "DE")));
                     break;
                 case 3:
-                    assertThat(event, is(event(timestamp, 3, 3, "action", "legal", "1.2.3.6", "virus.com", new String[] {"malware"},
+                    assertThat(event, is(event(timestampFormatted, 3, 3, "action", "legal", "1.2.3.6", "virus.com", new String[] {"malware"},
                             new String[] {"identifier3"}, 3.8776, -3.6272, "GB")));
                     break;
                 case 4:
-                    assertThat(event, is(event(timestamp, 4, 4, "some_action", "accuracy", "1.2.3.7", "phishing.org", new String[] {"phishing"},
+                    assertThat(event, is(event(timestampFormatted, 4, 4, "some_action", "accuracy", "1.2.3.7", "phishing.org", new String[] {"phishing"},
                             new String[] {"identifier4"}, 4.8776, -4.6272, "RU")));
                     break;
                 default:
@@ -334,9 +341,7 @@ public class EventsSearchITTest extends Arquillian {
     private static JsonArray eventsSearch(URL context, String queryString) throws IOException {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?" + queryString), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
-                "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
-                "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA");
+        requestSettings.setAdditionalHeader("Authorization", "Bearer " + TOKEN);
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_OK));
@@ -346,42 +351,14 @@ public class EventsSearchITTest extends Arquillian {
     }
 
     private static JsonArray eventsSearchInvalid(URL context, String queryString) throws IOException {
-        WebClient webClient = new WebClient();
-        webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-        WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?" + queryString), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
-                "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
-                "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA");
-        requestSettings.setAdditionalHeader("accept", "application/json");
-        Page page = webClient.getPage(requestSettings);
-        assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_BAD_REQUEST));
-        JsonParser parser = new JsonParser();
-        JsonElement responseJson = parser.parse(page.getWebResponse().getContentAsString());
-        JsonObject errorResponse = responseJson.getAsJsonObject();
-        assertThat(errorResponse.get("message"), is(notNullValue()));
-        assertThat(errorResponse.get("message").getAsString(), is(not(emptyString())));
-        assertThat(errorResponse.get("errors"), is(notNullValue()));
-        return errorResponse.get("errors").getAsJsonArray();
+        return InvalidRequestUtils.sendInvalidRequest(context, "1/events/search?" + queryString, TOKEN);
     }
 
-    private static EventMatcher event(String timestamp,
-                                      Integer accuracy,
-                                      Integer resolverId,
-                                      String action,
-                                      String reason,
-                                      String clientIp,
-                                      String domain,
-                                      String[] threatType,
-                                      String[] identifier,
-                                      Double latitude,
-                                      Double longitude,
-                                      String countryCode2) {
-        return new EventMatcher(timestamp, accuracy, resolverId, action, reason, clientIp, domain, threatType,
-                identifier, latitude, longitude, countryCode2);
-    }
-
-    private static ParamValidationErrorMatcher error(String parameter, String value, int errorCode, String errorType,
-                                                     String message, String[] acceptedValues) {
-        return new ParamValidationErrorMatcher(parameter, value, errorCode, errorType, message, acceptedValues);
+    /**
+     * returns timestamp that would be used in testing data
+     * 1 min minus to fit in search time range filter
+     */
+    private ZonedDateTime timestamp() {
+        return ZonedDateTime.now().minusMinutes(1);
     }
 }

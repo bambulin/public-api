@@ -2,8 +2,8 @@ package io.whalebone.publicapi.ejb.elastic;
 
 import io.whalebone.publicapi.ejb.dto.DnsAggregateBucketDTO;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
-import io.whalebone.publicapi.ejb.dto.EAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
+import io.whalebone.publicapi.ejb.dto.aggregate.IDnsAggregate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -25,9 +25,9 @@ public class DnsTimeBucketDTOProducer {
     public static final String TIME_AGGREGATION = "by_time";
     public static final String TERM_AGGREGATION = "by_term";
 
-    private final EAggregate aggregateType;
+    private final IDnsAggregate aggregateType;
 
-    public DnsTimeBucketDTOProducer(final EAggregate aggregateType) {
+    public DnsTimeBucketDTOProducer(final IDnsAggregate aggregateType) {
         this.aggregateType = aggregateType;
     }
 
@@ -72,8 +72,8 @@ public class DnsTimeBucketDTOProducer {
         DnsAggregateBucketDTO aggregateBucket = new DnsAggregateBucketDTO();
         aggregateBucket.setCount(termBucket.getDocCount());
 
-        switch (aggregateType) {
-            case QUERY_TYPE:
+        switch (aggregateType.getElasticField()) {
+            case IDnsAggregate.QUERY_TYPE:
                 // elastic use case insensitive search by default if there is no appropriate mapping
                 // and returns aggregation keys as lowercase. For such a case we use uppercase for the key
                 // to mach the enum values correctly
@@ -84,23 +84,23 @@ public class DnsTimeBucketDTOProducer {
                     return null;
                 }
                 break;
-            case TLD:
+            case IDnsAggregate.TLD:
                 aggregateBucket.setTld(termBucket.getKey());
                 break;
-            case QUERY:
+            case IDnsAggregate.QUERY:
                 aggregateBucket.setQuery(termBucket.getKey());
                 break;
-            case ANSWER:
+            case IDnsAggregate.ANSWER:
                 aggregateBucket.setAnswer(termBucket.getKey());
                 break;
-            case DOMAIN:
+            case IDnsAggregate.DOMAIN:
                 aggregateBucket.setDomain(termBucket.getKey());
                 break;
-            case CLIENT_IP:
+            case IDnsAggregate.CLIENT_IP:
                 aggregateBucket.setClientIp(termBucket.getKey());
                 break;
             default:
-                throw new IllegalArgumentException("Aggregation by " + aggregateType + " is not supported");
+                throw new IllegalArgumentException("Aggregation by " + aggregateType.getElasticField() + " is not supported");
         }
         return aggregateBucket;
     }
