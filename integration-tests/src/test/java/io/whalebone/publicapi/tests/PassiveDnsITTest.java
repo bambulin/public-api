@@ -100,6 +100,28 @@ public class PassiveDnsITTest extends Arquillian {
         assertThat(bucketsNew, Matchers.containsInAnyOrder(expectedBucketsNew));
     }
 
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void aggregateByQueryTypeWithQueryParamTest(@ArquillianResource URL context) throws Exception {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleDnsLogs("passivedns/query_param/now", timestamp);
+        archiveInitiator.sendMultipleDnsLogs("passivedns/query_param/older", timestamp.minusMinutes(60 + 1));
+        archiveInitiator.sendMultipleDnsLogs("passivedns/query_param/outdated", timestamp.minusMinutes(24 * 60 + 1));
+        JsonArray timeline = getTimeline(context, "aggregate=query_type&query=abc.whalebone.io");
+
+        checkCounts(timeline);
+        assertThat(timeline.size(), is(2));
+
+        JsonArray bucketsOld = AggregationUtils.getTimeAggregation(timestamp.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        assertThat(bucketsOld.size(), is(1));
+        assertThat(bucketsOld.get(0), is(AggregationUtils.createBucketElement("query_type", "a", 1)));
+
+        JsonArray bucketsNew = AggregationUtils.getTimeAggregation(timestamp, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        assertThat(bucketsNew.size(), is(1));
+        assertThat(bucketsNew.get(0), is(AggregationUtils.createBucketElement("query_type", "a", 1)));
+    }
+
     /**
      * Tests aggregate by client_ip
      *

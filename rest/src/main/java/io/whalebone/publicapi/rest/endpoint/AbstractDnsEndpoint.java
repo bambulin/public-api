@@ -18,6 +18,8 @@ public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
     private String aggregateParam;
     @QueryParam("tld")
     private String tld;
+    @QueryParam("query")
+    private String query;
 
     public void setQueryTypeParam(String typeParam) {
         this.queryTypeParam = typeParam;
@@ -48,6 +50,10 @@ public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
 
     public String getTld() {
         return tld;
+    }
+
+    public String getQuery() {
+        return query;
     }
 
     public EDnsQueryType getQueryType() {
