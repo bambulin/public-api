@@ -14,7 +14,7 @@
 
 ### usage
 
-see https://app.swaggerhub.com/apis/whalebone/whalebone-api/1
+see https://app.swaggerhub.com/apis/whalebone/whalebone-api/1-oas3/
 
 http port: 8080
 
