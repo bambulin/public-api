@@ -49,9 +49,9 @@ jobs:
           command: dockerize -wait http://localhost:9200 -timeout 1m
 
       # setup the elastic mappings
-      - run: curl -XPUT -H \"Content-Type: application/json\" localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
-      - run: curl -XPUT -H \"Content-Type: application/json\" localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json
-      - run: curl -XPUT -H \"Content-Type: application/json\" localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json
+      - run: "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json"
+      - run: "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json"
+      - run: "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json"
 
       # run tests!
       - run: mvn integration-test -Parq-wildfly-managed
