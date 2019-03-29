@@ -1,44 +1,40 @@
 package io.whalebone.publicapi.ejb.elastic;
 
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @ApplicationScoped
 public class ElasticClientProvider {
+    private static final String ELASTIC_HOST_PREFIX = "ELASTIC_HOST";
+    public static final HttpHost[] HOSTS = getHosts();
+
     @Inject
-    private Logger log;
+    private Logger logger;
 
-    private Client client;
-    private Node node;
+    private RestHighLevelClient client;
 
-    public Client getClient() {
+    public RestHighLevelClient getClient() {
         if (client == null) {
-            log.log(Level.INFO, "Elastic client doesn't exists, creating new one");
-            if (node == null) {
-                log.log(Level.INFO, "Elastic client node doesn't exists, creating new one");
-                node = NodeBuilder.nodeBuilder()
-                        .settings(ImmutableSettings.settingsBuilder()
-                                .put("http.enabled", false)
-//                                .put("network.host", System.getenv("NIC") + ":ipv4_")
-                                .putArray("discovery.zen.ping.unicast.hosts", System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_PORT"))
-                                .put("cluster.name", System.getenv("ELASTIC_CLUSTER"))
-                                .put("discovery.zen.ping.multicast.enabled", true)
-                                .put("discovery.zen.ping.timeout", "3s")
-                                .put("discovery.zen.minimum_master_nodes", 1)
-                        )
-                        .client(true)
-                        .data(false)
-                        .node();
-            }
-            client = node.client();
+            logger.log(Level.INFO, "Elastic client doesn't exists, creating new one.");
+
+            // TODO timeouts to sys envs
+            client = new RestHighLevelClient(
+                    RestClient.builder(HOSTS)
+                            .setRequestConfigCallback(requestConfigBuilder ->
+                                    requestConfigBuilder.setConnectTimeout(10000)
+                                            .setSocketTimeout(10000))
+                            .setMaxRetryTimeoutMillis(10000)
+            );
         }
         return client;
     }
@@ -46,12 +42,37 @@ public class ElasticClientProvider {
     @PreDestroy
     public void shutDown() {
         if (client != null) {
-            log.log(Level.INFO, "Closing elastic client");
-            client.close();
+            logger.log(Level.INFO, "Closing elastic client");
+            try {
+                client.close();
+            } catch (IOException ioe) {
+                logger.log(Level.SEVERE, "Cannot close elastic client.", ioe);
+            }
         }
-        if (node != null) {
-            log.log(Level.INFO, "Closing elastic client node");
-            node.close();
+    }
+
+    private static HttpHost[] getHosts() {
+        List<HttpHost> hostList = new ArrayList<>();
+        if (System.getenv().containsKey(ELASTIC_HOST_PREFIX)) {
+            try {
+                HttpHost host = HttpHost.create(System.getenv(ELASTIC_HOST_PREFIX));
+                return new HttpHost[] {host};
+            } catch (IllegalArgumentException iae) {
+                throw new IllegalArgumentException("System property " + ELASTIC_HOST_PREFIX + " doesn't contain valid url");
+            }
         }
+        int hostNumber = 1;
+        while (System.getenv().containsKey(ELASTIC_HOST_PREFIX + "_" + hostNumber)) {
+            try {
+                hostList.add(HttpHost.create(System.getenv(ELASTIC_HOST_PREFIX + "_" + hostNumber)));
+            } catch (IllegalArgumentException iae) {
+                throw new IllegalArgumentException("System property " + ELASTIC_HOST_PREFIX + "_" + hostNumber + " doesn't contain valid url");
+            }
+            hostNumber++;
+        }
+        if (hostList.isEmpty()) {
+            throw new IllegalStateException("No elastic host is defined.");
+        }
+        return hostList.toArray(new HttpHost[0]);
     }
 }

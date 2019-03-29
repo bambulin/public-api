@@ -1,149 +1,136 @@
 {
-  "order": 0,
-  "template": "passivedns-*",
-  "settings": {
-    "index.refresh_interval": "5s",
-    "index.number_of_shards": "6"
+  "order" : 0,
+  "index_patterns" : [
+    "passivedns-*"
+  ],
+  "settings" : {
+    "index" : {
+      "number_of_shards" : "6",
+      "refresh_interval" : "5s"
+    }
   },
-  "mappings": {
-    "logs": {
-      "numeric_detection": true,
-      "dynamic_templates": [
+  "mappings" : {
+    "logs" : {
+      "numeric_detection" : true,
+      "dynamic_templates" : [
         {
-          "string_fields": {
-            "mapping": {
-              "index": "not_analyzed",
-              "omit_norms": true,
-              "type": "string"
+          "string_fields" : {
+            "mapping" : {
+              "omit_norms" : true,
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             },
-            "match_mapping_type": "string",
-            "match": "*"
+            "match_mapping_type" : "string",
+            "match" : "*"
           }
         }
       ],
-      "date_detection": true,
-      "properties": {
-        "geoip": {
-          "properties": {
-            "latitude": {
-              "index": "no",
-              "type": "double"
+      "date_detection" : true,
+      "properties" : {
+        "geoip" : {
+          "properties" : {
+            "latitude" : {
+              "type" : "double"
             },
-            "coordinates": {
-              "index": "no",
-              "type": "geo_point"
+            "coordinates" : {
+              "type" : "geo_point"
             },
-            "country_code2": {
-              "index": "not_analyzed",
-              "type": "string"
+            "country_code2" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             },
-            "longitude": {
-              "index": "no",
-              "type": "double"
+            "longitude" : {
+              "type" : "double"
             }
           }
         },
-        "domain_l1": {
-          "fielddata": {
-            "loading": "eager_global_ordinals"
-          },
-          "index": "not_analyzed",
-          "type": "string"
+        "domain_l1" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "resolver_id": {
-          "type": "long"
+        "domain_l2" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "domain_l2": {
-          "index": "not_analyzed",
-          "type": "string"
+        "query" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "query": {
-          "index": "not_analyzed",
-          "type": "string"
-        },
-        "length": {
-          "properties": {
-            "answer": {
-              "type": "double"
+        "length" : {
+          "properties" : {
+            "answer" : {
+              "type" : "integer"
             },
-            "domain_l1": {
-              "type": "double"
+            "domain_l1" : {
+              "type" : "integer"
             },
-            "domain_l2": {
-              "type": "double"
+            "domain_l2" : {
+              "type" : "integer"
             },
-            "query": {
-              "type": "double"
+            "query" : {
+              "type" : "integer"
             }
           }
         },
-        "client_locality": {
-          "fielddata": {
-            "loading": "eager_global_ordinals"
-          },
-          "index": "not_analyzed",
-          "type": "string"
+        "client_locality" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "query_type": {
-          "index": "not_analyzed",
-          "type": "string"
+        "query_type" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "ttl": {
-          "type": "long"
+        "ttl" : {
+          "type" : "long"
         },
-        "client_id": {
-          "type": "long"
+        "client_id" : {
+          "type" : "long"
         },
-        "answer": {
-          "index": "not_analyzed",
-          "type": "string"
+        "resolver_id" : {
+          "type" : "long"
         },
-        "client": {
-          "fielddata": {
-            "loading": "eager_global_ordinals"
-          },
-          "index": "not_analyzed",
-          "type": "string"
+        "device_id" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "domain_rest": {
-          "index": "not_analyzed",
-          "type": "string"
+        "answer" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "answer_ip": {
-          "index": "not_analyzed",
-          "type": "string"
+        "answer_ip" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "asn": {
-          "properties": {
-            "number": {
-              "fielddata": {
-                "loading": "eager_global_ordinals"
-              },
-              "index": "not_analyzed",
-              "type": "string"
+        "asn" : {
+          "properties" : {
+            "number" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "as_org" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             }
           }
         },
-        "dga": {
-          "properties": {
-            "probability": {
-              "type": "double"
+        "dga" : {
+          "properties" : {
+            "probability" : {
+              "type" : "double"
             },
-            "domain": {
-              "index": "no",
-              "type": "string"
+            "class" : {
+              "type" : "short"
             },
-            "class": {
-              "type": "double"
+            "domain" : {
+              "index" : "false",
+              "type" : "keyword"
             }
           }
         }
       }
     }
   },
-  "aliases": {
-    "passivedns": {
-
-    }
+  "aliases" : {
+    "passivedns" : { }
   }
 }

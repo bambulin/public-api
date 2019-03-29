@@ -39,9 +39,10 @@
         <org.projectlombok.lombok.version>1.18.4</org.projectlombok.lombok.version>
         <com.google.guava.guava.version>27.0-jre</com.google.guava.guava.version>
         <com.auth0.java-jwt.version>3.6.0</com.auth0.java-jwt.version>
+        <org.apache.logging.log4j.log4j-core.version>2.11.1</org.apache.logging.log4j.log4j-core.version>
 
-        <elastic.version>1.7.1</elastic.version>
-        <es.jna.version>4.1.0</es.jna.version>
+        <elastic.version>6.6.1</elastic.version>
+
 
         <!-- test dependencies -->
         <org.testng.testng.version>6.14.3</org.testng.testng.version>

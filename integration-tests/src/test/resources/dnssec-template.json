@@ -1,76 +1,63 @@
 {
-  "order": 0,
-  "template": "dnssec-*",
-  "settings": {
-    "index.refresh_interval": "5s",
-    "index.number_of_shards": "6"
+
+  "order" : 0,
+  "index_patterns" : [
+    "dnssec-*"
+  ],
+  "settings" : {
+    "index" : {
+      "number_of_shards" : "6",
+      "refresh_interval" : "5s"
+    }
   },
-  "mappings": {
-    "log": {
-      "numeric_detection": true,
-      "dynamic_templates": [
+  "mappings" : {
+    "log" : {
+      "numeric_detection" : true,
+      "dynamic_templates" : [
         {
-          "string_fields": {
-            "mapping": {
-              "index": "not_analyzed",
-              "omit_norms": true,
-              "type": "string"
+          "string_fields" : {
+            "mapping" : {
+              "omit_norms" : true,
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             },
-            "match_mapping_type": "string",
-            "match": "*"
+            "match_mapping_type" : "string",
+            "match" : "*"
           }
         }
       ],
-      "date_detection": true,
-      "properties": {
-        "@timestamp": {
-          "format": "dateOptionalTime",
-          "type": "date"
+      "date_detection" : true,
+      "properties" : {
+        "domain_l1" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "resolver_id": {
-          "type": "long"
+        "domain_l2" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "domain_l1": {
-          "fielddata": {
-            "loading": "eager_global_ordinals"
-          },
-          "index": "not_analyzed",
-          "type": "string"
+        "query" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "query": {
-          "index": "not_analyzed",
-          "type": "string"
+        "query_type" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         },
-        "domain_l2": {
-          "fielddata": {
-            "loading": "eager_global_ordinals"
-          },
-          "index": "not_analyzed",
-          "type": "string"
+        "client_id" : {
+          "type" : "long"
         },
-        "@version": {
-          "type": "long"
+        "resolver_id" : {
+          "type" : "long"
         },
         "domain_rest": {
-          "index": "not_analyzed",
-          "type": "string"
-        },
-        "query_type": {
-          "fielddata": {
-            "loading": "eager_global_ordinals"
-          },
-          "index": "not_analyzed",
-          "type": "string"
-        },
-        "client_id": {
-          "type": "long"
+          "type" : "keyword",
+          "eager_global_ordinals" : true
         }
       }
     }
   },
-  "aliases": {
-    "dnssec": {
-
-    }
+  "aliases" : {
+    "dnssec" : { }
   }
 }

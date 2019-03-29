@@ -4,10 +4,16 @@
 
 ### env vars
 
-- ELASTIC_HOST=localhost
-- ELASTIC_PORT=9300
-- ELASTIC_REST_PORT=9200  - for testing only
-- ELASTIC_CLUSTER=archive
+- ELASTIC_HOST=http://localhost:9200
+
+**OR**
+
+- ELASTIC_HOST_1=http://node1:9200
+- ELASTIC_HOST_2=http://node2:9200
+- ELASTIC_HOST_3=http://node3:9200
+
+...
+
 - JWT_SECRET=test
 - AES_KEY=testtesttesttest
 - AES_IV=1234567890123456
@@ -21,4 +27,4 @@ http port: 8080
 ### testing
 
 mvn integration-test -Parq-wildfly-managed
-assumes elastic running on ELASTIC_HOST, ELASTIC_PORT, ELASTIC_REST_PORT
+assumes elastic running on ELASTIC_HOST

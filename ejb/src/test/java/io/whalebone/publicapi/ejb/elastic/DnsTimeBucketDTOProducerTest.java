@@ -2,15 +2,14 @@ package io.whalebone.publicapi.ejb.elastic;
 
 import io.whalebone.publicapi.ejb.dto.DnsAggregateBucketDTO;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
-import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
+import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
 import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.common.joda.time.DateTime;
-import org.elasticsearch.common.joda.time.format.DateTimeFormat;
-import org.elasticsearch.common.joda.time.format.DateTimeFormatter;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -19,20 +18,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class DnsTimeBucketDTOProducerTest {
     private static final String TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     @Test
     public void produceTest_aggregateByClientId() {
-        List<DateHistogram.Bucket> dateHistogramBuckets = new ArrayList<>(3);
+        List<Histogram.Bucket> dateHistogramBuckets = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
             List<Terms.Bucket> termsBuckets = new ArrayList<>(5);
             for (int j = 0; j < 5; j++) {
@@ -63,7 +61,7 @@ public class DnsTimeBucketDTOProducerTest {
 
     @Test
     public void produceTest_aggregateByQueryType() {
-        List<DateHistogram.Bucket> dateHistogramBuckets = new ArrayList<>(3);
+        List<Histogram.Bucket> dateHistogramBuckets = new ArrayList<>(3);
         List<String> aggregateKeys = Arrays.asList("aaaa", "loc", "CDNSKEY", "TXT", "unknown" /*this bucket should be dropped*/);
         List<EDnsQueryType> expectedQueryTypes = Arrays.asList(EDnsQueryType.AAAA, EDnsQueryType.LOC,
                 EDnsQueryType.CDNSKEY, EDnsQueryType.TXT);
@@ -92,7 +90,7 @@ public class DnsTimeBucketDTOProducerTest {
 
     @Test
     public void produceTest_aggregationNotAvailable() {
-        List<DateHistogram.Bucket> dateHistogramBuckets = new ArrayList<>(3);
+        List<Histogram.Bucket> dateHistogramBuckets = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
             dateHistogramBuckets.add(prepareDateHistogramBucket("2018-01-01T14:00:0" + i + "+0000", 5 + i, null));
         }
@@ -139,19 +137,19 @@ public class DnsTimeBucketDTOProducerTest {
         assertThat(bucket.getTld(), is(expectedTld));
     }
 
-    private Aggregations prepareAggregations(List<DateHistogram.Bucket> buckets) {
-        DateHistogram histogram = mock(DateHistogram.class);
+    private Aggregations prepareAggregations(List<Histogram.Bucket> buckets) {
+        Histogram histogram = mock(Histogram.class);
         doReturn(buckets).when(histogram).getBuckets();
         Aggregations aggregations = mock(Aggregations.class);
         doReturn(histogram).when(aggregations).get(DnsTimeBucketDTOProducer.TIME_AGGREGATION);
         return aggregations;
     }
 
-    private DateHistogram.Bucket prepareDateHistogramBucket(String timestamp, long count, List<Terms.Bucket> buckets) {
-        DateHistogram.Bucket bucket = mock(DateHistogram.Bucket.class);
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(TIMESTAMP_FORMAT);
+    private Histogram.Bucket prepareDateHistogramBucket(String timestamp, long count, List<Terms.Bucket> buckets) {
+        Histogram.Bucket bucket = mock(Histogram.Bucket.class);
+        org.joda.time.format.DateTimeFormatter formatter = DateTimeFormat.forPattern(TIMESTAMP_FORMAT);
         DateTime dateTime = DateTime.parse(timestamp, formatter);
-        doReturn(dateTime).when(bucket).getKeyAsDate();
+        doReturn(dateTime).when(bucket).getKey();
         doReturn(count).when(bucket).getDocCount();
 
         Aggregations aggregations = mock(Aggregations.class);
@@ -168,7 +166,7 @@ public class DnsTimeBucketDTOProducerTest {
     private Terms.Bucket prepareTermsBucket(String key, long count) {
         Terms.Bucket bucket = mock(Terms.Bucket.class);
         doReturn(count).when(bucket).getDocCount();
-        doReturn(key).when(bucket).getKey();
+        doReturn(key).when(bucket).getKeyAsString();
         return bucket;
     }
 }
