@@ -16,7 +16,7 @@ jobs:
           discovery.type: single-node
           cluster.name: archive
           bootstrap.memory_lock: 'true'
-          ES_JAVA_OPTS: -Xms1G -Xmx1G
+          ES_JAVA_OPTS: -Xms256m -Xmx256m
 
     working_directory: ~/public-api
 
