@@ -2,7 +2,10 @@ package io.whalebone.publicapi.ejb;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.whalebone.publicapi.ejb.dto.*;
+import io.whalebone.publicapi.ejb.dto.EReason;
+import io.whalebone.publicapi.ejb.dto.EThreatType;
+import io.whalebone.publicapi.ejb.dto.EventDTO;
+import io.whalebone.publicapi.ejb.dto.GeoIpDTO;
 import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
 import io.whalebone.publicapi.ejb.dto.aggregate.EDnsSecAggregate;
 import io.whalebone.publicapi.ejb.elastic.Elastic;
@@ -11,6 +14,7 @@ import io.whalebone.publicapi.ejb.json.ArchiveMappedDeserializer;
 import io.whalebone.publicapi.ejb.json.LowercaseEnumTypeAdapter;
 import io.whalebone.publicapi.ejb.json.ZonedDateTimeAdapter;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RestHighLevelClient;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Default;
@@ -36,7 +40,7 @@ public class Resources implements Serializable {
 
     @Produces
     @Default
-    public Client getElasticClient() {
+    public RestHighLevelClient getElasticClient() {
         return elasticClientProvider.getClient();
     }
 

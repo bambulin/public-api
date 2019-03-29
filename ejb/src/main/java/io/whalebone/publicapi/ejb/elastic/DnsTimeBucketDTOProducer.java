@@ -7,8 +7,9 @@ import io.whalebone.publicapi.ejb.dto.aggregate.IDnsAggregate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.joda.time.DateTime;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -35,14 +36,15 @@ public class DnsTimeBucketDTOProducer {
         if (aggregations == null) {
             return Collections.emptyList();
         }
-        DateHistogram aggregation = aggregations.get(TIME_AGGREGATION);
+        Histogram aggregation = aggregations.get(TIME_AGGREGATION);
         List<DnsTimeBucketDTO> buckets = new ArrayList<>();
-        for(DateHistogram.Bucket hourBucket : aggregation.getBuckets()) {
+        for(Histogram.Bucket hourBucket : aggregation.getBuckets()) {
+            DateTime key = (DateTime) hourBucket.getKey();
             DnsTimeBucketDTO timeBucket = DnsTimeBucketDTO.builder()
                     .count(hourBucket.getDocCount())
                     .timestamp(ZonedDateTime.ofInstant(
-                            Instant.ofEpochMilli(hourBucket.getKeyAsDate().getMillis()),
-                            ZoneId.of(hourBucket.getKeyAsDate().getZone().getID(), ZoneId.SHORT_IDS)
+                            Instant.ofEpochMilli(key.getMillis()),
+                            ZoneId.of(key.getZone().getID(), ZoneId.SHORT_IDS)
                             )
                     )
                     .buckets(new ArrayList<>())
@@ -78,26 +80,26 @@ public class DnsTimeBucketDTOProducer {
                 // and returns aggregation keys as lowercase. For such a case we use uppercase for the key
                 // to mach the enum values correctly
                 try {
-                    aggregateBucket.setQueryType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKey())));
+                    aggregateBucket.setQueryType(EDnsQueryType.valueOf(StringUtils.upperCase(termBucket.getKeyAsString())));
                 } catch (IllegalArgumentException iae) {
                     logger.log(Level.FINEST, "Unknown query type value \"{0}\"", termBucket.getKey());
                     return null;
                 }
                 break;
             case IDnsAggregate.TLD:
-                aggregateBucket.setTld(termBucket.getKey());
+                aggregateBucket.setTld(termBucket.getKeyAsString());
                 break;
             case IDnsAggregate.QUERY:
-                aggregateBucket.setQuery(termBucket.getKey());
+                aggregateBucket.setQuery(termBucket.getKeyAsString());
                 break;
             case IDnsAggregate.ANSWER:
-                aggregateBucket.setAnswer(termBucket.getKey());
+                aggregateBucket.setAnswer(termBucket.getKeyAsString());
                 break;
             case IDnsAggregate.DOMAIN:
-                aggregateBucket.setDomain(termBucket.getKey());
+                aggregateBucket.setDomain(termBucket.getKeyAsString());
                 break;
             case IDnsAggregate.CLIENT_IP:
-                aggregateBucket.setClientIp(termBucket.getKey());
+                aggregateBucket.setClientIp(termBucket.getKeyAsString());
                 break;
             default:
                 throw new IllegalArgumentException("Aggregation by " + aggregateType.getElasticField() + " is not supported");

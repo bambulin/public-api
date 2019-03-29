@@ -3,8 +3,8 @@ package io.whalebone.publicapi.tests;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
+import io.whalebone.publicapi.ejb.elastic.ElasticClientProvider;
 import io.whalebone.publicapi.ejb.elastic.ElasticService;
-
 
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +17,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ArchiveInitiator {
-    private String elasticEndpoint;
+    private static final String ELASTIC_ENDPOINT = ElasticClientProvider.HOSTS[0].toURI();
     private WebClient webClient;
 
     public ArchiveInitiator() {
-
-        elasticEndpoint = "http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT");
+        //elasticEndpoint = "http://" + System.getenv("ELASTIC_HOST") + ":" + System.getenv("ELASTIC_REST_PORT");
         webClient = new WebClient();
     }
 
@@ -31,7 +30,7 @@ public class ArchiveInitiator {
      */
     public void cleanDnsLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
-                new URL(elasticEndpoint +
+                new URL(ELASTIC_ENDPOINT +
                         "/" + ElasticService.PASSIVE_DNS_INDEX_ALIAS + "*"), HttpMethod.DELETE);
          webClient.getPage(requestSettings);
     }
@@ -41,7 +40,7 @@ public class ArchiveInitiator {
      */
     public void cleanDnsSecLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
-                new URL(elasticEndpoint +
+                new URL(ELASTIC_ENDPOINT +
                         "/" + ElasticService.DNSSEC_INDEX_ALIAS + "*"), HttpMethod.DELETE);
 
         webClient.getPage(requestSettings);
@@ -52,7 +51,7 @@ public class ArchiveInitiator {
      */
     public void cleanEventLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
-                new URL(elasticEndpoint +
+                new URL(ELASTIC_ENDPOINT +
                         "/" + ElasticService.LOGS_INDEX_ALIAS + "*"), HttpMethod.DELETE);
 
         webClient.getPage(requestSettings);
@@ -114,7 +113,7 @@ public class ArchiveInitiator {
         byte[] encoded = Files.readAllBytes(file);
         String body = new String(encoded, StandardCharsets.UTF_8);
         body = updateTimestamps(body, timestamp);
-        URL url = new URL(elasticEndpoint + "/" + index + "/" + type + "?refresh=true");
+        URL url = new URL(ELASTIC_ENDPOINT + "/" + index + "/" + type + "?refresh=true");
         sendStringToUrl(body, url);
     }
 

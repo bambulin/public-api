@@ -1,160 +1,163 @@
 {
-  "order": 0,
-  "template": "logs*",
-  "settings": {
-    "index.refresh_interval": "5s",
-    "index.number_of_shards": "6"
+  "order" : 0,
+  "index_patterns" : [
+    "logs*"
+  ],
+  "settings" : {
+    "index" : {
+      "number_of_shards" : "6",
+      "refresh_interval" : "5s"
+    }
   },
-  "mappings": {
-    "match": {
-      "numeric_detection": true,
-      "dynamic_templates": [
+  "mappings" : {
+    "match" : {
+      "numeric_detection" : true,
+      "dynamic_templates" : [
         {
-          "string_fields": {
-            "mapping": {
-              "index": "not_analyzed",
-              "omit_norms": true,
-              "type": "string"
+          "string_fields" : {
+            "mapping" : {
+              "omit_norms" : true,
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             },
-            "match_mapping_type": "string",
-            "match": "*"
+            "match_mapping_type" : "string",
+            "match" : "*"
           }
         }
       ],
-      "date_detection": true,
-      "properties": {
-        "reason": {
-          "properties": {
-            "fqdn": {
-              "index": "not_analyzed",
-              "type": "string"
+      "date_detection" : true,
+      "properties" : {
+        "logged" : {
+          "format" : "yyyy-MM-dd'T'HH:mm:ssZ",
+          "type" : "date"
+        },
+        "accu" : {
+          "type" : "long"
+        },
+        "accuracy" : {
+          "properties" : {
+            "accuracy" : {
+              "type" : "integer"
             },
-            "ip": {
-              "index": "not_analyzed",
-              "type": "string"
+            "the_most_accurate_feed" : {
+              "type" : "object"
             }
           }
         },
-        "request": {
-          "properties": {
-            "ip": {
-              "index": "not_analyzed",
-              "type": "string"
+        "action" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "action_reason" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "client" : {
+          "type" : "long"
+        },
+        "client_id" : {
+          "type" : "long"
+        },
+        "client_ip" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "device_id" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "domain" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "ioc" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "ip" : {
+          "type" : "keyword",
+          "eager_global_ordinals" : true
+        },
+        "policy_id" : {
+          "type" : "long"
+        },
+        "geoip" : {
+          "properties" : {
+            "city_name" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             },
-            "raw": {
-              "index": "not_analyzed",
-              "type": "string"
+            "continent_code" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "country_code2" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "country_code3" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "country_name" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "ip" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "latitude" : {
+              "type" : "float"
+            },
+            "longitude" : {
+              "type" : "float"
+            },
+            "postal_code" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "region_code" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "region_name" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
+            },
+            "timezone" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             }
           }
         },
-        "geoip": {
-          "properties": {
-            "timezone": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "area_code": {
-              "type": "long"
-            },
-            "ip": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "latitude": {
-              "type": "double"
-            },
-            "continent_code": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "city_name": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "country_code2": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "country_name": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "dma_code": {
-              "type": "long"
-            },
-            "country_code3": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "location": {
-              "type": "double"
-            },
-            "region_name": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "real_region_name": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "postal_code": {
-              "index": "not_analyzed",
-              "type": "string"
-            },
-            "longitude": {
-              "type": "double"
+        "reason" : {
+          "properties" : {
+            "fqdn" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             }
           }
         },
-        "logged": {
-          "format": "yyyy-MM-dd'T'HH:mm:ssZ",
-          "type": "date"
-        },
-        "virus_total_request": {
-          "properties": {
-            "processed": {
-              "format": "yyyy-MM-dd'T'HH:mm:ssZ",
-              "type": "date"
+        "request" : {
+          "properties" : {
+            "fqdn" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             },
-            "report_received": {
-              "format": "yyyy-MM-dd'T'HH:mm:ssZ",
-              "type": "date"
-            },
-            "status": {
-              "index": "not_analyzed",
-              "type": "string"
+            "ip" : {
+              "type" : "keyword",
+              "eager_global_ordinals" : true
             }
           }
         },
-        "action": {
-          "index": "not_analyzed",
-          "type": "string"
-        },
-        "accuracy": {
-          "properties": {
-            "accuracy": {
-              "index": "not_analyzed",
-              "type": "integer"
-            },
-            "the_most_accurate_feed": {
-              "index": "not_analyzed",
-              "type": "object"
-            }
-          }
-        },
-        "client": {
-          "index": "not_analyzed",
-          "type": "string"
+        "resolver_id" : {
+          "type" : "long"
         }
       }
-    },
-    "aliases": {
-
     }
   },
-  "aliases": {
-    "logs": {
-
-    }
+  "aliases" : {
+    "logs": {}
   }
 }

@@ -8,11 +8,13 @@ import io.whalebone.publicapi.ejb.dto.EventDTO;
 import io.whalebone.publicapi.ejb.elastic.DnsTimeBucketDTOProducer;
 import io.whalebone.publicapi.ejb.elastic.Elastic;
 import io.whalebone.publicapi.ejb.elastic.ElasticService;
-import org.elasticsearch.common.lang3.StringUtils;
-import org.elasticsearch.index.query.*;
+import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -42,21 +44,18 @@ public class PublicApiService {
         prepareFieldParamQuery("resolver_id", criteria.getResolverId(), queries, false);
         prepareFieldParamQuery("reason.fqdn", criteria.getDomain(), queries, true);
 
-        BoolQueryBuilder bool = QueryBuilders.boolQuery();
+        BoolQueryBuilder search = QueryBuilders.boolQuery();
         for (QueryBuilder query : queries) {
-            bool.must(query);
+            search.must(query);
         }
 
-        List<FilterBuilder> filters = new ArrayList<>();
-        filters.add(FilterBuilders.rangeFilter("logged")
-                .lte(nowFormatted())
-                .gte(nowMinusDaysFormatted(criteria.getDays()))
+        search.filter(QueryBuilders.boolQuery()
+                .must(QueryBuilders.rangeQuery("logged")
+                        .lte(nowFormatted())
+                        .gte(nowMinusDaysFormatted(criteria.getDays())
+                        ))
+                .must(QueryBuilders.termQuery("client_id", criteria.getClientId()))
         );
-        filters.add(FilterBuilders.termFilter("client_id", criteria.getClientId()));
-
-        FilterBuilder[] filterArray = new FilterBuilder[filters.size()];
-        filterArray = filters.toArray(filterArray);
-        QueryBuilder search = QueryBuilders.filteredQuery(bool, FilterBuilders.andFilter(filterArray));
 
         return elasticService.search(search, null, ElasticService.LOGS_INDEX_ALIAS, ElasticService.LOGS_TYPE , EventDTO.class);
     }
@@ -75,9 +74,9 @@ public class PublicApiService {
         }
 
 
-        BoolQueryBuilder bool = QueryBuilders.boolQuery();
+        BoolQueryBuilder search = QueryBuilders.boolQuery();
         for (QueryBuilder query : queries) {
-            bool.must(query);
+            search.must(query);
         }
 
         String timestampField;
@@ -87,23 +86,24 @@ public class PublicApiService {
             timestampField = "timestamp";
         }
 
-        List<FilterBuilder> filters = new ArrayList<>();
-        filters.add(FilterBuilders.rangeFilter(timestampField)
-                .lte(nowFormatted())
-                .gte(nowMinusDaysFormatted(criteria.getDays()))
+        search.filter(QueryBuilders.boolQuery()
+                .must(QueryBuilders.rangeQuery(timestampField)
+                        .lte(nowFormatted())
+                        .gte(nowMinusDaysFormatted(criteria.getDays())
+                        ))
+                .must(QueryBuilders.termQuery("client_id", criteria.getClientId()))
         );
-        filters.add(FilterBuilders.termFilter("client_id", criteria.getClientId()));
 
-        FilterBuilder[] filterArray = new FilterBuilder[filters.size()];
-        filterArray = filters.toArray(filterArray);
-        QueryBuilder search = QueryBuilders.filteredQuery(bool, FilterBuilders.andFilter(filterArray));
-
-        DateHistogramBuilder aggregation = AggregationBuilders.dateHistogram(DnsTimeBucketDTOProducer.TIME_AGGREGATION)
+        DateHistogramAggregationBuilder aggregation = AggregationBuilders.dateHistogram(DnsTimeBucketDTOProducer.TIME_AGGREGATION)
                 .field(timestampField)
-                .interval(DateHistogram.Interval.HOUR);
+                // don't return empty buckets
+                .minDocCount(1)
+                .dateHistogramInterval(DateHistogramInterval.HOUR);
         if (criteria.getAggregate() != null) {
             aggregation.subAggregation(AggregationBuilders.terms(DnsTimeBucketDTOProducer.TERM_AGGREGATION)
                     .field(criteria.getAggregate().getElasticField())
+                    // don't return empty buckets
+                    .minDocCount(1)
                     .size(TERM_AGGREGATION_SIZE));
         }
 
