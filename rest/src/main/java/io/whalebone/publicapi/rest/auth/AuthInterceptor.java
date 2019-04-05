@@ -11,6 +11,7 @@ import io.whalebone.publicapi.rest.exception.mapper.GenericExceptionMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -20,10 +21,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Provider
+@Priority(1)
 public class AuthInterceptor implements ContainerRequestFilter {
     private static final String SECRET = System.getenv("JWT_SECRET");
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String AUTH_SCHEME = "Bearer";
+    public static final String AUTH_HEADER = "Authorization";
+    public static final String AUTH_SCHEME = "Bearer";
     private static final String CLIENT_ID = "wb_client_id";
 
     @Inject
