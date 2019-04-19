@@ -54,6 +54,7 @@ public class DnsSecEndpoint extends AbstractDnsEndpoint {
                 .query(getQuery())
                 .resolverId(getResolverId())
                 .tld(getTld())
+                .interval(getInterval())
                 .build();
 
         List<DnsTimeBucketDTO> dnsRecords = publicApiService.dnsSecTimeline(criteria);

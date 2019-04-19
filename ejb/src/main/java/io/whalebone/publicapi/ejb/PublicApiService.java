@@ -5,6 +5,7 @@ import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
+import io.whalebone.publicapi.ejb.elastic.BucketIntervalMapper;
 import io.whalebone.publicapi.ejb.elastic.DnsTimeBucketDTOProducer;
 import io.whalebone.publicapi.ejb.elastic.Elastic;
 import io.whalebone.publicapi.ejb.elastic.ElasticService;
@@ -98,7 +99,7 @@ public class PublicApiService {
                 .field(timestampField)
                 // don't return empty buckets
                 .minDocCount(1)
-                .dateHistogramInterval(DateHistogramInterval.HOUR);
+                .dateHistogramInterval(BucketIntervalMapper.getMappedInterval(criteria.getInterval()));
         if (criteria.getAggregate() != null) {
             aggregation.subAggregation(AggregationBuilders.terms(DnsTimeBucketDTOProducer.TERM_AGGREGATION)
                     .field(criteria.getAggregate().getElasticField())

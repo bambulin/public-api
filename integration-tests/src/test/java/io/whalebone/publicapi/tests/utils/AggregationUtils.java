@@ -16,7 +16,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 public class AggregationUtils {
@@ -27,28 +29,35 @@ public class AggregationUtils {
         return element;
     }
 
+    public static JsonObject getTimeAggregation(ZonedDateTime time, JsonArray timeline) throws Exception {
+        return getTimeAggregation(time, timeline, ChronoUnit.HOURS);
+    }
+
     /**
-     * Returns aggregations corresponding to time from timeline
+     * Returns aggregations corresponding to time (truncated to given interval) from timeline
      * If there is none, an exception is thrown
      *
      * @param time
      * @param timeline
      * @return
      */
-    public static JsonObject getTimeAggregation(ZonedDateTime time, JsonArray timeline) throws Exception {
+    public static JsonObject getTimeAggregation(ZonedDateTime time, JsonArray timeline, ChronoUnit interval) throws Exception {
         final String PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN);
 
-        ZonedDateTime timestamp = time.truncatedTo(ChronoUnit.HOURS);
+        ZonedDateTime timestamp = time.truncatedTo(interval);
+        JsonObject bucket = null;
         for (int i = 0; i < timeline.size(); i++) {
             String aggregationTimestampString = timeline.get(i).getAsJsonObject().get("timestamp").getAsString();
             ZonedDateTime aggregationTimestamp = ZonedDateTime.parse(aggregationTimestampString, formatter);
             if (timestamp.toInstant().equals(aggregationTimestamp.toInstant())) {
-                return timeline.get(i).getAsJsonObject();
+                bucket = timeline.get(i).getAsJsonObject();
+                break;
             }
         }
-        throw new Exception("Expected timeline :" + timeline.toString() +
-                " to contain timestamp: " + timestamp + " but it didn't.");
+        assertThat(String.format("Expected timeline: %s to contain timestamp: %s but it didn't.",
+                timeline, timestamp), bucket, is(not(nullValue())));
+        return bucket;
     }
 
     public static JsonArray getAggregationBucketsArray(URL context, String path, String token) throws IOException {
