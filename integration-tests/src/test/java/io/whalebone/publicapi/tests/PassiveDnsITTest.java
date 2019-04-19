@@ -15,7 +15,10 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 
 import static io.whalebone.publicapi.tests.matchers.ParamValidationErrorMatcher.error;
@@ -98,6 +101,48 @@ public class PassiveDnsITTest extends Arquillian {
         };
 
         assertThat(bucketsNew, Matchers.containsInAnyOrder(expectedBucketsNew));
+    }
+
+    /**
+     * Tests aggregate by query when there is more than one time bucket
+     *
+     * @param context
+     * @throws Exception
+     */
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void aggregateByQueryTypeDayBucketIntervalTest(@ArquillianResource URL context) throws Exception {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleDnsLogs("passivedns/days_interval/day0", timestamp);
+        archiveInitiator.sendMultipleDnsLogs("passivedns/days_interval/day1", timestamp.minusDays(1));
+        archiveInitiator.sendMultipleDnsLogs("passivedns/days_interval/day2", timestamp.minusDays(2));
+        JsonArray timeline = getTimeline(context, "days=5&interval=day");
+
+        checkCounts(timeline);
+        assertThat(timeline.size(), is(3));
+
+        JsonArray bucketsDay0 = AggregationUtils.getTimeAggregation(timestamp, timeline, ChronoUnit.DAYS).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsDay0 = {
+                AggregationUtils.createBucketElement("query_type", "a", 2),
+                AggregationUtils.createBucketElement("query_type", "rp", 1)
+
+        };
+        assertThat(bucketsDay0, Matchers.containsInAnyOrder(expectedBucketsDay0));
+
+        JsonArray bucketsDay1 = AggregationUtils.getTimeAggregation(timestamp.minusDays(1), timeline, ChronoUnit.DAYS).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsDay1 = {
+                AggregationUtils.createBucketElement("query_type", "aaaa", 2),
+                AggregationUtils.createBucketElement("query_type", "tkey", 2)
+        };
+        assertThat(bucketsDay1, Matchers.containsInAnyOrder(expectedBucketsDay1));
+
+        JsonArray bucketsDay2 = AggregationUtils.getTimeAggregation(timestamp.minusDays(2), timeline, ChronoUnit.DAYS).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsDay2 = {
+                AggregationUtils.createBucketElement("query_type", "afsdb", 2),
+                AggregationUtils.createBucketElement("query_type", "hip", 3)
+        };
+        assertThat(bucketsDay2, Matchers.containsInAnyOrder(expectedBucketsDay2));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
@@ -569,6 +614,16 @@ public class PassiveDnsITTest extends Arquillian {
                 new String[]{"client_ip", "tld", "domain", "query", "query_type", "answer"})));
     }
 
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void invalidIntervalParamTest(@ArquillianResource URL context) throws Exception {
+        JsonArray jsonErrors = getTimelineInvalid(context, "interval=xyz");
+        assertThat(jsonErrors.size(), is(1));
+        assertThat(jsonErrors.get(0), is(error("interval", "xyz", 21, "INVALID_PARAM_VALUE", "Invalid enum value",
+                new String[]{"hour", "day", "week"})));
+    }
+
     /**
      * Tests the validation of days for days greater than MAX_DAYS
      *
@@ -697,6 +752,6 @@ public class PassiveDnsITTest extends Arquillian {
      * 1 min minus to fit in search time range filter
      */
     private ZonedDateTime timestamp() {
-        return ZonedDateTime.now().minusMinutes(1);
+        return Instant.now().atZone(ZoneId.of("UTC")).minusMinutes(1);
     }
 }

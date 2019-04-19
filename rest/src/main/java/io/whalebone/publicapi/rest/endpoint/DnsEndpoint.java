@@ -76,6 +76,7 @@ public class DnsEndpoint extends AbstractDnsEndpoint {
                 .domain(getDomain())
                 .resolverId(getResolverId())
                 .tld(getTld())
+                .interval(getInterval())
                 .build();
 
         List<DnsTimeBucketDTO> dnsRecords = publicApiService.dnsTimeline(criteria);

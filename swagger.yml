@@ -233,6 +233,12 @@ paths:
         required: false
         schema:
           type: boolean
+      - name: interval
+        in: query
+        description: The size of a single timeline bucket
+        required: false
+        schema:
+          $ref: '#/components/schemas/interval'
       responses:
         '200':
           description: Successful search
@@ -392,6 +398,12 @@ paths:
           - query
           - query_type
           default: query_type
+      - name: interval
+        in: query
+        description: The size of a single timeline bucket
+        required: false
+        schema:
+          $ref: '#/components/schemas/interval'
       responses:
         '200':
           description: Successful search
@@ -724,6 +736,14 @@ components:
       - txt
       - uri
       - aname
+
+    interval:
+      type: string
+      enum:
+      - hour
+      - day
+      - week
+      default: hour
 
     error:
       type: object

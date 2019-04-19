@@ -1,5 +1,6 @@
 package io.whalebone.publicapi.ejb.criteria;
 
+import io.whalebone.publicapi.ejb.dto.EDnsBucketInterval;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
 import io.whalebone.publicapi.ejb.dto.aggregate.IDnsAggregate;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.Getter;
 public class DnsTimelineCriteria extends ClientCriteria {
     private EDnsQueryType queryType;
     private IDnsAggregate aggregate;
+    private EDnsBucketInterval interval;
     private String query;
     private String answer;
     private String tld;
@@ -22,6 +24,7 @@ public class DnsTimelineCriteria extends ClientCriteria {
                                final String clientIp,
                                final EDnsQueryType queryType,
                                final IDnsAggregate aggregate,
+                               final EDnsBucketInterval interval,
                                final String query,
                                final String answer,
                                final String tld,
@@ -29,6 +32,7 @@ public class DnsTimelineCriteria extends ClientCriteria {
         super(clientId, domain, days, resolverId, clientIp);
         this.queryType = queryType;
         this.aggregate = aggregate;
+        this.interval = interval;
         this.query = query;
         this.answer = answer;
         this.tld = tld;
