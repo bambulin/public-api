@@ -225,6 +225,22 @@ public class EventsSearchITTest extends Arquillian {
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
+    /**
+     * verifies if query can return more than 10 records (which is elastic limit by default)
+     *
+     * @param context
+     * @throws IOException
+     */
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchQuerySizeTest(@ArquillianResource URL context) throws IOException {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/query-size", timestamp);
+        JsonArray events = eventsSearch(context, "");
+        assertThat(events.size(), is(11));
+    }
+
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
     @OperateOnDeployment("ear")
     @RunAsClient

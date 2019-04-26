@@ -49,7 +49,9 @@ public class ElasticService implements Serializable {
                               final String type,
                               final Type beanType) throws ElasticSearchException {
         try {
-            SearchSourceBuilder searchSource = new SearchSourceBuilder().query(query);
+            SearchSourceBuilder searchSource = new SearchSourceBuilder()
+                    .query(query)
+                    .size(10000); // TODO remove when scroll is implemented
             if (sort != null) {
                 searchSource.sort(sort);
             }
