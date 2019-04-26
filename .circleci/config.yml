@@ -5,6 +5,7 @@ jobs:
       - image: circleci/openjdk:8-jdk
         environment:
           ELASTIC_HOST: "http://127.0.0.1:9200"
+          ELASTIC_QUERY_MAX_SIZE: 10000
           JWT_SECRET: "test"
           AES_KEY: "testtesttesttest"
           AES_IV: "1234567890123456"
