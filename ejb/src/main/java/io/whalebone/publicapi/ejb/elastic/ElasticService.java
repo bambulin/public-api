@@ -30,6 +30,7 @@ import java.util.function.Function;
 @Stateless
 public class ElasticService implements Serializable {
     private static final long serialVersionUID = 8884963960567953481L;
+    private static final int SEARCH_QUERY_SIZE = Integer.parseInt(System.getenv().getOrDefault("ELASTIC_QUERY_MAX_SIZE", "10000"));
     public static final String LOGS_INDEX_ALIAS = "logs";
     public static final String LOGS_TYPE = "match";
     public static final String PASSIVE_DNS_INDEX_ALIAS = "passivedns";
@@ -51,7 +52,7 @@ public class ElasticService implements Serializable {
         try {
             SearchSourceBuilder searchSource = new SearchSourceBuilder()
                     .query(query)
-                    .size(10000); // TODO remove when scroll is implemented
+                    .size(SEARCH_QUERY_SIZE); // TODO remove when scroll is implemented
             if (sort != null) {
                 searchSource.sort(sort);
             }
