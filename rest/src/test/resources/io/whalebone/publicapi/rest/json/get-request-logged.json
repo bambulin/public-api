@@ -1,0 +1,12 @@
+{
+  "uri": "http://host/end/point?query=string&param=value",
+  "method": "GET",
+  "headers": {
+    "Authorization": ["*****"],
+    "EmptyHeader": [""],
+    "MultivalueHeader": ["multival1", "multival2"],
+    "NullHeader": [null],
+    "SingleValueHeader": ["headerVal1"]
+  },
+  "body": ""
+}
