@@ -1,14 +1,15 @@
 package io.whalebone.publicapi.rest;
 
-import io.whalebone.publicapi.rest.auth.AuthInterceptor;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Builder;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import lombok.Getter;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
 import java.io.BufferedReader;
@@ -16,8 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -25,18 +25,22 @@ import java.util.stream.Collectors;
 @Provider
 @Priority(2) //executes after the AuthInterceptor
 public class RequestLoggingInterceptor implements ContainerRequestFilter {
+    protected static final String LOG_PREFIX = "WB API Request: ";
+    private static final String AUTH_HEADER = "Authorization";
     @Inject
     private Logger logger;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+        Gson gson = new GsonBuilder().create();
         RequestLogRecord record = RequestLogRecord.builder()
                 .method(requestContext.getMethod())
                 .uri(requestContext.getUriInfo().getRequestUri().toString())
                 .body(getBody(requestContext))
-                .headers(requestContext.getHeaders())
+                .headers(maskedHeaders(requestContext))
                 .build();
-        logger.log(Level.INFO, record.toString());
+        String loggedRequest = gson.toJson(record);
+        logger.log(Level.INFO, LOG_PREFIX + loggedRequest);
     }
 
     private String getBody(ContainerRequestContext context) {
@@ -53,47 +57,21 @@ public class RequestLoggingInterceptor implements ContainerRequestFilter {
         return "";
     }
 
+    private static MultivaluedMap<String, String> maskedHeaders(ContainerRequestContext requestContext) {
+        MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>(requestContext.getHeaders());
+        if (headers.containsKey(AUTH_HEADER)) {
+            headers.put(AUTH_HEADER, Collections.singletonList("*****"));
+        }
+        return headers;
+    }
+
     @Builder
+    @Getter
     private static class RequestLogRecord {
         private String clientId;
         private String uri;
         private String method;
         private String body;
         private MultivaluedMap<String, String> headers;
-
-        @Override
-        public String toString() {
-            return "WB API Request:\n" +
-                    "\tmethod: " + method + "\n" +
-                    "\turi: " + uri + "\n" +
-                    "\theaders:\n" + printHeaders() +
-                    "\tbody: " + body + "\n";
-        }
-
-        private String printHeaders() {
-            StringBuilder headersSb = new StringBuilder();
-            for (Map.Entry<String, List<String>> header : headers.entrySet()) {
-                headersSb.append("\t\t").append(header.getKey()).append(": ");
-                if (AuthInterceptor.AUTH_HEADER.equals(header.getKey())) {
-                    if (CollectionUtils.isNotEmpty(header.getValue()) &&
-                            StringUtils.isNotBlank(header.getValue().get(0))) {
-                        headersSb.append(AuthInterceptor.AUTH_SCHEME + " <token>\n");
-                    } else {
-                        headersSb.append("\n");
-                    }
-                    continue;
-                }
-                List<String> headerValsList = header.getValue();
-                if (CollectionUtils.isEmpty(headerValsList)) {
-                    headersSb.append("\n");
-                } else if (headerValsList.size() == 1) {
-                    headersSb.append(headerValsList.get(0)).append("\n");
-                } else {
-                    headersSb.append("\n");
-                    header.getValue().forEach(v -> headersSb.append("\t\t\t").append(v).append("\n"));
-                }
-            }
-            return headersSb.toString();
-        }
     }
 }
