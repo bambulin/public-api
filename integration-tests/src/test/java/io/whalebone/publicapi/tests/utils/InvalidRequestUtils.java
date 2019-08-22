@@ -20,11 +20,11 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 
 public class InvalidRequestUtils {
-    public static JsonArray sendInvalidRequest(URL context, String path, String token) throws IOException {
+    public static JsonArray sendInvalidRequest(URL context, String path, String clientId) throws IOException {
         WebClient webClient = new WebClient();
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         WebRequest requestSettings = new WebRequest(new URL(context + path), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("Authorization", "Bearer " + token);
+        requestSettings.setAdditionalHeader("WB-Client-Id", clientId);
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_BAD_REQUEST));

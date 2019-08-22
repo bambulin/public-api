@@ -26,9 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 public class PassiveDnsITTest extends Arquillian {
-    private static final String TOKEN = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
-            "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
-            "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA";
+    private static final String CLIENT_ID = "2";
 
     private ArchiveInitiator archiveInitiator;
 
@@ -723,7 +721,7 @@ public class PassiveDnsITTest extends Arquillian {
     }
 
     private static JsonArray getTimeline(URL context, String queryString) throws IOException {
-        return AggregationUtils.getAggregationBucketsArray(context, "1/dns/timeline?" + queryString, TOKEN);
+        return AggregationUtils.getAggregationBucketsArray(context, "1/dns/timeline?" + queryString, CLIENT_ID);
     }
 
     /**
@@ -744,7 +742,7 @@ public class PassiveDnsITTest extends Arquillian {
     }
 
     private static JsonArray getTimelineInvalid(URL context, String queryString) throws IOException {
-        return InvalidRequestUtils.sendInvalidRequest(context, "1/dns/timeline?" + queryString, TOKEN);
+        return InvalidRequestUtils.sendInvalidRequest(context, "1/dns/timeline?" + queryString, CLIENT_ID);
     }
 
     /**

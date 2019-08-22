@@ -12,7 +12,8 @@ paths:
       - Event
       summary: Get events according to a search parameters
       security:
-      - Bearer: []
+      - AccessKey: []
+      - SecretKey: []
       parameters:
       - name: client_ip
         in: query
@@ -139,14 +140,6 @@ paths:
                   value: 200
         '401':
           description: Unauthorized access
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/error'
-              example:
-                error: MISSING_AUTH_TOKEN
-                error_code: 0
-                message: Missing auth token
         '421':
           description: Access rate limit exceeded for given request ip address
         '500':
@@ -166,7 +159,8 @@ paths:
       - DNS
       summary: Get DNS traffic hourly timeline according to the parameters
       security:
-      - Bearer: []
+      - AccessKey: []
+      - SecretKey: []
       parameters:
       - name: client_ip
         in: query
@@ -324,14 +318,6 @@ paths:
                   value: 200
         '401':
           description: Unauthorized access
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/error'
-              example:
-                error: MISSING_AUTH_TOKEN
-                error_code: 0
-                message: Missing auth token
         '421':
           description: Access rate limit exceeded for given request ip address
         '500':
@@ -351,7 +337,8 @@ paths:
       - DNSSEC
       summary: Get DNSSEC traffic hourly timeline according to the parameters
       security:
-      - Bearer: []
+      - AccessKey: []
+      - SecretKey: []
       parameters:
       - name: query_type
         in: query
@@ -487,14 +474,6 @@ paths:
                   value: 200
         '401':
           description: Unauthorized access
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/error'
-              example:
-                error: MISSING_AUTH_TOKEN
-                error_code: 0
-                message: Missing auth token
         '421':
           description: Access rate limit exceeded for given request ip address
         '500':
@@ -511,9 +490,13 @@ servers:
 - url: 'https://api.whalebone.io/whalebone/1'
 components:
   securitySchemes:
-    Bearer:
+    AccessKey:
       type: apiKey
-      name: Authorization
+      name: Wb-Access-Key
+      in: header
+    SecretKey:
+      type: apiKey
+      name: Wb-Secret-Key
       in: header
   schemas:
     event:
@@ -757,8 +740,6 @@ components:
           type: string
           description: Error representation string
           enum:
-          - MISSING_AUTH_TOKEN
-          - INVALID_AUTH_TOKEN
           - UNEXPECTED_ERROR
           - INVALID_PARAM_VALUE
         error_code:

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 @Priority(2) //executes after the AuthInterceptor
 public class RequestLoggingInterceptor implements ContainerRequestFilter {
     protected static final String LOG_PREFIX = "WB API Request: ";
-    private static final String AUTH_HEADER = "Authorization";
+    private static final String SECRET_KEY_HEADER = "Wb-Secret-Key";
     @Inject
     private Logger logger;
 
@@ -58,9 +59,9 @@ public class RequestLoggingInterceptor implements ContainerRequestFilter {
     }
 
     private static MultivaluedMap<String, String> maskedHeaders(ContainerRequestContext requestContext) {
-        MultivaluedMap<String, String> headers = new MultivaluedHashMap<String, String>(requestContext.getHeaders());
-        if (headers.containsKey(AUTH_HEADER)) {
-            headers.put(AUTH_HEADER, Collections.singletonList("*****"));
+        MultivaluedMap<String, String> headers = requestContext.getHeaders();
+        if (CollectionUtils.isNotEmpty(headers.get(SECRET_KEY_HEADER))) {
+            headers.put(SECRET_KEY_HEADER, Collections.singletonList("*****"));
         }
         return headers;
     }

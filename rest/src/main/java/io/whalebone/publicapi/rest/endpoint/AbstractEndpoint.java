@@ -1,5 +1,6 @@
 package io.whalebone.publicapi.rest.endpoint;
 
+import io.whalebone.publicapi.rest.auth.AuthInterceptor;
 import io.whalebone.publicapi.rest.validation.ValidInteger;
 import org.apache.commons.lang3.StringUtils;
 
@@ -11,7 +12,7 @@ abstract class AbstractEndpoint implements Serializable {
     private static final long serialVersionUID = -2618560708692266417L;
     private static final int DEFAULT_DAYS = 1;
 
-    @HeaderParam("wb_client_id")
+    @HeaderParam(AuthInterceptor.CLIENT_ID_HEADER)
     private String clientId;
     @QueryParam("resolver_id")
     private String resolverIdParam;
