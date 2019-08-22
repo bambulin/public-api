@@ -1,12 +1,10 @@
 package io.whalebone.publicapi.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.common.io.Resources;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.CoreMatchers;
 import org.jboss.resteasy.specimpl.MultivaluedTreeMap;
 import org.mockito.*;
 import org.testng.annotations.BeforeMethod;
@@ -25,10 +23,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import com.google.common.io.Resources;
+import static org.mockito.Mockito.*;
 
 public class RequestLoggingInterceptorTest {
     @Mock
@@ -84,7 +79,7 @@ public class RequestLoggingInterceptorTest {
         MultivaluedMap<String, String> headers = new MultivaluedTreeMap<>(); // use treemap to ensure order of keys
         headers.add("SingleValueHeader", "headerVal1");
         headers.addAll("MultivalueHeader", "multival1", "multival2");
-        headers.add("Authorization", "Bearer TOKEN_SHOULD_BE_OMITTED");
+        headers.add("Wb-Secret-Key", "KEY_SHOULD_BE_OMITTED");
         headers.add("EmptyHeader", "");
         headers.add("NullHeader", null);
         return headers;

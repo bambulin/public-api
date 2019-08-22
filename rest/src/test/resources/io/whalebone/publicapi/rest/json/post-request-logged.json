@@ -2,7 +2,7 @@
   "uri": "http://host/end/point?query=string&param=value",
   "method": "POST",
   "headers": {
-    "Authorization": ["*****"],
+    "Wb-Secret-Key": ["*****"],
     "EmptyHeader":[""],
     "MultivalueHeader": ["multival1", "multival2"],
     "NullHeader": [null],

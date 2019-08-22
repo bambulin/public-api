@@ -28,9 +28,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 
 public class DnsSecTimelineITTest extends Arquillian {
-    private static final String TOKEN = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
-            "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
-            "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA";
+    private static final String CLIENT_ID = "2";
 
     private ArchiveInitiator archiveInitiator;
 
@@ -378,11 +376,11 @@ public class DnsSecTimelineITTest extends Arquillian {
     }
 
     private static JsonArray getTimeline(URL context, String queryString) throws IOException {
-        return AggregationUtils.getAggregationBucketsArray(context, "1/dnssec/timeline?" + queryString, TOKEN);
+        return AggregationUtils.getAggregationBucketsArray(context, "1/dnssec/timeline?" + queryString, CLIENT_ID);
     }
 
     private static JsonArray invalidRequest(URL context, String queryString) throws IOException {
-        return InvalidRequestUtils.sendInvalidRequest(context, "1/dnssec/timeline?" + queryString, TOKEN);
+        return InvalidRequestUtils.sendInvalidRequest(context, "1/dnssec/timeline?" + queryString, CLIENT_ID);
     }
 
     /**

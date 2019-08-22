@@ -34,9 +34,7 @@ import static org.hamcrest.core.Is.is;
 import static org.testng.Assert.fail;
 
 public class EventsSearchITTest extends Arquillian {
-    private static final String TOKEN = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
-            "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
-            "IHj9Sw-BNOwjRLSnJH2mz64kRtjoQZRqlgA2Ts9pDomhpBWoxLq0cSocLpE7exSzJZhU0__sKiw-AaIYQ4RGtA";
+    private static final String CLIENT_ID = "2";
 
     private ArchiveInitiator archiveInitiator;
 
@@ -357,7 +355,7 @@ public class EventsSearchITTest extends Arquillian {
     private static JsonArray eventsSearch(URL context, String queryString) throws IOException {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + "1/events/search?" + queryString), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("Authorization", "Bearer " + TOKEN);
+        requestSettings.setAdditionalHeader("WB-Client-Id", CLIENT_ID);
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_OK));
@@ -367,7 +365,7 @@ public class EventsSearchITTest extends Arquillian {
     }
 
     private static JsonArray eventsSearchInvalid(URL context, String queryString) throws IOException {
-        return InvalidRequestUtils.sendInvalidRequest(context, "1/events/search?" + queryString, TOKEN);
+        return InvalidRequestUtils.sendInvalidRequest(context, "1/events/search?" + queryString, CLIENT_ID);
     }
 
     /**

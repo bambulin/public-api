@@ -60,10 +60,10 @@ public class AggregationUtils {
         return bucket;
     }
 
-    public static JsonArray getAggregationBucketsArray(URL context, String path, String token) throws IOException {
+    public static JsonArray getAggregationBucketsArray(URL context, String path, String clientId) throws IOException {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + path), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("Authorization", "Bearer " + token);
+        requestSettings.setAdditionalHeader("Wb-Client-Id", clientId);
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_OK));

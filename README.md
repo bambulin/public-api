@@ -11,15 +11,6 @@ URL of ElasticSearch rest api. If there's more than one node you can define mult
 Max number of records that can be returned from single search.
 If not defined then 10000 is used by default.  
 
-**JWT_SECRET**=test  
-Secret key used in JWT tokens
-
-**AES_KEY**=testtesttesttest  
-128 bits AES key for client id decryption  
-
-**AES_IV**=1234567890123456  
-128 bits AES initial vector for client id decryption
-
 ### usage
 
 see https://app.swaggerhub.com/apis/whalebone/whalebone-api/1-oas3/

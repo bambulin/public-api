@@ -43,18 +43,16 @@ public class AuthITTest extends Arquillian {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         WebRequest requestSettings = new WebRequest(new URL(path), HttpMethod.GET);
         // token is not signed properly
-        requestSettings.setAdditionalHeader("Authorization", "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9." +
-                "eyJjbGllbnRfaWQiOiJLbE54anJnV3NFS3ZMa2pFaXlXVHFRPT0iLCJpYXQiOjE1MTYyMzkwMjJ9." +
-                "DE7lDt4VbBmeLUFOV7d0QTedYnXVRxCZzB9d6xSHyfc-UaHj3HNcl864pLaF5vdtQ5eFoT3b3InJV7yfB4Knpw");
+        requestSettings.setAdditionalHeader("Wb-Client-Id", "");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
 
-        assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_UNAUTHORIZED));
+        assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_BAD_REQUEST));
         JsonParser parser = new JsonParser();
         JsonElement responseJson = parser.parse(page.getWebResponse().getContentAsString());
         JsonObject errorResponse = responseJson.getAsJsonObject();
         assertThat(errorResponse.get("message"), is(notNullValue()));
         assertThat(errorResponse.get("error"), is(notNullValue()));
-        assertThat(errorResponse.get("error").getAsString(), is("INVALID_AUTH_TOKEN"));
+        assertThat(errorResponse.get("error").getAsString(), is("MISSING_CLIENT_ID_HEADER"));
     }
 }

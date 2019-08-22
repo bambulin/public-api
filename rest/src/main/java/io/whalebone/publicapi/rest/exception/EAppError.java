@@ -7,8 +7,7 @@ import javax.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 
 public enum EAppError {
-    MISSING_AUTH_TOKEN(0, Response.Status.UNAUTHORIZED),
-    INVALID_AUTH_TOKEN(1, Response.Status.UNAUTHORIZED),
+    MISSING_CLIENT_ID_HEADER(0, Response.Status.BAD_REQUEST),
     UNEXPECTED_ERROR(10, Response.Status.INTERNAL_SERVER_ERROR),
     CONSTRAINT_VIOLATION(20, Response.Status.BAD_REQUEST),
     INVALID_PARAM_VALUE(21, Response.Status.BAD_REQUEST);
