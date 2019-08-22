@@ -63,7 +63,7 @@ public class AggregationUtils {
     public static JsonArray getAggregationBucketsArray(URL context, String path, String clientId) throws IOException {
         WebClient webClient = new WebClient();
         WebRequest requestSettings = new WebRequest(new URL(context + path), HttpMethod.GET);
-        requestSettings.setAdditionalHeader("WB-Client-Id", clientId);
+        requestSettings.setAdditionalHeader("Wb-Client-Id", clientId);
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
         assertThat(page.getWebResponse().getStatusCode(), is(HttpURLConnection.HTTP_OK));

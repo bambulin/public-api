@@ -43,7 +43,7 @@ public class AuthITTest extends Arquillian {
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
         WebRequest requestSettings = new WebRequest(new URL(path), HttpMethod.GET);
         // token is not signed properly
-        requestSettings.setAdditionalHeader("WB-Client-Id", "");
+        requestSettings.setAdditionalHeader("Wb-Client-Id", "");
         requestSettings.setAdditionalHeader("accept", "application/json");
         Page page = webClient.getPage(requestSettings);
 
