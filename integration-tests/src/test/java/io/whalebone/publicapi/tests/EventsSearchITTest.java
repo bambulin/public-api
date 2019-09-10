@@ -9,9 +9,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.whalebone.publicapi.ejb.PublicApiService;
-import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
-import io.whalebone.publicapi.tests.matchers.EventMatcher;
-import io.whalebone.publicapi.tests.matchers.ParamValidationErrorMatcher;
 import io.whalebone.publicapi.tests.utils.InvalidRequestUtils;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -25,7 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 
 import static io.whalebone.publicapi.tests.matchers.EventMatcher.event;
 import static io.whalebone.publicapi.tests.matchers.ParamValidationErrorMatcher.error;
@@ -350,6 +346,19 @@ public class EventsSearchITTest extends Arquillian {
         assertThat(jsonErrors.size(), is(1));
         assertThat(jsonErrors.get(0), is(error("days", "91", 21, "INVALID_PARAM_VALUE", "" +
                 "Invalid value - value must be an integer in range <1 - 90>", null)));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchMultipleMonths(@ArquillianResource URL context) throws IOException {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendLogEvent("logs/multiple_month_indices/log-client_ip-1.2.3.4.json", timestamp.minusMonths(1));
+        archiveInitiator.sendLogEvent("logs/multiple_month_indices/log-client_ip-1.2.3.4.json", timestamp.minusMonths(2));
+        // timestamp.minusMonths(3) cannot be used because it would be more than 90 days which is max possible value for search
+        archiveInitiator.sendLogEvent("logs/multiple_month_indices/log-client_ip-1.2.3.4.json", timestamp.minusDays(80));
+        JsonArray events = eventsSearch(context, "days=90");
+        assertThat(events.size(), is(3));
     }
 
     private static JsonArray eventsSearch(URL context, String queryString) throws IOException {

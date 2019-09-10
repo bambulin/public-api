@@ -3,8 +3,8 @@ package io.whalebone.publicapi.tests;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
+import io.whalebone.publicapi.ejb.PublicApiService;
 import io.whalebone.publicapi.ejb.elastic.ElasticClientProvider;
-import io.whalebone.publicapi.ejb.elastic.ElasticService;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class ArchiveInitiator {
     public void cleanDnsLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
                 new URL(ELASTIC_ENDPOINT +
-                        "/" + ElasticService.PASSIVE_DNS_INDEX_ALIAS + "*"), HttpMethod.DELETE);
+                        "/" + PublicApiService.PASSIVE_DNS_INDEX_PREFIX + "*"), HttpMethod.DELETE);
          webClient.getPage(requestSettings);
     }
 
@@ -41,7 +41,7 @@ public class ArchiveInitiator {
     public void cleanDnsSecLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
                 new URL(ELASTIC_ENDPOINT +
-                        "/" + ElasticService.DNSSEC_INDEX_ALIAS + "*"), HttpMethod.DELETE);
+                        "/" + PublicApiService.DNSSEC_INDEX_PREFIX + "*"), HttpMethod.DELETE);
 
         webClient.getPage(requestSettings);
     }
@@ -52,7 +52,7 @@ public class ArchiveInitiator {
     public void cleanEventLogs() throws IOException {
         WebRequest requestSettings = new WebRequest(
                 new URL(ELASTIC_ENDPOINT +
-                        "/" + ElasticService.LOGS_INDEX_ALIAS + "*"), HttpMethod.DELETE);
+                        "/" + PublicApiService.LOGS_INDEX_PREFIX + "*"), HttpMethod.DELETE);
 
         webClient.getPage(requestSettings);
     }
@@ -66,7 +66,7 @@ public class ArchiveInitiator {
      * @throws IOException
      */
     public void sendDnsLog(String filename, ZonedDateTime timestamp) throws IOException {
-        sendJsonFile(filename, createPassiveDnsIndex(timestamp), ElasticService.PASSIVE_DNS_TYPE, timestamp);
+        sendJsonFile(filename, createPassiveDnsIndex(timestamp), PublicApiService.PASSIVE_DNS_TYPE, timestamp);
     }
 
     /**
@@ -76,23 +76,23 @@ public class ArchiveInitiator {
      * @param timestamp
      */
     public void sendLogEvent(String filename, ZonedDateTime timestamp) throws IOException {
-        sendJsonFile(filename, createLogsIndex(timestamp), ElasticService.LOGS_TYPE, timestamp);
+        sendJsonFile(filename, createLogsIndex(timestamp), PublicApiService.LOGS_TYPE, timestamp);
     }
 
     public void sendDnsSecLog(String filename, ZonedDateTime timestamp) throws IOException {
-        sendJsonFile(filename, createDnsSecIndex(timestamp), ElasticService.DNSSEC_TYPE, timestamp);
+        sendJsonFile(filename, createDnsSecIndex(timestamp), PublicApiService.DNSSEC_TYPE, timestamp);
     }
 
     public void sendMultipleDnsLogs(String dirName, ZonedDateTime timestamp) throws IOException {
-        sendMultipleFiles(dirName, createPassiveDnsIndex(timestamp), ElasticService.PASSIVE_DNS_TYPE, timestamp);
+        sendMultipleFiles(dirName, createPassiveDnsIndex(timestamp), PublicApiService.PASSIVE_DNS_TYPE, timestamp);
     }
 
     public void sendMultipleLogEvents(String dirName, ZonedDateTime timestamp) throws IOException {
-        sendMultipleFiles(dirName, createLogsIndex(timestamp), ElasticService.LOGS_TYPE, timestamp);
+        sendMultipleFiles(dirName, createLogsIndex(timestamp), PublicApiService.LOGS_TYPE, timestamp);
     }
 
     public void sendMultipleDnsSecLogs(String dirName, ZonedDateTime timestamp) throws IOException {
-        sendMultipleFiles(dirName, createDnsSecIndex(timestamp), ElasticService.DNSSEC_TYPE, timestamp);
+        sendMultipleFiles(dirName, createDnsSecIndex(timestamp), PublicApiService.DNSSEC_TYPE, timestamp);
     }
 
     private void sendJsonFile(String fileName, String index, String type, ZonedDateTime timestamp) throws IOException {
@@ -139,16 +139,16 @@ public class ArchiveInitiator {
 
     private String createLogsIndex(ZonedDateTime timestamp) {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return ElasticService.LOGS_INDEX_ALIAS + "-" + date;
+        return PublicApiService.LOGS_INDEX_PREFIX + date;
     }
 
     private String createPassiveDnsIndex(ZonedDateTime timestamp) {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        return ElasticService.PASSIVE_DNS_INDEX_ALIAS + "-" + date;
+        return PublicApiService.PASSIVE_DNS_INDEX_PREFIX + date;
     }
 
     private String createDnsSecIndex(ZonedDateTime timestamp) {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        return ElasticService.DNSSEC_INDEX_ALIAS + "-" + date;
+        return PublicApiService.DNSSEC_INDEX_PREFIX + date;
     }
 }
