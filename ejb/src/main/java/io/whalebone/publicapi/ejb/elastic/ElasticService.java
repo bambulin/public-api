@@ -2,11 +2,9 @@ package io.whalebone.publicapi.ejb.elastic;
 
 import com.google.gson.Gson;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.action.support.IndicesOptions;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -19,7 +17,6 @@ import org.elasticsearch.search.sort.SortBuilder;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.naming.directory.SearchResult;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,12 +28,6 @@ import java.util.function.Function;
 public class ElasticService implements Serializable {
     private static final long serialVersionUID = 8884963960567953481L;
     private static final int SEARCH_QUERY_SIZE = Integer.parseInt(System.getenv().getOrDefault("ELASTIC_QUERY_MAX_SIZE", "10000"));
-    public static final String LOGS_INDEX_ALIAS = "logs";
-    public static final String LOGS_TYPE = "match";
-    public static final String PASSIVE_DNS_INDEX_ALIAS = "passivedns";
-    public static final String PASSIVE_DNS_TYPE = "logs";
-    public static final String DNSSEC_INDEX_ALIAS = "dnssec";
-    public static final String DNSSEC_TYPE = "log";
 
     @Inject
     private RestHighLevelClient elasticClient;
@@ -46,7 +37,7 @@ public class ElasticService implements Serializable {
 
     public <T> List<T> search(final QueryBuilder query,
                               final SortBuilder sort,
-                              final String index,
+                              final String[] indices,
                               final String type,
                               final Type beanType) throws ElasticSearchException {
         try {
@@ -58,7 +49,7 @@ public class ElasticService implements Serializable {
             }
             final SearchRequest search = new SearchRequest()
                     .source(searchSource)
-                    .indices(index)
+                    .indices(indices)
                     .types(type)
                     .requestCache(false)
                     .searchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -93,7 +84,7 @@ public class ElasticService implements Serializable {
 
     public <T> List<T> searchWithAggregation(final QueryBuilder query,
                                              final AbstractAggregationBuilder aggregation,
-                                             final String index,
+                                             final String[] indices,
                                              final String type,
                                              final Function<Aggregations, List<T>> aggregationBeanProducer
     ) throws ElasticSearchException {
@@ -103,7 +94,7 @@ public class ElasticService implements Serializable {
                             .query(query)
                             .aggregation(aggregation)
                     )
-                    .indices(index)
+                    .indices(indices)
                     .types(type)
                     .requestCache(false)
                     .searchType(SearchType.DFS_QUERY_THEN_FETCH)

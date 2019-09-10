@@ -5,10 +5,7 @@ import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
-import io.whalebone.publicapi.ejb.elastic.BucketIntervalMapper;
-import io.whalebone.publicapi.ejb.elastic.DnsTimeBucketDTOProducer;
-import io.whalebone.publicapi.ejb.elastic.Elastic;
-import io.whalebone.publicapi.ejb.elastic.ElasticService;
+import io.whalebone.publicapi.ejb.elastic.*;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -30,6 +27,15 @@ public class PublicApiService {
     private static final String WILDCARD = "*";
     private static final int TERM_AGGREGATION_SIZE = 10;
     public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
+    public static final String LOGS_INDEX_PREFIX = "logs-";
+    public static final String LOGS_INDEX_TIME_FORMAT = "yyyy-MM-'*'";
+    public static final String LOGS_TYPE = "match";
+    public static final String PASSIVE_DNS_INDEX_PREFIX = "passivedns-";
+    public static final String PASSIVE_DNS_INDEX_TIME_FORMAT = "yyyy.MM.'*'";
+    public static final String PASSIVE_DNS_TYPE = "logs";
+    public static final String DNSSEC_INDEX_PREFIX = "dnssec-";
+    public static final String DNSSEC_INDEX_TIME_FORMAT = "yyyy.MM.'*'";
+    public static final String DNSSEC_TYPE = "log";
 
     @EJB
     private ElasticService elasticService;
@@ -50,18 +56,26 @@ public class PublicApiService {
             search.must(query);
         }
 
+        ZonedDateTime timestampTo = now();
+        ZonedDateTime timestampFrom = timestampTo.minusDays(criteria.getDays());
         search.filter(QueryBuilders.boolQuery()
                 .must(QueryBuilders.rangeQuery("logged")
-                        .lte(nowFormatted())
-                        .gte(nowMinusDaysFormatted(criteria.getDays())
-                        ))
+                        .gte(formatTimestamp(timestampFrom))
+                        .lte(formatTimestamp(timestampTo))
+                )
                 .must(QueryBuilders.termQuery("client_id", criteria.getClientId()))
         );
 
-        return elasticService.search(search, null, ElasticService.LOGS_INDEX_ALIAS, ElasticService.LOGS_TYPE , EventDTO.class);
+        String[] indices = ElasticUtils.indicesByMonths(LOGS_INDEX_PREFIX, LOGS_INDEX_TIME_FORMAT, timestampFrom, timestampTo);
+        return elasticService.search(search, null, indices, LOGS_TYPE , EventDTO.class);
     }
 
-    public List<DnsTimeBucketDTO> dnsAggregations(DnsTimelineCriteria criteria, String index, String type) {
+    private List<DnsTimeBucketDTO> dnsAggregations(DnsTimelineCriteria criteria,
+                                                   String[] indices,
+                                                   String type,
+                                                   ZonedDateTime timestampFrom,
+                                                   ZonedDateTime timestampTo,
+                                                   String timestampField) {
         List<QueryBuilder> queries = new ArrayList<>();
         prepareFieldParamQuery("client", criteria.getClientIp(), queries, true);
         prepareFieldParamQuery("query_type", serializeEnumParam(criteria.getQueryType()), queries, false);
@@ -80,18 +94,11 @@ public class PublicApiService {
             search.must(query);
         }
 
-        String timestampField;
-        if (ElasticService.DNSSEC_INDEX_ALIAS.equals(index)) {
-            timestampField = "@timestamp";
-        } else {
-            timestampField = "timestamp";
-        }
-
         search.filter(QueryBuilders.boolQuery()
                 .must(QueryBuilders.rangeQuery(timestampField)
-                        .lte(nowFormatted())
-                        .gte(nowMinusDaysFormatted(criteria.getDays())
-                        ))
+                        .gte(formatTimestamp(timestampFrom))
+                        .lte(formatTimestamp(timestampTo))
+                )
                 .must(QueryBuilders.termQuery("client_id", criteria.getClientId()))
         );
 
@@ -109,15 +116,21 @@ public class PublicApiService {
         }
 
         DnsTimeBucketDTOProducer bucketDTOProducer = new DnsTimeBucketDTOProducer(criteria.getAggregate());
-        return elasticService.searchWithAggregation(search, aggregation, index, type, bucketDTOProducer::produce);
+        return elasticService.searchWithAggregation(search, aggregation, indices, type, bucketDTOProducer::produce);
     }
 
     public List<DnsTimeBucketDTO> dnsTimeline(DnsTimelineCriteria criteria) {
-        return dnsAggregations(criteria, ElasticService.PASSIVE_DNS_INDEX_ALIAS, ElasticService.PASSIVE_DNS_TYPE);
+        ZonedDateTime timestampTo = now();
+        ZonedDateTime timestampFrom = timestampTo.minusDays(criteria.getDays());
+        String[] indices = ElasticUtils.indicesByMonths(PASSIVE_DNS_INDEX_PREFIX, PASSIVE_DNS_INDEX_TIME_FORMAT, timestampFrom, timestampTo);
+        return dnsAggregations(criteria, indices, PASSIVE_DNS_TYPE, timestampFrom, timestampTo, "timestamp");
     }
 
     public List<DnsTimeBucketDTO> dnsSecTimeline(DnsTimelineCriteria criteria) {
-        return dnsAggregations(criteria, ElasticService.DNSSEC_INDEX_ALIAS, ElasticService.DNSSEC_TYPE);
+        ZonedDateTime timestampTo = now();
+        ZonedDateTime timestampFrom = timestampTo.minusDays(criteria.getDays());
+        String[] indices = ElasticUtils.indicesByMonths(DNSSEC_INDEX_PREFIX, DNSSEC_INDEX_TIME_FORMAT, timestampFrom, timestampTo);
+        return dnsAggregations(criteria, indices, DNSSEC_TYPE, timestampFrom, timestampTo, "@timestamp");
     }
 
     private void prepareFieldParamQuery(String fieldName, Object value, List<QueryBuilder> queries,
@@ -141,15 +154,11 @@ public class PublicApiService {
         return gson.toJson(enumConstant).replaceAll("\"", "");
     }
 
-    private static ZonedDateTime now() {
+    public static ZonedDateTime now() {
         return ZonedDateTime.now().withSecond(0).withNano(0);
     }
 
-    private static String nowFormatted() {
-        return now().format(DateTimeFormatter.ofPattern(TIME_PATTERN));
-    }
-
-    private static String nowMinusDaysFormatted(int days) {
-        return now().minusDays(days).format(DateTimeFormatter.ofPattern(TIME_PATTERN));
+    private static String formatTimestamp(ZonedDateTime timestamp) {
+        return timestamp.format(DateTimeFormatter.ofPattern(TIME_PATTERN));
     }
 }
