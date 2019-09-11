@@ -51,7 +51,7 @@ public class ElasticService implements Serializable {
                     .source(searchSource)
                     .indices(indices)
                     .types(type)
-                    .requestCache(false)
+                    .requestCache(true)
                     .searchType(SearchType.DFS_QUERY_THEN_FETCH)
                     // closed indices issue, see https://github.com/elastic/elasticsearch/issues/20105
                     .indicesOptions(IndicesOptions.fromOptions(
@@ -96,7 +96,7 @@ public class ElasticService implements Serializable {
                     )
                     .indices(indices)
                     .types(type)
-                    .requestCache(false)
+                    .requestCache(true)
                     .searchType(SearchType.DFS_QUERY_THEN_FETCH)
                     // closed indices issue, see https://github.com/elastic/elasticsearch/issues/20105
                     .indicesOptions(IndicesOptions.fromOptions(
