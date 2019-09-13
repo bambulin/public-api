@@ -44,6 +44,7 @@ jobs:
 
     steps:
       - checkout
+      - run: mkdir -p integration-tests/target/surefire-reports # create the test results directory
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
           keys:
@@ -78,11 +79,10 @@ jobs:
       - run:
           name: set doc mappings
           command: |
-            pwd
-            pwd && curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
+            curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json
             curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json
             curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json
-            curl -XPUT -H 'Content-Type: application/json' localhost:9400/_template/dnssec -d @integration-tests/src/test/resources/iocs-template.json
+            curl -XPUT -H 'Content-Type: application/json' localhost:9400/_template/iocs -d @integration-tests/src/test/resources/iocs-template.json
 
       - run:
           name: run tests
