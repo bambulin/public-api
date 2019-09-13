@@ -16,15 +16,15 @@ public class ActiveIoCStatsDTOAdapter implements JsonSerializer<ActiveIoCStatsDT
     @Override
     public JsonElement serialize(ActiveIoCStatsDTO activeIoCStatsDTO, Type type, JsonSerializationContext ctx) {
         JsonObject json = new JsonObject();
-        json.addProperty("total", activeIoCStatsDTO.getTotalCount());
-        if (MapUtils.isNotEmpty(activeIoCStatsDTO.getCountsPerTypeMap())) {
-            for (Map.Entry<EThreatType, Long> typeCount : activeIoCStatsDTO.getCountsPerTypeMap().entrySet()) {
-                // this call use LowerCaseEnumTypeAdapter internally so the EThreadType value is serialized correctly
-                JsonElement typeJson = ctx.serialize(typeCount.getKey());
-                String typeString = typeJson.getAsString();
-                json.addProperty(typeString, typeCount.getValue());
-            }
-        }
+//        json.addProperty("total", activeIoCStatsDTO.getTotalCount());
+//        if (MapUtils.isNotEmpty(activeIoCStatsDTO.getCountsPerTypeMap())) {
+//            for (Map.Entry<EThreatType, Long> typeCount : activeIoCStatsDTO.getCountsPerTypeMap().entrySet()) {
+//                // this call use LowerCaseEnumTypeAdapter internally so the EThreadType value is serialized correctly
+//                JsonElement typeJson = ctx.serialize(typeCount.getKey());
+//                String typeString = typeJson.getAsString();
+//                json.addProperty(typeString, typeCount.getValue());
+//            }
+//        }
         return json;
     }
 }

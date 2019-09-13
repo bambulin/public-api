@@ -3,6 +3,8 @@ package io.whalebone.publicapi.ejb.elastic;
 import com.google.gson.Gson;
 import io.whalebone.publicapi.ejb.dto.ActiveIoCStatsDTO;
 import io.whalebone.publicapi.ejb.dto.EThreatType;
+import io.whalebone.publicapi.ejb.dto.ThreatTypeCountDTO;
+import org.apache.commons.collections4.CollectionUtils;
 import org.elasticsearch.forarchive.action.search.SearchResponse;
 import org.elasticsearch.forarchive.action.search.SearchType;
 import org.elasticsearch.forarchive.client.Client;
@@ -13,7 +15,9 @@ import org.elasticsearch.forarchive.search.aggregations.bucket.terms.Terms;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * !!IMPORTANT!! all imported elastic search classes must be imported from
@@ -50,7 +54,7 @@ public class IoCElasticService implements Serializable {
         }
         ActiveIoCStatsDTO stats = new ActiveIoCStatsDTO();
         stats.setTotalCount(0);
-        stats.setCountsPerTypeMap(new HashMap<>());
+        List<ThreatTypeCountDTO> threatTypeCounts = new ArrayList<>();
         Terms byType = sr.getAggregations().get("by_type");
         for (Terms.Bucket bucket : byType.getBuckets()) {
             // if the returned type is not supported (unserializable) then gson returns null
@@ -59,8 +63,14 @@ public class IoCElasticService implements Serializable {
             if (type == null) {
                 continue;
             }
-            stats.getCountsPerTypeMap().put(type, bucket.getDocCount());
+            ThreatTypeCountDTO threatTypeCount = new ThreatTypeCountDTO();
+            threatTypeCount.setThreatType(type);
+            threatTypeCount.setCount(bucket.getDocCount());
+            threatTypeCounts.add(threatTypeCount);
             stats.setTotalCount(stats.getTotalCount() + bucket.getDocCount());
+        }
+        if (CollectionUtils.isNotEmpty(threatTypeCounts)) {
+            stats.setThreatTypeCounts(threatTypeCounts);
         }
         return stats;
     }

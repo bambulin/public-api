@@ -26,14 +26,7 @@ paths:
         description: Type of the event
         required: false
         schema:
-          type: string
-          enum:
-          - c&c
-          - blacklist
-          - malware
-          - phishing
-          - legal
-          - exploit
+          $ref: '#/components/schemas/threat_type'
       - name: resolver_id
         in: query
         description: ID of the resolver that triggered the detection event
@@ -486,6 +479,53 @@ paths:
                 error: UNEXPECTED_ERROR
                 error_code: 10
                 message: Unexpected error occurred.
+  /ioc/count:
+    get:
+      tags:
+      - IOC
+      summary: Get counts of active iocs per threat type
+      security:
+      - AccessKey: []
+      - SecretKey: []
+      responses:
+        '200':
+          description: Counts of currently active ioc records
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/xRateLimitLimit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/xRateLimitRemaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/xRateLimitReset'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/iocs_count'
+              example:
+                total_count: 12345
+                threat_type_counts:
+                - threat_type: "malware"
+                  count: 24
+                - threat_type: "phishing"
+                  count: 52
+                - threat_type: "c&c"
+                  count: 21
+                - threat_type: "blacklist"
+                  count: 98
+                - threat_type: "legal"
+                  count: 15
+                - threat_type: "exploit"
+                  count: 3
+        '500':
+          description: Unexpected error
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                error: UNEXPECTED_ERROR
+                error_code: 10
+                message: Unexpected error occurred.
 servers:
 - url: 'https://api.whalebone.io/whalebone/1'
 components:
@@ -676,6 +716,29 @@ components:
             type: string
             description: TLD that aggregates events in the bucket
 
+    iocs_count:
+      type: object
+      properties:
+        total_count:
+          type: integer
+          format: int64
+          description: Total count of currently active ioc records
+        threat_type_counts:
+          type: array
+          description: Counts per threat type
+          items:
+            $ref: '#/components/schemas/threat_type_count'
+
+    threat_type_count:
+      type: object
+      properties:
+        threat_type:
+          $ref: '#/components/schemas/threat_type'
+        count:
+          type: integer
+          format: int64
+          description: Count of active ioc records of given threat type
+
     query_type:
       type: string
       enum:
@@ -719,6 +782,16 @@ components:
       - txt
       - uri
       - aname
+
+    threat_type:
+      type: string
+      enum:
+      - c&c
+      - blacklist
+      - malware
+      - phishing
+      - legal
+      - exploit
 
     interval:
       type: string

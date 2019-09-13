@@ -31,7 +31,7 @@ public class Resources {
                 .registerTypeAdapter(EReason.class, new LowercaseEnumTypeAdapter<>(EReason.class))
                 .registerTypeAdapter(EThreatType.class, new LowercaseEnumTypeAdapter<>(EThreatType.class))
                 .registerTypeAdapter(EDnsQueryType.class, new LowercaseEnumTypeAdapter<>(EDnsQueryType.class))
-                .registerTypeAdapter(ActiveIoCStatsDTO.class, new ActiveIoCStatsDTOAdapter())
+//                .registerTypeAdapter(ActiveIoCStatsDTO.class, new ActiveIoCStatsDTOAdapter())
                 .create();
     }
 }

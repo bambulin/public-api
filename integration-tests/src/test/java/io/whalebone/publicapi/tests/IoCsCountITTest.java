@@ -4,6 +4,8 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
@@ -19,6 +21,7 @@ import java.net.URL;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.testng.Assert.fail;
 
 public class IoCsCountITTest extends Arquillian {
     private static final String CLIENT_ID = "2";
@@ -43,7 +46,7 @@ public class IoCsCountITTest extends Arquillian {
         JsonObject iocsStats = iocsStats(context);
         // only total count is expected to be in the resopse jsone
         assertThat(iocsStats.size(), is(1));
-        long totalCount = iocsStats.get("total").getAsLong();
+        long totalCount = iocsStats.get("total_count").getAsLong();
         assertThat(totalCount, is(0L));
     }
 
@@ -64,15 +67,41 @@ public class IoCsCountITTest extends Arquillian {
         // this one should not be involved in the result since threat type is unknown
         archiveInitiator.sendIoCOfThreatType("iocs/ioc.json", "blabla");
         JsonObject iocsStats = iocsStats(context);
-        // 5 threat types + 1 for total
-        assertThat(iocsStats.size(), is(5 + 1));
-        long totalCount = iocsStats.get("total").getAsLong();
+        assertThat(iocsStats.size(), is(2));
+        long totalCount = iocsStats.get("total_count").getAsLong();
         assertThat(totalCount, is(8L));
-        assertThat(iocsStats.getAsJsonPrimitive("malware").getAsLong(), is(2L));
-        assertThat(iocsStats.getAsJsonPrimitive("c&c").getAsLong(), is(1L));
-        assertThat(iocsStats.getAsJsonPrimitive("blacklist").getAsLong(), is(3L));
-        assertThat(iocsStats.getAsJsonPrimitive("phishing").getAsLong(), is(1L));
-        assertThat(iocsStats.getAsJsonPrimitive("exploit").getAsLong(), is(1L));
+        JsonArray threatTypeCounts = iocsStats.getAsJsonArray("threat_type_counts");
+        assertThat(threatTypeCounts.size(), is(5));
+        for (JsonElement e : threatTypeCounts) {
+            JsonObject countObject = e.getAsJsonObject();
+            assertThat(countObject.size(), is(2));
+            String threatType = countObject.getAsJsonPrimitive("threat_type").getAsString();
+            long count = countObject.getAsJsonPrimitive("count").getAsLong();
+            switch (threatType){
+                case "malware":
+                    assertThat(count, is(2L));
+                    break;
+                case "c&c":
+                    assertThat(count, is(1L));
+                    break;
+                case "blacklist":
+                    assertThat(count, is(3L));
+                    break;
+                case "phishing":
+                    assertThat(count, is(1L));
+                    break;
+                case "exploit":
+                    assertThat(count, is(1L));
+                    break;
+                default:
+                    fail("unexpected threat type " + threatType);
+            }
+        }
+//        assertThat(iocsStats.getAsJsonPrimitive("malware").getAsLong(), is(2L));
+//        assertThat(iocsStats.getAsJsonPrimitive("c&c").getAsLong(), is(1L));
+//        assertThat(iocsStats.getAsJsonPrimitive("blacklist").getAsLong(), is(3L));
+//        assertThat(iocsStats.getAsJsonPrimitive("phishing").getAsLong(), is(1L));
+//        assertThat(iocsStats.getAsJsonPrimitive("exploit").getAsLong(), is(1L));
     }
 
     private static JsonObject iocsStats(URL context) throws IOException {
