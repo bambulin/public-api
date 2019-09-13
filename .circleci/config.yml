@@ -78,6 +78,7 @@ jobs:
       - run:
           name: set doc mappings
           command: |
+            "pwd"
             "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json"
             "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json"
             "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json"
