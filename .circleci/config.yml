@@ -46,46 +46,46 @@ jobs:
       - checkout
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
-        keys:
-        - public-api-{{ checksum "pom.xml" }}
-        - public-api-
+          keys:
+          - public-api-{{ checksum "pom.xml" }}
+          - public-api-
       
       - run:
-        name: build shaded elasticsearch library for ioc archive
-        command: cd elasticsearch-for-archive && mv clean install -DskipTests
+          name: build shaded elasticsearch library for ioc archive
+          command: cd elasticsearch-for-archive && mv clean install -DskipTests
 
       - run:
-        name: build public api
-        command: mvn clean install -DskipTests
+          name: build public api
+          command: mvn clean install -DskipTests
       
       - save_cache: # saves the project dependencies
-        key: public-api
-        paths:
-          - ~/.m2
+          key: public-api
+          paths:
+            - ~/.m2
 
       - run:
-        name: install dockerize
-        command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-        environment:
-          DOCKERIZE_VERSION: v0.3.0
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
       - run:
-        name: wait for logs elastic
-        command: dockerize -wait http://localhost:9200 -timeout 1m
+          name: wait for logs elastic
+          command: dockerize -wait http://localhost:9200 -timeout 1m
       - run:
-        name: wait for ioc archive
-        command: dockerize -wait http://localhost:9400 -timeout 1m
+          name: wait for ioc archive
+          command: dockerize -wait http://localhost:9400 -timeout 1m
 
       - run:
-        name: set doc mappings
-        command: |
-          "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json"
-          "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json"
-          "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json"
-          "curl -XPUT -H 'Content-Type: application/json' localhost:9400/_template/dnssec -d @integration-tests/src/test/resources/iocs-template.json"
+          name: set doc mappings
+          command: |
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json"
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json"
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json"
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9400/_template/dnssec -d @integration-tests/src/test/resources/iocs-template.json"
 
       - run:
-        name: run tests
-        command: mvn integration-test -Parq-wildfly-managed
+          name: run tests
+          command: mvn integration-test -Parq-wildfly-managed
 
       - store_test_results:
-        path: integration-tests/target/surefire-reports
+          path: integration-tests/target/surefire-reports
