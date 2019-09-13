@@ -97,11 +97,6 @@ public class IoCsCountITTest extends Arquillian {
                     fail("unexpected threat type " + threatType);
             }
         }
-//        assertThat(iocsStats.getAsJsonPrimitive("malware").getAsLong(), is(2L));
-//        assertThat(iocsStats.getAsJsonPrimitive("c&c").getAsLong(), is(1L));
-//        assertThat(iocsStats.getAsJsonPrimitive("blacklist").getAsLong(), is(3L));
-//        assertThat(iocsStats.getAsJsonPrimitive("phishing").getAsLong(), is(1L));
-//        assertThat(iocsStats.getAsJsonPrimitive("exploit").getAsLong(), is(1L));
     }
 
     private static JsonObject iocsStats(URL context) throws IOException {
