@@ -5,12 +5,11 @@ jobs:
       - image: circleci/openjdk:8-jdk
         environment:
           ELASTIC_HOST: "http://127.0.0.1:9200"
+          IOC_ELASTIC_HOST: "127.0.0.1:9500" # this must point to transport tcp port (NOT rest port)
+          IOC_ELASTIC_HOST_REST: "http://127.0.0.1:9400" # for tests only
           ELASTIC_QUERY_MAX_SIZE: 10000
-          JWT_SECRET: "test"
-          AES_KEY: "testtesttesttest"
-          AES_IV: "1234567890123456"
 
-      # ELASTIC
+      # Elastic for logs and dns
       - image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
         environment:
           XPACK_MONITORING_ENABLED: 'false'
@@ -18,6 +17,24 @@ jobs:
           cluster.name: archive
           bootstrap.memory_lock: 'true'
           ES_JAVA_OPTS: -Xms256m -Xmx256m
+
+      # Elastic for iocs
+      - image: harbor.whalebone.io/whalebone/ioc-archive-testing-elastic:1.7.1
+        auth:
+          username: $HARBOR_USER      #harbor credentials must be set in context in CI admin UI manually
+          password: $HARBOR_PASSWORD
+        environment:
+          ES_CLUSTER: "archive"
+          ES_HEAP_SIZE: "256m"
+          ES_INT: "lo"
+          ES_SERVICE_NAME: "archive"
+          ES_NODE_MASTER: "true"
+          ES_NODE_DATA: "true"
+          ES_GROOVY_ENABLED: "true"
+          ES_SCRIPT_DISABLE: "false"
+          ES_MINIMUM_MASTER_NODES: "1"
+          ES_HTTP_PORT: 9400
+          ES_TRANSPORT_TCP_PORT: 9500
 
     working_directory: ~/public-api
 
@@ -33,7 +50,13 @@ jobs:
           - public-api-{{ checksum "pom.xml" }}
           - public-api-
       
-      - run: mvn clean install -DskipTests
+      - run:
+          name: build shaded elasticsearch library for ioc archive
+          command: cd elasticsearch-for-archive && mvn clean install -DskipTests
+
+      - run:
+          name: build public api
+          command: mvn clean install -DskipTests
       
       - save_cache: # saves the project dependencies
           key: public-api
@@ -46,16 +69,23 @@ jobs:
           environment:
             DOCKERIZE_VERSION: v0.3.0
       - run:
-          name: wait for archive
+          name: wait for logs elastic
           command: dockerize -wait http://localhost:9200 -timeout 1m
+      - run:
+          name: wait for ioc archive
+          command: dockerize -wait http://localhost:9400 -timeout 1m
 
-      # setup the elastic mappings
-      - run: "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json"
-      - run: "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json"
-      - run: "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json"
+      - run:
+          name: set doc mappings
+          command: |
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/logs -d @integration-tests/src/test/resources/logs-template.json"
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/passivedns -d @integration-tests/src/test/resources/passivedns-template.json"
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9200/_template/dnssec -d @integration-tests/src/test/resources/dnssec-template.json"
+            "curl -XPUT -H 'Content-Type: application/json' localhost:9400/_template/dnssec -d @integration-tests/src/test/resources/iocs-template.json"
 
-      # run tests!
-      - run: mvn integration-test -Parq-wildfly-managed
+      - run:
+          name: run tests
+          command: mvn integration-test -Parq-wildfly-managed
 
       - store_test_results:
           path: integration-tests/target/surefire-reports

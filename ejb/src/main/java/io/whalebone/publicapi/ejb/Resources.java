@@ -13,7 +13,7 @@ import io.whalebone.publicapi.ejb.elastic.ElasticClientProvider;
 import io.whalebone.publicapi.ejb.json.ArchiveMappedDeserializer;
 import io.whalebone.publicapi.ejb.json.LowercaseEnumTypeAdapter;
 import io.whalebone.publicapi.ejb.json.ZonedDateTimeAdapter;
-import org.elasticsearch.client.Client;
+import org.elasticsearch.forarchive.client.Client;
 import org.elasticsearch.client.RestHighLevelClient;
 
 import javax.enterprise.context.Dependent;
@@ -42,6 +42,12 @@ public class Resources implements Serializable {
     @Default
     public RestHighLevelClient getElasticClient() {
         return elasticClientProvider.getClient();
+    }
+
+    @Produces
+    @Default
+    public Client getIoCElasticClient() {
+        return elasticClientProvider.getIocElasticClient();
     }
 
     @Produces

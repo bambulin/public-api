@@ -3,6 +3,7 @@ package io.whalebone.publicapi.ejb;
 import com.google.gson.Gson;
 import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
+import io.whalebone.publicapi.ejb.dto.ActiveIoCStatsDTO;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
 import io.whalebone.publicapi.ejb.elastic.*;
@@ -12,7 +13,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -39,6 +39,9 @@ public class PublicApiService {
 
     @EJB
     private ElasticService elasticService;
+    @EJB
+    private IoCElasticService iocElasticService;
+
     @Inject
     @Elastic
     private Gson gson;
@@ -131,6 +134,10 @@ public class PublicApiService {
         ZonedDateTime timestampFrom = timestampTo.minusDays(criteria.getDays());
         String[] indices = ElasticUtils.indicesByMonths(DNSSEC_INDEX_PREFIX, DNSSEC_INDEX_TIME_FORMAT, timestampFrom, timestampTo);
         return dnsAggregations(criteria, indices, DNSSEC_TYPE, timestampFrom, timestampTo, "@timestamp");
+    }
+
+    public ActiveIoCStatsDTO getActiveIoCStats() {
+        return iocElasticService.getActiveIoCStats();
     }
 
     private void prepareFieldParamQuery(String fieldName, Object value, List<QueryBuilder> queries,

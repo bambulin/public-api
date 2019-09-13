@@ -3,6 +3,7 @@ package io.whalebone.publicapi.rest;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.whalebone.publicapi.ejb.dto.ActiveIoCStatsDTO;
 import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
 import io.whalebone.publicapi.ejb.dto.EReason;
@@ -10,6 +11,7 @@ import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.dto.aggregate.EDnsSecAggregate;
 import io.whalebone.publicapi.ejb.json.LowercaseEnumTypeAdapter;
 import io.whalebone.publicapi.ejb.json.ZonedDateTimeAdapter;
+import io.whalebone.publicapi.rest.json.ActiveIoCStatsDTOAdapter;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -29,6 +31,7 @@ public class Resources {
                 .registerTypeAdapter(EReason.class, new LowercaseEnumTypeAdapter<>(EReason.class))
                 .registerTypeAdapter(EThreatType.class, new LowercaseEnumTypeAdapter<>(EThreatType.class))
                 .registerTypeAdapter(EDnsQueryType.class, new LowercaseEnumTypeAdapter<>(EDnsQueryType.class))
+                .registerTypeAdapter(ActiveIoCStatsDTO.class, new ActiveIoCStatsDTOAdapter())
                 .create();
     }
 }

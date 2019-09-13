@@ -30,6 +30,7 @@
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <maven.ejb.plugin.version>3.0.1</maven.ejb.plugin.version>
         <maven.surefire.plugin.version>2.20.1</maven.surefire.plugin.version>
+        <maven.shade.plugin.version>3.2.1</maven.shade.plugin.version>
 
         <wildfly.version>14.0.1.Final</wildfly.version>
 
@@ -40,8 +41,8 @@
         <com.google.guava.guava.version>27.0-jre</com.google.guava.guava.version>
         <org.apache.logging.log4j.log4j-core.version>2.11.1</org.apache.logging.log4j.log4j-core.version>
 
-        <elastic.version>6.6.1</elastic.version>
-
+        <org.elasticsearch.client.elasticsearch-rest-high-level-client.version>6.6.1</org.elasticsearch.client.elasticsearch-rest-high-level-client.version>
+        <org.elasticsearch.elasticsearch.version>1.7.1</org.elasticsearch.elasticsearch.version>
 
         <!-- test dependencies -->
         <org.testng.testng.version>6.14.3</org.testng.testng.version>
