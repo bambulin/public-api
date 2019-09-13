@@ -1,0 +1,31 @@
+{
+  "document_id": "2ea4ed8bab4c24ef84212ff04f678eb4",
+  "unique_ref": "4cd9a09ceccf058acf6f0d6c502325bf",
+  "feed": {
+    "name": "whalebone-malware"
+  },
+  "classification": {
+    "type": "@THREAT_TYPE@",
+    "taxonomy": "malicious code"
+  },
+  "source": {
+    "id": {
+      "value": "tvd6453f5.litedownloadseek.cn",
+      "type": "fqdn"
+    },
+    "fqdn": "tvd6453f5.litedownloadseek.cn"
+  },
+  "time": {
+    "observation": "2019-08-22T20:17:23+0000",
+    "received_by_core": "2019-08-22T20:37:01+0000"
+  },
+  "seen": {
+    "first": "2019-08-22T20:17:23+0000",
+    "last": "2019-08-22T20:17:23+0000"
+  },
+  "active": true,
+  "accuracy": {
+    "feed": 90,
+    "passivedns": 30
+  }
+}
