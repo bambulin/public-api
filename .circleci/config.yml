@@ -54,6 +54,7 @@ jobs:
       - run:
           name: build shaded elasticsearch library for ioc archive
           command: cd elasticsearch-for-archive && mv clean install -DskipTests
+
       - run:
           name: build public api
           command: mvn clean install -DskipTests
