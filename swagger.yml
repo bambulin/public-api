@@ -41,7 +41,7 @@ paths:
           type: string
       - name: device_id
         in: query
-        description: Device id
+        description: Unique identifier of the particular device in time (MSISDN, IMSI, hostname, etc.) where the DNS request originated
         required: false
         schema:
           type: string
@@ -204,7 +204,7 @@ paths:
           type: integer
       - name: device_id
         in: query
-        description: Device id
+        description: Unique identifier of the particular device in time (MSISDN, IMSI, hostname, etc.)
         required: false
         schema:
           type: string
@@ -593,7 +593,7 @@ components:
           description: Domain that was queried in the DNS request
         device_id:
           type: string
-          description: Device id
+          description: Unique identifier of the particular device in time (MSISDN, IMSI, hostname, etc.) that performed the reqeust
         threat_type:
           type: array
           description: The type of the threat detected
@@ -742,7 +742,7 @@ components:
         properties:
           device_id:
             type: string
-            description: Device id
+            description: Unique device identifier that agregates events in the bucket
 
     iocs_count:
       type: object
