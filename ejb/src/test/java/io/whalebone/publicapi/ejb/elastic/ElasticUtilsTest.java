@@ -19,7 +19,7 @@ public class ElasticUtilsTest {
                     ZonedDateTime.of(2019, 9, 21, 15, 30, 13, 0, ZoneId.systemDefault()),
                     ZonedDateTime.of(2019, 12, 10, 1, 0, 1, 0, ZoneId.systemDefault()),
                     new String[] {
-                            "logs-2019-09-*", "logs-2019-10-*", "logs-2019-11-*", "logs-2019-12-*"
+                            "logs-2019.09.*", "logs-2019.10.*", "logs-2019.11.*", "logs-2019.12.*"
                     }
                 },
                 // end of the year and the begining of the next one

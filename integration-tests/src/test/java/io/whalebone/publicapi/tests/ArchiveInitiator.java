@@ -151,7 +151,7 @@ public class ArchiveInitiator {
     }
 
     private String createLogsIndex(ZonedDateTime timestamp) {
-        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         return PublicApiService.LOGS_INDEX_PREFIX + date;
     }
 

@@ -28,7 +28,7 @@ public class PublicApiService {
     private static final int TERM_AGGREGATION_SIZE = 10;
     public static final String TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
     public static final String LOGS_INDEX_PREFIX = "logs-";
-    public static final String LOGS_INDEX_TIME_FORMAT = "yyyy-MM-'*'";
+    public static final String LOGS_INDEX_TIME_FORMAT = "yyyy.MM.'*'";
     public static final String LOGS_TYPE = "match";
     public static final String PASSIVE_DNS_INDEX_PREFIX = "passivedns-";
     public static final String PASSIVE_DNS_INDEX_TIME_FORMAT = "yyyy.MM.'*'";
