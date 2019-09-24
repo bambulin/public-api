@@ -39,6 +39,12 @@ paths:
         required: false
         schema:
           type: string
+      - name: device_id
+        in: query
+        description: Device id
+        required: false
+        schema:
+          type: string
       - name: reason
         in: query
         description: Why was the action executed
@@ -92,6 +98,7 @@ paths:
                 action: log
                 threat_type:
                 - c&c
+                device_id: deviceX
               - event_id: AWjC9apenCJni0Q6P8rk
                 reason: accuracy
                 timestamp: '2000-01-23T01:00:01.000+00:00'
@@ -107,6 +114,7 @@ paths:
                 action: log
                 threat_type:
                 - blacklist
+                device_id: deviceY
         '400':
           description: Invalid search parameters
           content:
@@ -194,6 +202,12 @@ paths:
         required: false
         schema:
           type: integer
+      - name: device_id
+        in: query
+        description: Device id
+        required: false
+        schema:
+          type: string
       - name: aggregate
         in: query
         description: Aggregate the hourly buckets according to one of the allowed parameter
@@ -207,6 +221,7 @@ paths:
           - query
           - answer
           - query_type
+          - device_id
           default: query_type
       - name: answer
         in: query
@@ -576,6 +591,9 @@ components:
         domain:
           type: string
           description: Domain that was queried in the DNS request
+        device_id:
+          type: string
+          description: Device id
         threat_type:
           type: array
           description: The type of the threat detected
@@ -630,6 +648,7 @@ components:
             - $ref: "#/components/schemas/dns-query-bucket"
             - $ref: "#/components/schemas/dns-domain-bucket"
             - $ref: "#/components/schemas/dns-tld-bucket"
+            - $ref: "#/components/schemas/dns-device-id-bucket"
           maxItems: 10
           minItems: 0
 
@@ -715,6 +734,15 @@ components:
           tld:
             type: string
             description: TLD that aggregates events in the bucket
+
+    dns-device-id-bucket:
+      allOf:
+      - $ref: '#/components/schemas/dns-aggregate-bucket'
+      - type: object
+        properties:
+          device_id:
+            type: string
+            description: Device id
 
     iocs_count:
       type: object
