@@ -53,6 +53,7 @@ public class PublicApiService {
         prepareFieldParamQuery("action_reason", serializeEnumParam(criteria.getReason()), queries, false);
         prepareFieldParamQuery("resolver_id", criteria.getResolverId(), queries, false);
         prepareFieldParamQuery("reason.fqdn", criteria.getDomain(), queries, true);
+        prepareFieldParamQuery("device_id", criteria.getDeviceId(), queries, false);
 
         BoolQueryBuilder search = QueryBuilders.boolQuery();
         for (QueryBuilder query : queries) {
@@ -87,6 +88,7 @@ public class PublicApiService {
         prepareFieldParamQuery("resolver_id", criteria.getResolverId(), queries, false);
         prepareFieldParamQuery("answer", criteria.getAnswer(), queries, true);
         prepareFieldParamQuery("domain_l1", criteria.getTld(), queries, true);
+        prepareFieldParamQuery("device_id", criteria.getDeviceId(), queries, false);
         if (criteria.isDga()) {
             prepareFieldParamQuery("dga.class", 1, queries, false);
         }

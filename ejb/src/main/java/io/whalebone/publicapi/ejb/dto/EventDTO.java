@@ -39,4 +39,6 @@ public class EventDTO implements Serializable, ArchiveMapped {
     private String[] identifier;
     @ArchiveMappedField("geoip")
     private GeoIpDTO geoIp;
+    @ArchiveMappedField("device_id")
+    private String deviceId;
 }

@@ -1,0 +1,36 @@
+{
+    "@timestamp": "2018-03-28T06:58:22.000Z",
+    "@version": "1",
+    "answer": "123.456.789.124",
+    "answer_ip": "123.456.789.124",
+    "asn": {
+        "number": "1234"
+    },
+    "class": "IN",
+    "client": "1.2.3.4",
+    "client_id": "2",
+    "device_id": "device1",
+    "dga": {
+        "class": 0,
+        "domain": "some-other-domain.com",
+        "probability": 0.006
+    },
+    "domain_l1": "com",
+    "domain_l2": "some-other-domain.com",
+    "domain_rest": "subdomain",
+    "geoip": {
+        "coordinates": [
+            -117,
+            34
+        ],
+        "country_code2": "US",
+        "latitude": 34,
+        "longitude": -117
+    },
+    "host": "43.54.65.43",
+    "query": "subdomain.some-other-domain.com",
+    "query_type": "APL",
+    "resolver_id": "10",
+    "timestamp":"@TIMESTAMP@",
+    "ttl": 300
+}

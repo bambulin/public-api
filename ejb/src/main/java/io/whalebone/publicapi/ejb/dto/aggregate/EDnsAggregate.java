@@ -6,7 +6,9 @@ public enum EDnsAggregate implements IDnsAggregate {
     DOMAIN(IDnsAggregate.DOMAIN),
     QUERY(IDnsAggregate.QUERY),
     QUERY_TYPE(IDnsAggregate.QUERY_TYPE),
-    ANSWER(IDnsAggregate.ANSWER);
+    ANSWER(IDnsAggregate.ANSWER),
+    DEVICE_ID(IDnsAggregate.DEVICE_ID)
+    ;
 
     private String elasticField;
 

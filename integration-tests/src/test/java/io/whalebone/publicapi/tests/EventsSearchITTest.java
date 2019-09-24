@@ -62,9 +62,9 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", null, "1.2.3.4", "a.net", "device1", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.4", "stoppblock.org",
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.4", "stoppblock.org", "device2",
                 new String[] {"malware", "c&c", "legal"}, new String[] {"identifier1", "identifier2", "identifier3"},
                 41.8776, -87.6272, "US")));
     }
@@ -88,10 +88,11 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", null, "1.2.3.4", "a.net", new String[] {"c&c"},
-                new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", null, "1.2.3.4", "a.net", "device1",
+                new String[] {"c&c"}, new String[] {"Tinba"}, null, null, null)));
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", "device2",
+                new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
@@ -113,10 +114,11 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 1, 42, "block", null, "1.2.3.1", "a.net", new String[] {"c&c"},
-                new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 43, "some_action", "content", "1.2.3.2", "stoppblock.org", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(eventA, is(event(timestampFormatted, 1, 42, "block", null, "1.2.3.1", "a.net", "device1",
+                new String[] {"c&c"}, new String[] {"Tinba"}, null, null, null)));
+        assertThat(eventB, is(event(timestampFormatted, null, 43, "some_action", "content", "1.2.3.2", "stoppblock.org",
+                "device2", new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
@@ -138,10 +140,10 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "a.net", new String[] {"c&c"},
-                new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "a.net", "device1",
+                new String[] {"c&c"}, new String[] {"Tinba"}, null, null, null)));
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "stoppblock.org", "device2",
+                new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
@@ -163,9 +165,35 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 56, 42, "block", "legal", "1.2.3.4", "a.net", new String[] {"c&c"},
+        assertThat(eventA, is(event(timestampFormatted, 56, 42, "block", "legal", "1.2.3.4", "a.net", "device1",
+                new String[] {"c&c"}, new String[] {"Tinba"}, null, null, null)));
+        assertThat(eventB, is(event(timestampFormatted, null, 42, "log", "legal", "1.2.3.5", "stoppblock.org", "device2",
+                new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void eventsSearchByDeviceIdTest(@ArquillianResource URL context) throws IOException {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleLogEvents("logs/by_device_id", timestamp);
+        archiveInitiator.sendLogEvent("logs/by_device_id/outdated/log-device_id-device1-outdated.json", timestamp.minusMinutes(24 * 60 + 1));
+        JsonArray events = eventsSearch(context, "device_id=device1");
+        assertThat(events.size(), is(2));
+        JsonElement eventA;
+        JsonElement eventB;
+        if ("block".equals(events.get(0).getAsJsonObject().get("action").getAsString())) {
+            eventA = events.get(0);
+            eventB = events.get(1);
+        } else {
+            eventA = events.get(1);
+            eventB = events.get(0);
+        }
+        String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
+        assertThat(eventA, is(event(timestampFormatted, 56, 42, "block", "legal", "1.2.3.4", "a.net", "device1", new String[] {"c&c"},
                 new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 42, "log", "legal", "1.2.3.5", "stoppblock.org", new String[] {"malware", "c&c"},
+        assertThat(eventB, is(event(timestampFormatted, null, 43, "log", "legal", "1.2.3.5", "stoppblock.org", "device1", new String[] {"malware", "c&c"},
                 new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
     }
 
@@ -188,10 +216,11 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", new String[] {"c&c"},
-                new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "whalebone.io", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", "device1",
+                new String[] {"c&c"}, new String[] {"Tinba"}, null, null, null)));
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "whalebone.io", "device2",
+                new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
@@ -213,10 +242,11 @@ public class EventsSearchITTest extends Arquillian {
             eventB = events.get(0);
         }
         String timestampFormatted = timestamp.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", new String[] {"c&c"},
-                new String[] {"Tinba"}, null, null, null)));
-        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "whalemouth.org", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(eventA, is(event(timestampFormatted, 56, 1, "block", "legal", "1.2.3.4", "whalebone.io", "device1",
+                new String[] {"c&c"}, new String[] {"Tinba"}, null, null, null)));
+        assertThat(eventB, is(event(timestampFormatted, null, 2, "log", "legal", "1.2.3.5", "whalemouth.org", "device2",
+                new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
     }
 
     /**
@@ -244,12 +274,13 @@ public class EventsSearchITTest extends Arquillian {
         archiveInitiator.sendMultipleLogEvents("logs/by_params_combination/", timestamp);
         archiveInitiator.sendMultipleLogEvents("logs/by_params_combination/yesterday", yesterday);
         archiveInitiator.sendLogEvent("logs/by_params_combination/outdated/log-all-params-match-outdated.json", timestamp.minusMinutes(2 * 24 * 60 + 1));
-        JsonArray events = eventsSearch(context, "resolver_id=42&client_ip=1.2.3.4&reason=legal&threat_type=malware&domain=whalebone.io&days=2");
+        JsonArray events = eventsSearch(context, "resolver_id=42&client_ip=1.2.3.4&device_id=device2&reason=legal&threat_type=malware&domain=whalebone.io&days=2");
         assertThat(events.size(), is(1));
         JsonElement event = events.get(0).getAsJsonObject();
         String timestampFormatted = yesterday.format(DateTimeFormatter.ofPattern(PublicApiService.TIME_PATTERN));
-        assertThat(event, is(event(timestampFormatted, 56, 42, "log", "legal", "1.2.3.4", "whalebone.io", new String[] {"malware", "c&c"},
-                new String[] {"identifier1", "identifier2", "identifier3"}, 41.8776, -87.6272, "US")));
+        assertThat(event, is(event(timestampFormatted, 56, 42, "log", "legal", "1.2.3.4", "whalebone.io", "device2",
+                new String[] {"malware", "c&c"}, new String[] {"identifier1", "identifier2", "identifier3"},
+                41.8776, -87.6272, "US")));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
@@ -267,20 +298,20 @@ public class EventsSearchITTest extends Arquillian {
             int resolverId = event.get("resolver_id").getAsInt();
             switch (resolverId) {
                 case 1:
-                    assertThat(event, is(event(timestampFormatted, 1, 1, "log", "blacklist", "1.2.3.4", "stoppblock.org", new String[] {"c&c"},
-                            new String[] {"identifier1"}, 1.8776, -1.6272, "US")));
+                    assertThat(event, is(event(timestampFormatted, 1, 1, "log", "blacklist", "1.2.3.4", "stoppblock.org",
+                            "device1", new String[] {"c&c"}, new String[] {"identifier1"}, 1.8776, -1.6272, "US")));
                     break;
                 case 2:
-                    assertThat(event, is(event(timestampFormatted, 2, 2, "block", "content", "1.2.3.5", "whalebone.io", new String[] {"blacklist"},
-                            new String[] {"identifier2"}, 2.8776, -2.6272, "DE")));
+                    assertThat(event, is(event(timestampFormatted, 2, 2, "block", "content", "1.2.3.5", "whalebone.io",
+                            "device2", new String[] {"blacklist"}, new String[] {"identifier2"}, 2.8776, -2.6272, "DE")));
                     break;
                 case 3:
-                    assertThat(event, is(event(timestampFormatted, 3, 3, "action", "legal", "1.2.3.6", "virus.com", new String[] {"malware"},
-                            new String[] {"identifier3"}, 3.8776, -3.6272, "GB")));
+                    assertThat(event, is(event(timestampFormatted, 3, 3, "action", "legal", "1.2.3.6", "virus.com",
+                            "device3", new String[] {"malware"}, new String[] {"identifier3"}, 3.8776, -3.6272, "GB")));
                     break;
                 case 4:
-                    assertThat(event, is(event(timestampFormatted, 4, 4, "some_action", "accuracy", "1.2.3.7", "phishing.org", new String[] {"phishing"},
-                            new String[] {"identifier4"}, 4.8776, -4.6272, "RU")));
+                    assertThat(event, is(event(timestampFormatted, 4, 4, "some_action", "accuracy", "1.2.3.7", "phishing.org",
+                            "device4", new String[] {"phishing"}, new String[] {"identifier4"}, 4.8776, -4.6272, "RU")));
                     break;
                 default:
                     fail("Unexpected event returned: " + event);

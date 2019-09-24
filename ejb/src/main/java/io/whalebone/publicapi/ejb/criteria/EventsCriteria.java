@@ -11,14 +11,15 @@ public class EventsCriteria extends ClientCriteria {
     private EReason reason;
 
     @Builder
-    public EventsCriteria(String clientId,
-                          String domain,
-                          int days,
-                          Integer resolverId,
-                          String clientIp,
-                          EThreatType threatType,
-                          EReason reason) {
-        super(clientId, domain, days, resolverId, clientIp);
+    public EventsCriteria(final String clientId,
+                          final String domain,
+                          final int days,
+                          final Integer resolverId,
+                          final String clientIp,
+                          final String deviceId,
+                          final EThreatType threatType,
+                          final EReason reason) {
+        super(clientId, domain, days, resolverId, clientIp, deviceId);
         this.threatType = threatType;
         this.reason = reason;
     }

@@ -101,6 +101,9 @@ public class DnsTimeBucketDTOProducer {
             case IDnsAggregate.CLIENT_IP:
                 aggregateBucket.setClientIp(termBucket.getKeyAsString());
                 break;
+            case IDnsAggregate.DEVICE_ID:
+                aggregateBucket.setDeviceId(termBucket.getKeyAsString());
+                break;
             default:
                 throw new IllegalArgumentException("Aggregation by " + aggregateType.getElasticField() + " is not supported");
         }

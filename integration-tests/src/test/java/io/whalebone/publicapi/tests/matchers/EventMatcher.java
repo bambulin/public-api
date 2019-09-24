@@ -12,6 +12,7 @@ public class EventMatcher extends JsonElementMatcher {
     private String reason;
     private String clientIp;
     private String domain;
+    private String deviceId;
     private String[] threatType;
     private String[] identifier;
     private Double latitude;
@@ -25,6 +26,7 @@ public class EventMatcher extends JsonElementMatcher {
                         String reason,
                         String clientIp,
                         String domain,
+                        String deviceId,
                         String[] threatType,
                         String[] identifier,
                         Double latitude,
@@ -37,6 +39,7 @@ public class EventMatcher extends JsonElementMatcher {
         this.reason = reason;
         this.clientIp = clientIp;
         this.domain = domain;
+        this.deviceId = deviceId;
         this.threatType = threatType;
         this.identifier = identifier;
         this.latitude = latitude;
@@ -69,6 +72,7 @@ public class EventMatcher extends JsonElementMatcher {
             checkNullableProperty(event, "reason", reason, JsonElement::getAsString);
             checkNullableProperty(event, "client_ip", clientIp, JsonElement::getAsString);
             checkNullableProperty(event, "domain", domain, JsonElement::getAsString);
+            checkNullableProperty(event, "device_id", deviceId, JsonElement::getAsString);
 
             if (latitude != null || longitude != null || countryCode2 != null) {
                 if (event.getAsJsonObject("geo_ip") == null || event.getAsJsonObject("geo_ip").isJsonNull()) {
@@ -95,19 +99,20 @@ public class EventMatcher extends JsonElementMatcher {
         return true;
     }
 
-    public static EventMatcher event(String timestamp,
-                                      Integer accuracy,
-                                      Integer resolverId,
-                                      String action,
-                                      String reason,
-                                      String clientIp,
-                                      String domain,
-                                      String[] threatType,
-                                      String[] identifier,
-                                      Double latitude,
-                                      Double longitude,
-                                      String countryCode2) {
-        return new EventMatcher(timestamp, accuracy, resolverId, action, reason, clientIp, domain, threatType,
+    public static EventMatcher event(final String timestamp,
+                                     final Integer accuracy,
+                                     final Integer resolverId,
+                                     final String action,
+                                     final String reason,
+                                     final String clientIp,
+                                     final String domain,
+                                     final String deviceId,
+                                     final String[] threatType,
+                                     final String[] identifier,
+                                     final Double latitude,
+                                     final Double longitude,
+                                     final String countryCode2) {
+        return new EventMatcher(timestamp, accuracy, resolverId, action, reason, clientIp, domain, deviceId, threatType,
                 identifier, latitude, longitude, countryCode2);
     }
 }

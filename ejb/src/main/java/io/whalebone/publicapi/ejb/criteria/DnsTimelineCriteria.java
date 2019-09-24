@@ -22,6 +22,7 @@ public class DnsTimelineCriteria extends ClientCriteria {
                                final int days,
                                final Integer resolverId,
                                final String clientIp,
+                               final String deviceId,
                                final EDnsQueryType queryType,
                                final IDnsAggregate aggregate,
                                final EDnsBucketInterval interval,
@@ -29,7 +30,7 @@ public class DnsTimelineCriteria extends ClientCriteria {
                                final String answer,
                                final String tld,
                                final boolean dga) {
-        super(clientId, domain, days, resolverId, clientIp);
+        super(clientId, domain, days, resolverId, clientIp, deviceId);
         this.queryType = queryType;
         this.aggregate = aggregate;
         this.interval = interval;

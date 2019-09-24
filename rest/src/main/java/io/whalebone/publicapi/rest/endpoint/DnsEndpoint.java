@@ -33,6 +33,8 @@ public class DnsEndpoint extends AbstractDnsEndpoint {
     private String answer;
     @QueryParam("dga")
     private boolean dga;
+    @QueryParam("device_id")
+    private String deviceId;
 
     @EnumValue(EDnsAggregate.class)
     public String getAggregateParam() {
@@ -69,6 +71,7 @@ public class DnsEndpoint extends AbstractDnsEndpoint {
                 .queryType(getQueryType())
                 .aggregate(getAggregate())
                 .clientIp(clientIp)
+                .deviceId(deviceId)
                 .query(getQuery())
                 .answer(answer)
                 .days(getDays())

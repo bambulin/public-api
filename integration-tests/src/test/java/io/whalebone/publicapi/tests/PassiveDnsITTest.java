@@ -576,6 +576,78 @@ public class PassiveDnsITTest extends Arquillian {
     }
 
     /**
+     * Tests filter by device_id
+     *
+     * @param context
+     * @throws Exception
+     */
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void filterByDeviceIdTest(@ArquillianResource URL context) throws Exception {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleDnsLogs("passivedns/by_device_id", timestamp);
+        archiveInitiator.sendMultipleDnsLogs("passivedns/by_device_id/older", timestamp.minusMinutes(60 + 1));
+        archiveInitiator.sendMultipleDnsLogs("passivedns/by_device_id/outdated", timestamp.minusMinutes(24 * 60 + 1));
+        JsonArray timeline = getTimeline(context, "device_id=device1");
+
+        checkCounts(timeline);
+        assertThat(timeline.size(), is(2));
+
+        JsonArray bucketsOld = AggregationUtils.getTimeAggregation(timestamp.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsOld = {
+                AggregationUtils.createBucketElement("query_type", "apl", 2),
+                AggregationUtils.createBucketElement("query_type", "rp", 1)
+        };
+
+        assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
+
+        JsonArray bucketsNew = AggregationUtils.getTimeAggregation(timestamp, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsNew = {
+                AggregationUtils.createBucketElement("query_type", "a", 2)
+        };
+
+        assertThat(bucketsNew, Matchers.containsInAnyOrder(expectedBucketsNew));
+    }
+
+    /**
+     * Tests aggregation by device_id
+     *
+     * @param context
+     * @throws Exception
+     */
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void aggregateByDeviceIdTest(@ArquillianResource URL context) throws Exception {
+        ZonedDateTime timestamp = timestamp();
+        archiveInitiator.sendMultipleDnsLogs("passivedns/by_device_id", timestamp);
+        archiveInitiator.sendMultipleDnsLogs("passivedns/by_device_id/older", timestamp.minusMinutes(60 + 1));
+        archiveInitiator.sendMultipleDnsLogs("passivedns/by_device_id/outdated", timestamp.minusMinutes(24 * 60 + 1));
+        JsonArray timeline = getTimeline(context, "aggregate=device_id");
+
+        checkCounts(timeline);
+        assertThat(timeline.size(), is(2));
+
+        JsonArray bucketsOld = AggregationUtils.getTimeAggregation(timestamp.minusMinutes(60 + 1), timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsOld = {
+                AggregationUtils.createBucketElement("device_id", "device1", 3),
+                AggregationUtils.createBucketElement("device_id", "device4", 1),
+        };
+
+        assertThat(bucketsOld, Matchers.containsInAnyOrder(expectedBucketsOld));
+
+        JsonArray bucketsNew = AggregationUtils.getTimeAggregation(timestamp, timeline).getAsJsonObject().get("buckets").getAsJsonArray();
+        JsonObject[] expectedBucketsNew = {
+                AggregationUtils.createBucketElement("device_id", "device1", 2),
+                AggregationUtils.createBucketElement("device_id", "device2", 1),
+                AggregationUtils.createBucketElement("device_id", "device3", 1)
+        };
+
+        assertThat(bucketsNew, Matchers.containsInAnyOrder(expectedBucketsNew));
+    }
+
+    /**
      * Tests the validation of query_type param
      *
      * @param context
@@ -609,7 +681,7 @@ public class PassiveDnsITTest extends Arquillian {
         assertThat(jsonErrors.size(), is(1));
         assertThat(jsonErrors.get(0), is(error("aggregate", "xyz", 21, "INVALID_PARAM_VALUE", "" +
                         "Invalid enum value",
-                new String[]{"client_ip", "tld", "domain", "query", "query_type", "answer"})));
+                new String[]{"client_ip", "tld", "domain", "query", "query_type", "answer", "device_id"})));
     }
 
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)

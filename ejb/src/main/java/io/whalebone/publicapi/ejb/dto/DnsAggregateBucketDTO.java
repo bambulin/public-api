@@ -13,6 +13,7 @@ public class DnsAggregateBucketDTO {
     private String query;
     private String domain;
     private String tld;
+    private String deviceId;
 
     private Long count;
 }

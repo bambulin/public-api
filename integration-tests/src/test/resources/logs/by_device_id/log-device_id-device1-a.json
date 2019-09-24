@@ -1,5 +1,6 @@
 {
   "device_id": "device1",
+  "resolver_id": 42,
   "accuracy": {
     "accuracy": 56,
     "the_most_accurate_feed": {
@@ -13,6 +14,7 @@
   "@timestamp": "2018-03-29T07:21:06.588Z",
   "client_id": "2",
   "action": "block",
+  "action_reason": "legal",
   "matched_iocs": [{
     "seen": {
       "first": "2017-12-21T13:56:44+0000"
@@ -47,7 +49,7 @@
   "host": "1.2.3.4",
   "request": {
     "fqdn": "a.net",
-    "ip": "1.3.4.5"
+    "ip": "1.2.3.4"
   },
   "reason": {
     "fqdn": "a.net"

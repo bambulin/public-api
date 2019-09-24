@@ -26,6 +26,8 @@ public class EventEndpoint extends ClientAbstractEndpoint {
     @EJB
     private PublicApiService publicApiService;
 
+    @QueryParam("device_id")
+    private String deviceId;
     @QueryParam("threat_type")
     private String threatTypeParam;
     @QueryParam("reason")
@@ -80,6 +82,7 @@ public class EventEndpoint extends ClientAbstractEndpoint {
                 .days(getDays())
                 .reason(getReason())
                 .domain(getDomain())
+                .deviceId(deviceId)
                 .threatType(getThreatType())
                 .resolverId(getResolverId())
                 .build();

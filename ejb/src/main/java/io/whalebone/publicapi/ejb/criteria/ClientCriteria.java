@@ -11,4 +11,5 @@ abstract class ClientCriteria {
     private int days;
     private Integer resolverId;
     private String clientIp;
+    private String deviceId;
 }

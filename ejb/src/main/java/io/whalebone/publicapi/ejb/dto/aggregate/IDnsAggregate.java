@@ -8,6 +8,7 @@ public interface IDnsAggregate {
     String QUERY = "query";
     String QUERY_TYPE = "query_type";
     String ANSWER = "answer";
+    String DEVICE_ID = "device_id";
 
     String getElasticField();
 }
