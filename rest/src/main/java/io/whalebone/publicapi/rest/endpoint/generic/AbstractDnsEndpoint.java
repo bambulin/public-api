@@ -1,9 +1,7 @@
-package io.whalebone.publicapi.rest.endpoint;
+package io.whalebone.publicapi.rest.endpoint.generic;
 
-import io.whalebone.publicapi.ejb.dto.EDnsBucketInterval;
 import io.whalebone.publicapi.ejb.dto.EDnsQueryType;
-import io.whalebone.publicapi.ejb.dto.aggregate.EDnsAggregate;
-import io.whalebone.publicapi.ejb.dto.aggregate.EDnsSecAggregate;
+import io.whalebone.publicapi.ejb.dto.ETimeInterval;
 import io.whalebone.publicapi.rest.EnumParamUtils;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import io.whalebone.publicapi.rest.validation.RangedInteger;
@@ -11,9 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.QueryParam;
 
-public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
+public abstract class AbstractDnsEndpoint extends AbstractResolverEndpoint implements TimeIntervalParametrized {
     private static final long serialVersionUID = 2744945027050689603L;
-    private static final EDnsBucketInterval DEFAULT_INTERVAL = EDnsBucketInterval.HOUR;
+    private static final ETimeInterval DEFAULT_INTERVAL = ETimeInterval.HOUR;
 
     @QueryParam("query_type")
     private String queryTypeParam;
@@ -25,6 +23,8 @@ public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
     private String query;
     @QueryParam("interval")
     private String intervalParam;
+    @QueryParam("domain")
+    private String domain;
 
     public void setQueryTypeParam(String typeParam) {
         this.queryTypeParam = typeParam;
@@ -61,6 +61,14 @@ public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
         return query;
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
     public EDnsQueryType getQueryType() {
         if (StringUtils.isNotBlank(queryTypeParam)) {
             return EnumParamUtils.getEnumValue(EDnsQueryType.class, queryTypeParam);
@@ -69,7 +77,7 @@ public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
         }
     }
 
-    @EnumValue(EDnsBucketInterval.class)
+    @EnumValue(ETimeInterval.class)
     public String getIntervalParam() {
         return intervalParam;
     }
@@ -78,12 +86,8 @@ public abstract class AbstractDnsEndpoint extends AbstractEndpoint {
         this.intervalParam = intervalParam;
     }
 
-    public EDnsBucketInterval getInterval() {
-        if (StringUtils.isNotBlank(intervalParam)) {
-            return EnumParamUtils.getEnumValue(EDnsBucketInterval.class, intervalParam);
-        } else {
-            return DEFAULT_INTERVAL;
-        }
+    @Override
+    public ETimeInterval getDefaultInterval() {
+        return DEFAULT_INTERVAL;
     }
-
 }

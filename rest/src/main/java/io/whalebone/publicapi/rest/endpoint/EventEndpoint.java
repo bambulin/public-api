@@ -1,17 +1,15 @@
 package io.whalebone.publicapi.rest.endpoint;
 
-import io.whalebone.publicapi.ejb.PublicApiService;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
 import io.whalebone.publicapi.ejb.dto.EReason;
 import io.whalebone.publicapi.ejb.dto.EThreatType;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
 import io.whalebone.publicapi.rest.EnumParamUtils;
-import io.whalebone.publicapi.rest.exception.AppException;
+import io.whalebone.publicapi.rest.endpoint.generic.AbstractResolverEndpoint;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import io.whalebone.publicapi.rest.validation.RangedInteger;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -20,11 +18,8 @@ import java.util.List;
 
 @Path("/1/events")
 @RequestScoped
-public class EventEndpoint extends ClientAbstractEndpoint {
+public class EventEndpoint extends AbstractResolverEndpoint {
     private static final long serialVersionUID = -4829163700948200095L;
-
-    @EJB
-    private PublicApiService publicApiService;
 
     @QueryParam("device_id")
     private String deviceId;
@@ -32,6 +27,10 @@ public class EventEndpoint extends ClientAbstractEndpoint {
     private String threatTypeParam;
     @QueryParam("reason")
     private String reasonParam;
+    @QueryParam("domain")
+    private String domain;
+    @QueryParam("client_ip")
+    private String clientIp;
 
     public void setThreatTypeParam(String typeParam) {
         this.threatTypeParam = typeParam;
@@ -78,10 +77,10 @@ public class EventEndpoint extends ClientAbstractEndpoint {
     public Response search() {
         EventsCriteria criteria = EventsCriteria.builder()
                 .clientId(getClientId())
-                .clientIp(getClientIp())
+                .clientIp(clientIp)
                 .days(getDays())
                 .reason(getReason())
-                .domain(getDomain())
+                .domain(domain)
                 .deviceId(deviceId)
                 .threatType(getThreatType())
                 .resolverId(getResolverId())

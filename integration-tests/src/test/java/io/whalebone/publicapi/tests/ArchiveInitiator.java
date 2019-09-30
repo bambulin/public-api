@@ -72,6 +72,17 @@ public class ArchiveInitiator {
         webClient.getPage(requestSettings);
     }
 
+    /**
+     * cleans all resolver metrics
+     */
+    public void cleanResolverSysInfo() throws IOException {
+        WebRequest requestSettings = new WebRequest(
+                new URL(ELASTIC_ENDPOINT +
+                        "/" + PublicApiService.RESOLVER_INDEX_PREFIX + "*"), HttpMethod.DELETE);
+
+        webClient.getPage(requestSettings);
+    }
+
     public void createIoCsIndex() throws IOException {
         WebRequest requestSettings = new WebRequest(
                 new URL(IOC_ELASTIC_ENDPOINT +
@@ -100,6 +111,11 @@ public class ArchiveInitiator {
                 THREAT_TYPE_PLACEHOLDER, threatType);
     }
 
+    public void sendResolverMetrics(String filename, ZonedDateTime timestamp) throws IOException {
+        sendJsonFile(filename, ELASTIC_ENDPOINT, createResolverMetricsIndex(timestamp), PublicApiService.RESOLVER_TYPE,
+                TIMESTAMP_PLACEHOLDER, formatTimestamp(timestamp));
+    }
+
     public void sendMultipleDnsLogs(String dirName, ZonedDateTime timestamp) throws IOException {
         sendMultipleFiles(dirName, ELASTIC_ENDPOINT, createPassiveDnsIndex(timestamp), PublicApiService.PASSIVE_DNS_TYPE,
                 TIMESTAMP_PLACEHOLDER, formatTimestamp(timestamp));
@@ -112,6 +128,11 @@ public class ArchiveInitiator {
 
     public void sendMultipleDnsSecLogs(String dirName, ZonedDateTime timestamp) throws IOException {
         sendMultipleFiles(dirName, ELASTIC_ENDPOINT, createDnsSecIndex(timestamp), PublicApiService.DNSSEC_TYPE,
+                TIMESTAMP_PLACEHOLDER, formatTimestamp(timestamp));
+    }
+
+    public void sendMultipleResolverMetrics(String dirName, ZonedDateTime timestamp) throws IOException {
+        sendMultipleFiles(dirName, ELASTIC_ENDPOINT, createResolverMetricsIndex(timestamp), PublicApiService.RESOLVER_TYPE,
                 TIMESTAMP_PLACEHOLDER, formatTimestamp(timestamp));
     }
 
@@ -163,5 +184,10 @@ public class ArchiveInitiator {
     private String createDnsSecIndex(ZonedDateTime timestamp) {
         String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
         return PublicApiService.DNSSEC_INDEX_PREFIX + date;
+    }
+
+    private String createResolverMetricsIndex(ZonedDateTime timestamp) {
+        String date = timestamp.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        return PublicApiService.RESOLVER_INDEX_PREFIX + date;
     }
 }

@@ -1,14 +1,13 @@
 package io.whalebone.publicapi.rest.endpoint;
 
-import io.whalebone.publicapi.ejb.PublicApiService;
 import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.aggregate.EDnsSecAggregate;
 import io.whalebone.publicapi.rest.EnumParamUtils;
+import io.whalebone.publicapi.rest.endpoint.generic.AbstractDnsEndpoint;
 import io.whalebone.publicapi.rest.validation.EnumValue;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,11 +20,7 @@ import java.util.List;
 @RequestScoped
 public class DnsSecEndpoint extends AbstractDnsEndpoint {
     private static final long serialVersionUID = 3680186395638851454L;
-
     private static final EDnsSecAggregate DEFAULT_AGGREGATE = EDnsSecAggregate.QUERY_TYPE;
-
-    @EJB
-    private PublicApiService publicApiService;
 
     @EnumValue(EDnsSecAggregate.class)
     public String getAggregateParam() {

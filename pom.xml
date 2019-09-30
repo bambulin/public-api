@@ -37,7 +37,7 @@
         <com.google.code.gson.gson.version>2.8.5</com.google.code.gson.gson.version>
         <org.apache.commons.commons-lang3.version>3.8.1</org.apache.commons.commons-lang3.version>
         <org.apache.commons.commons-collections4.version>4.1</org.apache.commons.commons-collections4.version>
-        <org.projectlombok.lombok.version>1.18.4</org.projectlombok.lombok.version>
+        <org.projectlombok.lombok.version>1.18.10</org.projectlombok.lombok.version>
         <com.google.guava.guava.version>27.0-jre</com.google.guava.guava.version>
         <org.apache.logging.log4j.log4j-core.version>2.11.1</org.apache.logging.log4j.log4j-core.version>
 

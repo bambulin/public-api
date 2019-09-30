@@ -35,43 +35,43 @@ public abstract class JsonElementMatcher extends TypeSafeMatcher<JsonElement> {
         mismatchDescription.appendText("was ").appendValue(gotValue);
     }
 
-    void checkNullableProperty(JsonObject event, String propertyName, Object property, Function<JsonElement,
+    void checkNullableProperty(JsonObject json, String propertyName, Object property, Function<JsonElement,
             Object> getter) throws MatchException {
         if (property != null) {
-            if (event.get(propertyName) == null || event.get(propertyName).isJsonNull()) {
+            if (json.get(propertyName) == null || json.get(propertyName).isJsonNull()) {
                 failedPropertyName = propertyName;
                 expectedValue = property;
                 gotValue = null;
                 throw new MatchException();
-            } else if (!property.equals(getter.apply(event.get(propertyName)))) {
+            } else if (!property.equals(getter.apply(json.get(propertyName)))) {
                 failedPropertyName = propertyName;
                 expectedValue = property;
-                gotValue = getter.apply(event.get(propertyName));
+                gotValue = getter.apply(json.get(propertyName));
                 throw new MatchException();
             }
-        } else if (event.get(propertyName) != null && !event.get(propertyName).isJsonNull()) {
+        } else if (json.get(propertyName) != null && !json.get(propertyName).isJsonNull()) {
             failedPropertyName = propertyName;
             expectedValue = null;
-            gotValue = getter.apply(event.get(propertyName));
+            gotValue = getter.apply(json.get(propertyName));
             throw new MatchException();
         }
     }
 
-    void checkNullableStringArrayProperty(JsonObject event, String propertyName, String[] property)
+    void checkNullableStringArrayProperty(JsonObject json, String propertyName, String[] property)
             throws MatchException {
         if (property != null && property.length > 0) {
-            if (event.get(propertyName) == null || event.get(propertyName).isJsonNull()) {
+            if (json.get(propertyName) == null || json.get(propertyName).isJsonNull()) {
                 failedPropertyName = propertyName;
                 expectedValue = "array";
                 gotValue = null;
                 throw new MatchException();
-            } else if (!event.get(propertyName).isJsonArray()) {
+            } else if (!json.get(propertyName).isJsonArray()) {
                 failedPropertyName = propertyName;
                 expectedValue = "array";
                 gotValue = "not array";
                 throw new MatchException();
             } else {
-                JsonArray jsonArray = event.getAsJsonArray(propertyName);
+                JsonArray jsonArray = json.getAsJsonArray(propertyName);
                 if (jsonArray.size() != property.length) {
                     failedPropertyName = propertyName;
                     expectedValue = "array of length " + property.length;

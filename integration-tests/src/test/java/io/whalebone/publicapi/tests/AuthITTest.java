@@ -38,6 +38,27 @@ public class AuthITTest extends Arquillian {
         assertInvalidTokenRequest(context + "1/dns/timeline");
     }
 
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void invalidToken_dnssecEndpoint(@ArquillianResource URL context) throws Exception {
+        assertInvalidTokenRequest(context + "1/dnssec/timeline");
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void invalidToken_iocsEndpoint(@ArquillianResource URL context) throws Exception {
+        assertInvalidTokenRequest(context + "1/ioc/count");
+    }
+
+    @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER)
+    @OperateOnDeployment("ear")
+    @RunAsClient
+    public void invalidToken_resolverEndpoint(@ArquillianResource URL context) throws Exception {
+        assertInvalidTokenRequest(context + "1/resolver/metrics");
+    }
+
     private void assertInvalidTokenRequest(String path) throws Exception {
         WebClient webClient = new WebClient();
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);

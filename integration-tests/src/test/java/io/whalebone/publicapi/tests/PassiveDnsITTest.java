@@ -777,7 +777,7 @@ public class PassiveDnsITTest extends Arquillian {
     @Test(dataProvider = Arquillian.ARQUILLIAN_DATA_PROVIDER, enabled = true)
     @OperateOnDeployment("ear")
     @RunAsClient
-    public void invalidParameterTest(@ArquillianResource URL context) throws Exception {
+    public void ignoredParameterTest(@ArquillianResource URL context) throws Exception {
         ZonedDateTime timestamp = timestamp();
         archiveInitiator.sendDnsLog("passivedns/by_query_type/passivedns-query_type-a.json", timestamp);
 

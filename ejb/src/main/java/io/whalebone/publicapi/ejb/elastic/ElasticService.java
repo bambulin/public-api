@@ -93,6 +93,7 @@ public class ElasticService implements Serializable {
                     .source(new SearchSourceBuilder()
                             .query(query)
                             .aggregation(aggregation)
+                            .size(0)
                     )
                     .indices(indices)
                     .types(type)

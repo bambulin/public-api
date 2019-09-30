@@ -3,16 +3,23 @@ package io.whalebone.publicapi.ejb;
 import com.google.gson.Gson;
 import io.whalebone.publicapi.ejb.criteria.DnsTimelineCriteria;
 import io.whalebone.publicapi.ejb.criteria.EventsCriteria;
+import io.whalebone.publicapi.ejb.criteria.ResolverMetricsCriteria;
 import io.whalebone.publicapi.ejb.dto.ActiveIoCStatsDTO;
 import io.whalebone.publicapi.ejb.dto.DnsTimeBucketDTO;
 import io.whalebone.publicapi.ejb.dto.EventDTO;
+import io.whalebone.publicapi.ejb.dto.ResolverMetricsDTO;
 import io.whalebone.publicapi.ejb.elastic.*;
+import io.whalebone.publicapi.ejb.elastic.producer.ResolverMetricsDTOProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -36,6 +43,9 @@ public class PublicApiService {
     public static final String DNSSEC_INDEX_PREFIX = "dnssec-";
     public static final String DNSSEC_INDEX_TIME_FORMAT = "yyyy.MM.'*'";
     public static final String DNSSEC_TYPE = "log";
+    public static final String RESOLVER_INDEX_PREFIX = "resolver-";
+    public static final String RESOLVER_INDEX_TIME_FORMAT = "yyyy.MM.'*'";
+    public static final String RESOLVER_TYPE = "sysinfo";
 
     @EJB
     private ElasticService elasticService;
@@ -142,8 +152,57 @@ public class PublicApiService {
         return iocElasticService.getActiveIoCStats();
     }
 
+    public List<ResolverMetricsDTO> resolverMetrics(ResolverMetricsCriteria criteria) {
+        ZonedDateTime timestampTo = now();
+        ZonedDateTime timestampFrom = timestampTo.minusDays(criteria.getDays());
+        String[] indices = ElasticUtils.indicesByMonths(RESOLVER_INDEX_PREFIX, RESOLVER_INDEX_TIME_FORMAT, timestampFrom, timestampTo);
+
+        BoolQueryBuilder search = QueryBuilders.boolQuery()
+                .filter(QueryBuilders.termQuery("client_id", criteria.getClientId()))
+                .filter(QueryBuilders.rangeQuery("timestamp")
+                        .gte(formatTimestamp(timestampFrom))
+                        .lte(formatTimestamp(timestampTo))
+                );
+        if (criteria.getResolverId() != null) {
+            search.filter(QueryBuilders.termQuery("resolver_id", criteria.getResolverId()));
+        }
+
+        TermsAggregationBuilder byResolverIdAgg = AggregationBuilders.terms("by_resolver_id")
+                .field("resolver_id")
+                .subAggregation(AggregationBuilders.topHits(ResolverMetricsDTOProducer.HOSTNAME_AGG)
+                        .sort(SortBuilders.fieldSort("timestamp").order(SortOrder.DESC))
+                        .fetchSource(ResolverMetricsDTOProducer.HOSTNAME_FIELD, null)
+                        .size(1)
+                )
+                .subAggregation(AggregationBuilders.dateHistogram(ResolverMetricsDTOProducer.HISTOGRAM_AGG)
+                        .field("timestamp")
+                        .minDocCount(1)
+                        .dateHistogramInterval(BucketIntervalMapper.getMappedInterval(criteria.getInterval()))
+                        .subAggregation(AggregationBuilders.avg(ResolverMetricsDTOProducer.CPU_USAGE_AGG).field("cpu.usage"))
+                        .subAggregation(AggregationBuilders.avg(ResolverMetricsDTOProducer.MEM_USAGE_AGG).field("memory.usage"))
+                        .subAggregation(AggregationBuilders.avg(ResolverMetricsDTOProducer.HDD_USAGE_AGG).field("hdd.usage"))
+                        .subAggregation(AggregationBuilders.avg(ResolverMetricsDTOProducer.SWAP_USAGE_AGG).field("swap.usage"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_1MS_AGG).field("resolver.answer.1ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_10MS_AGG).field("resolver.answer.10ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_50MS_AGG).field("resolver.answer.50ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_100MS_AGG).field("resolver.answer.100ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_250MS_AGG).field("resolver.answer.250ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_500MS_AGG).field("resolver.answer.500ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_1000MS_AGG).field("resolver.answer.1000ms"))
+                        .subAggregation(AggregationBuilders.sum(ResolverMetricsDTOProducer.ANSWER_1500MS_AGG).field("resolver.answer.1500ms"))
+                        .subAggregation(AggregationBuilders.scriptedMetric(ResolverMetricsDTOProducer.CHECK_AGG)
+                                .initScript(new Script("state.check = true"))
+                                .mapScript(new Script("state.check = state.check && doc['check.resolve'].value == 'ok' && doc['check.port'].value == 'ok'"))
+                                .combineScript(new Script("return state"))
+                                .reduceScript(new Script("boolean check = true; for (s in states) { if (s != null) {check = check && s['check'] }} return check"))
+                        )
+                );
+
+        return elasticService.searchWithAggregation(search, byResolverIdAgg, indices, RESOLVER_TYPE, ResolverMetricsDTOProducer::produce);
+    }
+
     private void prepareFieldParamQuery(String fieldName, Object value, List<QueryBuilder> queries,
-                                               boolean canContainWildcard) {
+                                        boolean canContainWildcard) {
         if (value != null) {
             if (value.getClass().isEnum()) {
                 queries.add(QueryBuilders.termQuery(fieldName, gson.toJson(value)));
@@ -163,7 +222,7 @@ public class PublicApiService {
         return gson.toJson(enumConstant).replaceAll("\"", "");
     }
 
-    public static ZonedDateTime now() {
+    private static ZonedDateTime now() {
         return ZonedDateTime.now().withSecond(0).withNano(0);
     }
 

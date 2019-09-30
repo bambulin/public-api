@@ -1,15 +1,24 @@
 package io.whalebone.publicapi.ejb.criteria;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-abstract class ClientCriteria {
-    private String clientId;
+abstract class ClientCriteria extends DaysRestrictedCriteria {
     private String domain;
-    private int days;
     private Integer resolverId;
     private String clientIp;
     private String deviceId;
+
+    ClientCriteria(final String clientId,
+                   final int days,
+                   final String domain,
+                   final Integer resolverId,
+                   final String clientIp,
+                   final String deviceId) {
+        super(clientId, days);
+        this.domain = domain;
+        this.resolverId = resolverId;
+        this.clientIp = clientIp;
+        this.deviceId = deviceId;
+    }
 }
